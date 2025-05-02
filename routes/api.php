@@ -11,6 +11,10 @@ Route::group(['prefix' => 'v1'], function () {
     Route::group(['middleware' => [JWTVerify::class]], function () {
         Route::group(['prefix' => 'category'], function () {
             Route::post('/', [CategoryController::class, 'create']);
+            Route::get('/', [CategoryController::class, 'findAll']);
+            Route::get('/{id}', [CategoryController::class, 'findByID']);
+            Route::put('/{id}', [CategoryController::class, 'patch']);
+            Route::delete('/{id}', [CategoryController::class, 'delete']);
         });
     });
 });
