@@ -21,7 +21,7 @@ class JWTAuth
             'exp' => $expirationTime,
             'data' => [
                 'username' => $claims->getUsername(),
-                'role' => $claims->getRole(),
+                'roles' => $claims->getRole(),
             ],
         ];
         return JWT::encode($payload, $secretKey, 'HS256');
@@ -36,6 +36,44 @@ class JWTAuth
                 'success' => true,
                 'message' => 'success decode token',
                 'data' => (array)$decoded->claims
+            ];
+        } catch (ExpiredException $e) {
+            return [
+                'success' => false,
+                'message' => 'token expired',
+                'data' => null
+            ];
+        } catch (\Exception $e) {
+            return [
+                'success' => false,
+                'message' => 'invalid token',
+                'data' => null
+            ];
+        }
+    }
+
+    public static function encodeRefreshToken($subject)
+    {
+        $secretKey = config('jwt.secret_refresh');
+        $issuedAt = time();
+        $expirationTime = $issuedAt + (30 * 24 * 60 * 60); //expired on 30 days
+        $payload = array(
+            'iat' => $issuedAt,
+            'exp' => $expirationTime,
+            'sub' => $subject,
+        );
+        return JWT::encode($payload, $secretKey, 'HS256');
+    }
+
+    public static function decodeRefreshToken($jwt)
+    {
+        $secretKey = config('jwt.secret_refresh');
+        try {
+            $decoded = JWT::decode($jwt, new Key($secretKey, 'HS256'));
+            return [
+                'success' => true,
+                'message' => 'success decode refresh token',
+                'data' => $decoded->sub
             ];
         } catch (ExpiredException $e) {
             return [
