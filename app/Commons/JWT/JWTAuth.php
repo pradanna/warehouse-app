@@ -19,7 +19,7 @@ class JWTAuth
             'iat' => $issuedAt,
             'iss' => $issuer,
             'exp' => $expirationTime,
-            'data' => [
+            'claims' => [
                 'username' => $claims->getUsername(),
                 'roles' => $claims->getRole(),
             ],
