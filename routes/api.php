@@ -3,6 +3,7 @@
 use App\Http\Controllers\Web\AuthController;
 use App\Http\Controllers\Web\CategoryController;
 use App\Http\Controllers\Web\ItemController;
+use App\Http\Controllers\Web\StockController;
 use App\Http\Controllers\Web\UnitController;
 use App\Http\Middleware\JWTVerify;
 use Illuminate\Support\Facades\Route;
@@ -33,6 +34,14 @@ Route::group(['prefix' => 'v1'], function () {
             Route::get('/{id}', [ItemController::class, 'findByID']);
             Route::put('/{id}', [ItemController::class, 'patch']);
             Route::delete('/{id}', [ItemController::class, 'delete']);
+        });
+
+        Route::group(['prefix' => 'stock'], function () {
+            Route::post('/', [StockController::class, 'create']);
+            Route::get('/', [StockController::class, 'findAll']);
+            Route::get('/{id}', [StockController::class, 'findByID']);
+            Route::put('/{id}', [StockController::class, 'patch']);
+            Route::delete('/{id}', [StockController::class, 'delete']);
         });
     });
 });
