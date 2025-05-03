@@ -15,14 +15,8 @@ class Item extends Model
 
     protected $fillable = [
         'category_id',
-        'sku',
         'name',
         'description',
-        'unit',
-        'price',
-        'current_stock',
-        'min_stock',
-        'max_stock'
     ];
 
     // Relasi ke model Category (banyak ke 1)

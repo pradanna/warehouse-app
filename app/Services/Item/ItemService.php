@@ -20,14 +20,8 @@ class ItemService implements ItemServiceInterface
             $schema->hydrateBody();
             $data = [
                 'category_id' => $schema->getCategoryId(),
-                'sku' => $schema->getSku(),
                 'name' => $schema->getName(),
                 'description' => $schema->getDescription(),
-                'unit' => $schema->getUnit(),
-                'price' =>  $schema->getPrice(),
-                'current_stock' => $schema->getCurrentStock(),
-                'min_stock' => $schema->getMinStock(),
-                'max_stock' => $schema->getMaxStock()
             ];
             Item::create($data);
             return ServiceResponse::statusCreated("successfully create item");
@@ -40,19 +34,75 @@ class ItemService implements ItemServiceInterface
     {
         try {
             $queryParams->hydrateQuery();
-            $query = Item::with(['category'])
+            $query = Item::with(['category:id,name'])
                 ->when($queryParams->getParam(), function ($q) use ($queryParams) {
                     /** @var Builder $q */
                     return $q->where('name', 'LIKE', "%{$queryParams->getParam()}%");
-                });
+                })
+                ->orderBy('name', 'ASC');
             $pagination = new Pagination();
             $pagination->setQuery($query)
                 ->setPage($queryParams->getPage())
                 ->setPerPage($queryParams->getPerPage())
                 ->paginate();
-            $data = $pagination->getData();
+            $data = $pagination->getData()->makeHidden(['created_at', 'updated_at']);
             $meta = $pagination->getJsonMeta();
             return ServiceResponse::statusOK("successfully get items", $data, $meta);
+        } catch (\Throwable $e) {
+            return ServiceResponse::internalServerError($e->getMessage());
+        }
+    }
+
+    public function findByID($id): ServiceResponse
+    {
+        try {
+            $item = Item::with(['category:id,name'])
+                ->where('id', '=', $id)
+                ->first();
+            if (!$item) {
+                return ServiceResponse::notFound("item not found");
+            }
+            $item->makeHidden(['created_at', 'updated_at']);
+            return ServiceResponse::statusOK("successfully get item", $item);
+        } catch (\Throwable $e) {
+            return ServiceResponse::internalServerError($e->getMessage());
+        }
+    }
+
+    public function patch($id, ItemSchema $schema): ServiceResponse
+    {
+        try {
+            $validator = $schema->validate();
+            if ($validator->fails()) {
+                return ServiceResponse::unprocessableEntity($validator->errors()->toArray());
+            }
+            $schema->hydrateBody();
+
+            $item = Item::with(['category:id,name'])
+                ->where('id', '=', $id)
+                ->first();
+            if (!$item) {
+                return ServiceResponse::notFound("item not found");
+            }
+
+            $data = [
+                'category_id' => $schema->getCategoryId(),
+                'name' => $schema->getName(),
+                'description' => $schema->getDescription(),
+            ];
+
+            $item->update($data);
+            return ServiceResponse::statusOK("successfully update item");
+        } catch (\Throwable $e) {
+            return ServiceResponse::internalServerError($e->getMessage());
+        }
+    }
+
+    public function delete($id): ServiceResponse
+    {
+        try {
+            Item::destroy($id);
+            return ServiceResponse::statusOK("successfully delete item");
         } catch (\Throwable $e) {
             return ServiceResponse::internalServerError($e->getMessage());
         }
