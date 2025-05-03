@@ -2,31 +2,27 @@
 
 namespace App\Models;
 
+use App\Traits\Uuid;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class Item extends Model
 {
-    use HasFactory;
+    use HasFactory, Uuid;
 
-    // Menentukan nama tabel jika tidak mengikuti konvensi Laravel (tabel 'items')
-    protected $table = 'items';
+    protected $keyType = 'string';
+    public $incrementing = false;
 
-    // Kolom yang dapat diisi massal (fillable)
     protected $fillable = [
-        'id',
-        'name',
+        'category_id',
         'sku',
+        'name',
         'description',
         'unit',
-        'category_id',
-        'price1',
-        'price2',
-        'purchase_price',
+        'price',
         'current_stock',
         'min_stock',
-        'max_stock',
-        'status'
+        'max_stock'
     ];
 
     // Relasi ke model Category (banyak ke 1)

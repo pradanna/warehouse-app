@@ -18,9 +18,10 @@ class Pagination
         $totalRows = $this->query->count();
         $totalPages = ceil($totalRows / $this->perPage);
         $offset = ($this->page - 1) * $this->perPage;
-        $data = $this->query->limit($this->perPage)
-            ->offset($offset)
-            ->get();
+        $query = $this->query->limit($this->perPage)
+            ->offset($offset);
+        $this->setQuery($query);
+        $data =  $query->get();
         $this->setData($data);
         $this->setMeta(new MetaPagination($this->page, $this->perPage, $totalRows, $totalPages));
         $jsonMeta = MetaPagination::toJSON($this->page, $this->perPage, $totalRows, $totalPages);
