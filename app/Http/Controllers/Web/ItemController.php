@@ -37,4 +37,25 @@ class ItemController extends CustomController
         $response = $this->service->findAll($query);
         return $this->toJSON($response);
     }
+
+    public function findByID($id)
+    {
+        $response = $this->service->findByID($id);
+        return $this->toJSON($response);
+    }
+
+    public function patch($id)
+    {
+        $body = $this->jsonBody();
+        $schema = new ItemSchema();
+        $schema->hydrateSchemaBody($body);
+        $response = $this->service->patch($id, $schema);
+        return $this->toJSON($response);
+    }
+
+    public function delete($id)
+    {
+        $response = $this->service->delete($id);
+        return $this->toJSON($response);
+    }
 }
