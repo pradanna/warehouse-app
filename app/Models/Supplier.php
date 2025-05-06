@@ -2,31 +2,21 @@
 
 namespace App\Models;
 
+use App\Traits\Uuid;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class Supplier extends Model
 {
-    use HasFactory;
+    use HasFactory, Uuid;
 
-    // Kolom yang dapat diisi (fillable)
-    protected $fillable = [
-        'id',
-        'name',
-        'contact_person',
-        'email',
-        'phone',
-        'address',
-    ];
-
-    // Menentukan tipe data untuk kolom UUID
     protected $keyType = 'string';
     public $incrementing = false;
 
-    // Mengatur format tanggal
-    protected $dates = [
-        'created_at',
-        'updated_at',
+    protected $fillable = [
+        'name',
+        'address',
+        'contact'
     ];
 
     /**
