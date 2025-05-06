@@ -2,15 +2,16 @@
 
 namespace App\Models;
 
+use App\Traits\Uuid;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class PurchaseItem extends Model
 {
-    use HasFactory;
+    use HasFactory, Uuid;
 
-    // Menentukan tabel yang digunakan oleh model ini
-    protected $table = 'purchase_items';
+    protected $keyType = 'string';
+    public $incrementing = false;
 
     // Menentukan kolom yang dapat diisi
     protected $fillable = [
@@ -19,6 +20,12 @@ class PurchaseItem extends Model
         'quantity',
         'price',
         'total',
+    ];
+
+    protected $casts = [
+        'quantity' => 'float',
+        'price' => 'float',
+        'total' => 'float'
     ];
 
     /**

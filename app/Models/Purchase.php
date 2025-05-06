@@ -2,24 +2,35 @@
 
 namespace App\Models;
 
+use App\Traits\Uuid;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class Purchase extends Model
 {
-    use HasFactory;
+    use HasFactory, Uuid;
 
-    // Menentukan tabel yang digunakan oleh model ini
-    protected $table = 'purchases';
+    protected $keyType = 'string';
+    public $incrementing = false;
 
-    // Menentukan kolom yang dapat diisi
     protected $fillable = [
         'supplier_id',
-        'purchase_date',
-        'total_amount',
-        'payment_status',
-        'status',
-        'receipt_image',
+        'date',
+        'reference_number',
+        'sub_total',
+        'discount',
+        'tax',
+        'total',
+        'description',
+        'payment_type',
+        'payment_status'
+    ];
+
+    protected $casts = [
+        'sub_total' => 'float',
+        'discount' => 'float',
+        'tax' => 'float',
+        'total' => 'float',
     ];
 
     /**
