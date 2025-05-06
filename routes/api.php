@@ -5,6 +5,7 @@ use App\Http\Controllers\Web\CategoryController;
 use App\Http\Controllers\Web\ItemController;
 use App\Http\Controllers\Web\OutletController;
 use App\Http\Controllers\Web\StockController;
+use App\Http\Controllers\Web\SupplierController;
 use App\Http\Controllers\Web\UnitController;
 use App\Http\Middleware\JWTVerify;
 use Illuminate\Support\Facades\Route;
@@ -51,6 +52,14 @@ Route::group(['prefix' => 'v1'], function () {
             Route::get('/{id}', [OutletController::class, 'findByID']);
             Route::put('/{id}', [OutletController::class, 'patch']);
             Route::delete('/{id}', [OutletController::class, 'delete']);
+        });
+
+        Route::group(['prefix' => 'supplier'], function () {
+            Route::post('/', [SupplierController::class, 'create']);
+            Route::get('/', [SupplierController::class, 'findAll']);
+            Route::get('/{id}', [SupplierController::class, 'findByID']);
+            Route::put('/{id}', [SupplierController::class, 'patch']);
+            Route::delete('/{id}', [SupplierController::class, 'delete']);
         });
     });
 });

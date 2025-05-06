@@ -16,8 +16,7 @@ return new class extends Migration
         Schema::create('suppliers', function (Blueprint $table) {
             $table->uuid('id')->primary(); // Primary key untuk supplier
             $table->string('name'); // Nama supplier
-            $table->string('contact_person')->nullable(); // Nama kontak person (opsional)
-            $table->string('phone')->nullable(); // Nomor telepon supplier (opsional)
+            $table->string('contact')->nullable(); // Nomor telepon supplier (opsional)
             $table->text('address')->nullable(); // Alamat supplier (opsional)
             $table->timestamps(); // created_at dan updated_at
         });
