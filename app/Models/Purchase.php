@@ -39,15 +39,20 @@ class Purchase extends Model
      */
     public function supplier()
     {
-        return $this->belongsTo(Supplier::class);
+        return $this->belongsTo(Supplier::class, 'supplier_id');
     }
 
     /**
      * Relasi dengan PurchaseItem (one-to-many)
      * Setiap purchase memiliki banyak purchase_item
      */
-    public function purchaseItems()
+    public function items()
     {
-        return $this->hasMany(PurchaseItem::class);
+        return $this->hasMany(PurchaseItem::class, 'purchase_id');
+    }
+
+    public function payment()
+    {
+        return $this->hasOne(PurchasePayment::class, 'purchase_id');
     }
 }

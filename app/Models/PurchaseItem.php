@@ -17,6 +17,7 @@ class PurchaseItem extends Model
     protected $fillable = [
         'purchase_id',
         'item_id',
+        'unit_id',
         'quantity',
         'price',
         'total',
@@ -34,7 +35,7 @@ class PurchaseItem extends Model
      */
     public function purchase()
     {
-        return $this->belongsTo(Purchase::class);
+        return $this->belongsTo(Purchase::class, 'purchase_id');
     }
 
     /**
@@ -43,6 +44,11 @@ class PurchaseItem extends Model
      */
     public function item()
     {
-        return $this->belongsTo(Item::class);
+        return $this->belongsTo(Item::class, 'item_id');
+    }
+
+    public function unit()
+    {
+        return $this->belongsTo(Unit::class, 'unit_id');
     }
 }

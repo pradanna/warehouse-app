@@ -54,7 +54,12 @@ class StockService implements StockServiceInterface
                 ->setPage($queryParams->getPage())
                 ->setPerPage($queryParams->getPerPage())
                 ->paginate();
-            $data = $pagination->getData()->makeHidden(['created_at', 'updated_at']);
+            $data = $pagination->getData()->makeHidden([
+                'created_at',
+                'updated_at',
+                'item_id',
+                'unit_id'
+            ]);
             $meta = $pagination->getJsonMeta();
             return ServiceResponse::statusOK("successfully get stocks", $data, $meta);
         } catch (\Throwable $e) {
@@ -71,7 +76,12 @@ class StockService implements StockServiceInterface
             if (!$stock) {
                 return ServiceResponse::notFound("stock not found");
             }
-            $stock->makeHidden(['created_at', 'updated_at']);
+            $stock->makeHidden([
+                'created_at',
+                'updated_at',
+                'item_id',
+                'unit_id'
+            ]);
             return ServiceResponse::statusOK("successfully get stock", $stock);
         } catch (\Throwable $e) {
             return ServiceResponse::internalServerError($e->getMessage());

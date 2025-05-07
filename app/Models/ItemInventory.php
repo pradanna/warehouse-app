@@ -25,6 +25,11 @@ class ItemInventory extends Model
         'max_stock'
     ];
 
+    protected $casts = [
+        'current_stock' => 'float',
+        'min_stock' => 'float',
+        'max_stock' => 'float',
+    ];
     public function item()
     {
         return $this->belongsTo(Item::class, 'item_id');
