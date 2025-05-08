@@ -1,0 +1,33 @@
+<?php
+
+namespace Database\Seeders;
+
+use App\Models\Supplier;
+use Illuminate\Database\Console\Seeds\WithoutModelEvents;
+use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Log;
+
+class SupplierSeeder extends Seeder
+{
+    /**
+     * Run the database seeds.
+     */
+    public function run(): void
+    {
+        try {
+            //code...
+            $path = database_path('seeders/data/supplier.json');
+            $json = File::get($path);
+            $data = json_decode($json, true);
+            foreach ($data as $item) {
+                Supplier::updateOrCreate(
+                    ['id' => $item['id']],
+                    $item
+                );
+            }
+        } catch (\Exception $e) {
+            Log::error("error seed units " . $e->getMessage());
+        }
+    }
+}

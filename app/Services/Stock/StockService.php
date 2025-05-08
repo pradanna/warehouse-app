@@ -5,8 +5,8 @@ namespace App\Services\Stock;
 use App\Schemas\Stock\StockSchema;
 use App\Commons\Http\ServiceResponse;
 use App\Commons\Pagination\Pagination;
+use App\Models\Inventory;
 use App\Models\Item;
-use App\Models\ItemInventory;
 use App\Schemas\Stock\StockQuery;
 
 class StockService implements StockServiceInterface
@@ -29,7 +29,7 @@ class StockService implements StockServiceInterface
                 'min_stock' => $schema->getMinStock(),
                 'max_stock' => $schema->getMaxStock()
             ];
-            ItemInventory::create($data);
+            Inventory::create($data);
             return ServiceResponse::statusCreated("successfully create item");
         } catch (\Throwable $e) {
             return ServiceResponse::internalServerError($e->getMessage());
@@ -40,7 +40,7 @@ class StockService implements StockServiceInterface
     {
         try {
             $queryParams->hydrateQuery();
-            $query = ItemInventory::with(['item:id,name', 'unit:id,name'])
+            $query = Inventory::with(['item:id,name', 'unit:id,name'])
                 ->when($queryParams->getParam(), function ($q) use ($queryParams) {
                     /** @var Builder $q */
                     return $q->whereRelation('item', 'name', 'LIKE', "%{$queryParams->getParam()}%");
@@ -54,7 +54,12 @@ class StockService implements StockServiceInterface
                 ->setPage($queryParams->getPage())
                 ->setPerPage($queryParams->getPerPage())
                 ->paginate();
-            $data = $pagination->getData()->makeHidden(['created_at', 'updated_at']);
+            $data = $pagination->getData()->makeHidden([
+                'created_at',
+                'updated_at',
+                'item_id',
+                'unit_id'
+            ]);
             $meta = $pagination->getJsonMeta();
             return ServiceResponse::statusOK("successfully get stocks", $data, $meta);
         } catch (\Throwable $e) {
@@ -65,13 +70,18 @@ class StockService implements StockServiceInterface
     public function findByID($id): ServiceResponse
     {
         try {
-            $stock = ItemInventory::with(['item:id,name', 'unit:id,name'])
+            $stock = Inventory::with(['item:id,name', 'unit:id,name'])
                 ->where('id', '=', $id)
                 ->first();
             if (!$stock) {
                 return ServiceResponse::notFound("stock not found");
             }
-            $stock->makeHidden(['created_at', 'updated_at']);
+            $stock->makeHidden([
+                'created_at',
+                'updated_at',
+                'item_id',
+                'unit_id'
+            ]);
             return ServiceResponse::statusOK("successfully get stock", $stock);
         } catch (\Throwable $e) {
             return ServiceResponse::internalServerError($e->getMessage());
@@ -87,7 +97,7 @@ class StockService implements StockServiceInterface
             }
             $schema->hydrateBody();
 
-            $stock = ItemInventory::with(['item:id,name', 'unit:id,name'])
+            $stock = Inventory::with(['item:id,name', 'unit:id,name'])
                 ->where('id', '=', $id)
                 ->first();
             if (!$stock) {
@@ -114,7 +124,7 @@ class StockService implements StockServiceInterface
     public function delete($id): ServiceResponse
     {
         try {
-            ItemInventory::destroy($id);
+            Inventory::destroy($id);
             return ServiceResponse::statusOK("successfully delete stock");
         } catch (\Throwable $e) {
             return ServiceResponse::internalServerError($e->getMessage());

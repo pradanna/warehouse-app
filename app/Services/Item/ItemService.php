@@ -45,7 +45,7 @@ class ItemService implements ItemServiceInterface
                 ->setPage($queryParams->getPage())
                 ->setPerPage($queryParams->getPerPage())
                 ->paginate();
-            $data = $pagination->getData()->makeHidden(['created_at', 'updated_at']);
+            $data = $pagination->getData()->makeHidden(['created_at', 'updated_at', 'category_id']);
             $meta = $pagination->getJsonMeta();
             return ServiceResponse::statusOK("successfully get items", $data, $meta);
         } catch (\Throwable $e) {
@@ -62,7 +62,7 @@ class ItemService implements ItemServiceInterface
             if (!$item) {
                 return ServiceResponse::notFound("item not found");
             }
-            $item->makeHidden(['created_at', 'updated_at']);
+            $item->makeHidden(['created_at', 'updated_at', 'category_id']);
             return ServiceResponse::statusOK("successfully get item", $item);
         } catch (\Throwable $e) {
             return ServiceResponse::internalServerError($e->getMessage());
