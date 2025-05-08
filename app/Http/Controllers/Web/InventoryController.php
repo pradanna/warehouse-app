@@ -2,28 +2,26 @@
 
 namespace App\Http\Controllers\Web;
 
-use App\Http\Controllers\Controller;
 use App\Http\Controllers\CustomController;
-use App\Schemas\Stock\StockQuery;
-use App\Schemas\Stock\StockSchema;
-use App\Services\Stock\StockService;
-use Illuminate\Http\Request;
+use App\Schemas\Inventory\InventoryQuery;
+use App\Schemas\Inventory\InventorySchema;
+use App\Services\Inventory\InventoryService;
 
-class StockController extends CustomController
+class InventoryController extends CustomController
 {
-    /** @var StockService $service */
+    /** @var InventoryService $service */
     private $service;
 
     public function __construct()
     {
         parent::__construct();
-        $this->service = new StockService();
+        $this->service = new InventoryService();
     }
 
     public function create()
     {
         $body = $this->jsonBody();
-        $schema = new StockSchema();
+        $schema = new InventorySchema();
         $schema->hydrateSchemaBody($body);
         $response = $this->service->create($schema);
         return $this->toJSON($response);
@@ -32,7 +30,7 @@ class StockController extends CustomController
     public function findAll()
     {
         $queryParams = $this->queryParams();
-        $query = new StockQuery();
+        $query = new InventoryQuery();
         $query->hydrateSchemaQuery($queryParams);
         $response = $this->service->findAll($query);
         return $this->toJSON($response);
@@ -47,7 +45,7 @@ class StockController extends CustomController
     public function patch($id)
     {
         $body = $this->jsonBody();
-        $schema = new StockSchema();
+        $schema = new InventorySchema();
         $schema->hydrateSchemaBody($body);
         $response = $this->service->patch($id, $schema);
         return $this->toJSON($response);

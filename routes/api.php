@@ -2,10 +2,10 @@
 
 use App\Http\Controllers\Web\AuthController;
 use App\Http\Controllers\Web\CategoryController;
+use App\Http\Controllers\Web\InventoryController;
 use App\Http\Controllers\Web\ItemController;
 use App\Http\Controllers\Web\OutletController;
 use App\Http\Controllers\Web\PurchaseController;
-use App\Http\Controllers\Web\StockController;
 use App\Http\Controllers\Web\SupplierController;
 use App\Http\Controllers\Web\UnitController;
 use App\Http\Middleware\JWTVerify;
@@ -39,12 +39,12 @@ Route::group(['prefix' => 'v1'], function () {
             Route::delete('/{id}', [ItemController::class, 'delete']);
         });
 
-        Route::group(['prefix' => 'stock'], function () {
-            Route::post('/', [StockController::class, 'create']);
-            Route::get('/', [StockController::class, 'findAll']);
-            Route::get('/{id}', [StockController::class, 'findByID']);
-            Route::put('/{id}', [StockController::class, 'patch']);
-            Route::delete('/{id}', [StockController::class, 'delete']);
+        Route::group(['prefix' => 'inventory'], function () {
+            Route::post('/', [InventoryController::class, 'create']);
+            Route::get('/', [InventoryController::class, 'findAll']);
+            Route::get('/{id}', [InventoryController::class, 'findByID']);
+            Route::put('/{id}', [InventoryController::class, 'patch']);
+            Route::delete('/{id}', [InventoryController::class, 'delete']);
         });
 
         Route::group(['prefix' => 'outlet'], function () {
