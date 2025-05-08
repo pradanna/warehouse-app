@@ -1,17 +1,17 @@
 <?php
 
-namespace App\Services\Stock;
+namespace App\Services\Inventory;
 
-use App\Schemas\Stock\StockSchema;
+use App\Schemas\Inventory\InventorySchema;
 use App\Commons\Http\ServiceResponse;
 use App\Commons\Pagination\Pagination;
 use App\Models\Inventory;
 use App\Models\Item;
-use App\Schemas\Stock\StockQuery;
+use App\Schemas\Inventory\InventoryQuery;
 
-class StockService implements StockServiceInterface
+class InventoryService implements InventoryServiceInterface
 {
-    public function create(StockSchema $schema): ServiceResponse
+    public function create(InventorySchema $schema): ServiceResponse
     {
         try {
             $validator = $schema->validate();
@@ -30,13 +30,13 @@ class StockService implements StockServiceInterface
                 'max_stock' => $schema->getMaxStock()
             ];
             Inventory::create($data);
-            return ServiceResponse::statusCreated("successfully create item");
+            return ServiceResponse::statusCreated("successfully create inventory");
         } catch (\Throwable $e) {
             return ServiceResponse::internalServerError($e->getMessage());
         }
     }
 
-    public function findAll(StockQuery $queryParams): ServiceResponse
+    public function findAll(InventoryQuery $queryParams): ServiceResponse
     {
         try {
             $queryParams->hydrateQuery();
@@ -61,7 +61,7 @@ class StockService implements StockServiceInterface
                 'unit_id'
             ]);
             $meta = $pagination->getJsonMeta();
-            return ServiceResponse::statusOK("successfully get stocks", $data, $meta);
+            return ServiceResponse::statusOK("successfully get inventories", $data, $meta);
         } catch (\Throwable $e) {
             return ServiceResponse::internalServerError($e->getMessage());
         }
@@ -82,13 +82,13 @@ class StockService implements StockServiceInterface
                 'item_id',
                 'unit_id'
             ]);
-            return ServiceResponse::statusOK("successfully get stock", $stock);
+            return ServiceResponse::statusOK("successfully get inventory", $stock);
         } catch (\Throwable $e) {
             return ServiceResponse::internalServerError($e->getMessage());
         }
     }
 
-    public function patch($id, StockSchema $schema): ServiceResponse
+    public function patch($id, InventorySchema $schema): ServiceResponse
     {
         try {
             $validator = $schema->validate();
@@ -97,11 +97,11 @@ class StockService implements StockServiceInterface
             }
             $schema->hydrateBody();
 
-            $stock = Inventory::with(['item:id,name', 'unit:id,name'])
+            $inventory = Inventory::with(['item:id,name', 'unit:id,name'])
                 ->where('id', '=', $id)
                 ->first();
-            if (!$stock) {
-                return ServiceResponse::notFound("stock not found");
+            if (!$inventory) {
+                return ServiceResponse::notFound("inventory not found");
             }
 
             $data = [
@@ -114,8 +114,8 @@ class StockService implements StockServiceInterface
                 'min_stock' => $schema->getMinStock(),
                 'max_stock' => $schema->getMaxStock()
             ];
-            $stock->update($data);
-            return ServiceResponse::statusOK("successfully update stock");
+            $inventory->update($data);
+            return ServiceResponse::statusOK("successfully update inventory");
         } catch (\Throwable $e) {
             return ServiceResponse::internalServerError($e->getMessage());
         }
@@ -125,7 +125,7 @@ class StockService implements StockServiceInterface
     {
         try {
             Inventory::destroy($id);
-            return ServiceResponse::statusOK("successfully delete stock");
+            return ServiceResponse::statusOK("successfully delete inventory");
         } catch (\Throwable $e) {
             return ServiceResponse::internalServerError($e->getMessage());
         }

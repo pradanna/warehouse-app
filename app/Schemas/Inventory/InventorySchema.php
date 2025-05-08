@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Schemas\Stock;
+namespace App\Schemas\Inventory;
 
 use App\Commons\Schema\BaseSchema;
 
-class StockSchema extends BaseSchema
+class InventorySchema extends BaseSchema
 {
     private $itemId;
     private $unitId;
