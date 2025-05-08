@@ -15,8 +15,9 @@ return new class extends Migration
             $table->uuid('id')->primary();
             $table->uuid('purchase_id');
             $table->date('date');
-            $table->text('description')->nullable();
             $table->enum('payment_type', ['cash', 'digital'])->default('cash');
+            $table->decimal('amount', 15, 2)->default(0);
+            $table->text('description')->nullable();
             $table->string('evidence')->nullable();
             $table->uuid('author_id');
             $table->timestamps();

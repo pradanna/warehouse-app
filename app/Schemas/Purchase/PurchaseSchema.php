@@ -31,17 +31,17 @@ class PurchaseSchema extends BaseSchema
             'total' => 'required|numeric',
             'description' => 'string',
             'payment_type' => 'required|in:cash,installment',
-            'payment_status' => 'required|in:unpaid,paid,partial',
             'items' => 'required|array|min:1',
             'items.*.item_id' => 'required|string',
             'items.*.unit_id' => 'required|string',
             'items.*.quantity' => 'required|numeric',
             'items.*.price' => 'required|numeric',
             'items.*.total' => 'required|numeric',
-            // 'payment' => 'required|array',
-            // 'payment.date' => 'required|date',
-            // 'payment.description' => 'string',
-            // 'payment.payment_type' => 'required|in:cash,digital',
+            'payment' => 'required|array',
+            'payment.date' => 'required|date',
+            'payment.description' => 'string',
+            'payment.payment_type' => 'required|in:cash,digital',
+            'payment.amount' => 'required|numeric',
         ];
     }
 
@@ -56,16 +56,17 @@ class PurchaseSchema extends BaseSchema
         $total = $this->body['total'];
         $description = $this->body['description'] ?? null;
         $paymentType = $this->body['payment_type'];
-        $paymentStatus = $this->body['payment_status'];
         $items = $this->body['items'];
-        // $paymentDate = $this->body['payment']['date'];
-        // $paymentDescription = $this->body['payment']['description'] ?? null;
-        // $paymentPaymentType = $this->body['payment']['payment_type'];
-        // $payment = [
-        //     'date' => $paymentDate,
-        //     'description' => $paymentDescription,
-        //     'payment_type' => $paymentPaymentType,
-        // ];
+        $paymentDate = $this->body['payment']['date'];
+        $paymentDescription = $this->body['payment']['description'] ?? null;
+        $paymentPaymentType = $this->body['payment']['payment_type'];
+        $paymentAmount = $this->body['payment']['amount'];
+        $payment = [
+            'date' => $paymentDate,
+            'description' => $paymentDescription,
+            'payment_type' => $paymentPaymentType,
+            'amount' => $paymentAmount
+        ];
 
         $dataItems = [];
         foreach ($items as $item) {
@@ -85,10 +86,10 @@ class PurchaseSchema extends BaseSchema
             ->setTax($tax)
             ->setTotal($total)
             ->setDescription($description)
-            ->setPaymentStatus($paymentStatus)
+            // ->setPaymentStatus($paymentStatus)
             ->setPaymentType($paymentType)
-            ->setItems($dataItems);
-            // ->setPayment($payment);
+            ->setItems($dataItems)
+            ->setPayment($payment);
     }
 
     /**

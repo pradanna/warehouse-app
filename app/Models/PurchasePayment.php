@@ -16,10 +16,15 @@ class PurchasePayment extends Model
     protected $fillable = [
         'purchase_id',
         'date',
-        'description',
         'payment_type',
+        'amount',
+        'description',
         'evidence',
         'author_id'
+    ];
+
+    protected $casts = [
+        'amount' => 'float'
     ];
 
     public function purchase()

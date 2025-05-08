@@ -6,9 +6,8 @@ use App\Traits\Uuid;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class ItemInventory extends Model
+class Inventory extends Model
 {
-    //
     use HasFactory, Uuid;
 
     protected $keyType = 'string';

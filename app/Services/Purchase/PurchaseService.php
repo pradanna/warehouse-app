@@ -5,6 +5,7 @@ namespace App\Services\Purchase;
 use App\Schemas\Purchase\PurchaseSchema;
 use App\Commons\Http\ServiceResponse;
 use App\Commons\Pagination\Pagination;
+use App\Models\Inventory;
 use App\Models\Purchase;
 use App\Schemas\Purchase\PurchaseQuery;
 use Illuminate\Support\Facades\Auth;
@@ -21,6 +22,11 @@ class PurchaseService implements PurchaseServiceInterface
                 return ServiceResponse::unprocessableEntity($validator->errors()->toArray());
             }
             $schema->hydrateBody();
+            $items = $schema->getItems();
+            $payment = $schema->getPayment();
+            $payment['author_id'] = Auth::user()->id;
+
+            $paymentStatus = 'paid';
             $data = [
                 'supplier_id' => $schema->getSupplierId(),
                 'date' => $schema->getDate(),
@@ -31,14 +37,16 @@ class PurchaseService implements PurchaseServiceInterface
                 'total' => $schema->getTotal(),
                 'description' => $schema->getDescription(),
                 'payment_type' => $schema->getPaymentType(),
-                'payment_status' => $schema->getPaymentStatus()
+                'payment_status' => $paymentStatus
             ];
             $purchase = Purchase::create($data);
-            $items = $schema->getItems();
-            // $payment = $schema->getPayment();
-            $payment['author_id'] = Auth::user()->id;
             $purchase->items()->createMany($items);
-            // $purchase->payment()->create($payment);
+            $purchase->payment()->create($payment);
+            $patchInventoryResponse = $this->patchInventory($items);
+            if (!$patchInventoryResponse['success']) {
+                DB::rollBack();
+                return ServiceResponse::badRequest($patchInventoryResponse['message']);
+            }
             DB::commit();
             return ServiceResponse::statusCreated("successfully create purchase");
         } catch (\Throwable $e) {
@@ -88,6 +96,37 @@ class PurchaseService implements PurchaseServiceInterface
             return ServiceResponse::statusOK("successfully get purchase", $item);
         } catch (\Throwable $e) {
             return ServiceResponse::internalServerError($e->getMessage());
+        }
+    }
+
+    private function patchInventory($items)
+    {
+        try {
+            foreach ($items as $item) {
+                $inventory = Inventory::where('item_id', $item['item_id'])
+                    ->where('unit_id', '=', $item['unit_id'])
+                    ->first();
+                if (!$inventory) {
+                    return [
+                        'success' => false,
+                        'message' => 'inventory not found'
+                    ];
+                }
+                $currentStock = $inventory->current_stock;
+                $newStock = $currentStock + $item['quantity'];
+                $inventory->update([
+                    'current_stock' => $newStock
+                ]);
+            }
+            return [
+                'success' => true,
+                'message' => 'successfully patch stock'
+            ];
+        } catch (\Throwable $e) {
+            return [
+                'success' => false,
+                'message' => $e->getMessage()
+            ];
         }
     }
 }
