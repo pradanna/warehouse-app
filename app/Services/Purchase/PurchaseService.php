@@ -43,12 +43,12 @@ class PurchaseService implements PurchaseServiceInterface
             $purchase = Purchase::create($data);
             $purchase->items()->createMany($items);
             $purchase->payment()->create($payment);
-            $inventoryService = new InventoryService();
-            $inventoryServiceResponse = $inventoryService->addStock($items);
-            if (!$inventoryServiceResponse->getStatus() !== 200) {
-                DB::rollBack();
-                return ServiceResponse::badRequest($inventoryServiceResponse->getMessage());
-            }
+            // $inventoryService = new InventoryService();
+            // $inventoryServiceResponse = $inventoryService->addStock($items);
+            // if (!$inventoryServiceResponse->getStatus() !== 200) {
+            //     DB::rollBack();
+            //     return ServiceResponse::badRequest($inventoryServiceResponse->getMessage());
+            // }
             DB::commit();
             return ServiceResponse::statusCreated("successfully create purchase");
         } catch (\Throwable $e) {

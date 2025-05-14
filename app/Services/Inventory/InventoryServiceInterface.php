@@ -14,5 +14,4 @@ interface InventoryServiceInterface
     public function findByID($id): Responsable;
     public function patch($id, InventorySchema $schema): Responsable;
     public function delete($id): Responsable;
-    public function addStock($items): ServiceResponse;
 }

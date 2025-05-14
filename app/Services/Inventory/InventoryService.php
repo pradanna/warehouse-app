@@ -142,25 +142,4 @@ class InventoryService implements InventoryServiceInterface
                 ->withMessage($e->getMessage());
         }
     }
-
-    public function addStock($items): ServiceResponse
-    {
-        try {
-            foreach ($items as $item) {
-                $inventory = Inventory::where('id', $item['inventory_id'])
-                    ->first();
-                if (!$inventory) {
-                    return ServiceResponse::notFound("inventory not found");
-                }
-                $currentStock = $inventory->current_stock;
-                $newStock = $currentStock + $item['quantity'];
-                $inventory->update([
-                    'current_stock' => $newStock
-                ]);
-            }
-            return ServiceResponse::statusOK("successfully add stock");
-        } catch (\Throwable $e) {
-            return ServiceResponse::internalServerError($e->getMessage());
-        }
-    }
 }
