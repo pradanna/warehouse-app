@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Schemas\Stock;
+namespace App\Schemas\Inventory;
 
 use App\Commons\Schema\BaseSchema;
 
-class StockQuery extends BaseSchema
+class InventoryQuery extends BaseSchema
 {
     private $param;
     private $page;

@@ -33,14 +33,14 @@ class CategoryController extends CustomController
         $queryParams = $this->queryParams();
         $query = new CategoryQuery();
         $query->hydrateSchemaQuery($queryParams);
-        $response = $this->service->findAll($query);
-        return $this->toJSON($response);
+        return $this->service->findAll($query);
+        // return $this->toJSON($response);
     }
 
     public function findByID($id)
     {
-        $response = $this->service->findByID($id);
-        return $this->toJSON($response);
+        return $this->service->findByID($id);
+        // return $this->toJSON($response);
     }
 
     public function patch($id)

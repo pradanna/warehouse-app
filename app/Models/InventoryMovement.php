@@ -6,7 +6,7 @@ use App\Traits\Uuid;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class PurchaseItem extends Model
+class InventoryMovement extends Model
 {
     use HasFactory, Uuid;
 
@@ -14,29 +14,19 @@ class PurchaseItem extends Model
     public $incrementing = false;
 
     protected $fillable = [
-        'purchase_id',
         'inventory_id',
+        'type',
         'quantity',
-        'price',
-        'total',
+        'description',
+        'movement_type',
+        'movement_reference'
     ];
 
     protected $casts = [
-        'quantity' => 'float',
-        'price' => 'float',
-        'total' => 'float'
+        'quantity' => 'float'
     ];
 
-    /**
-     * Relasi dengan Purchase (many-to-one)
-     * Setiap purchase_item berhubungan dengan satu purchase
-     */
-    public function purchase()
-    {
-        return $this->belongsTo(Purchase::class, 'purchase_id');
-    }
-
-    public function inventory()
+    public function invetory()
     {
         return $this->belongsTo(Inventory::class, 'inventory_id');
     }
