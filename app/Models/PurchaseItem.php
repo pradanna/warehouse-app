@@ -2,23 +2,29 @@
 
 namespace App\Models;
 
+use App\Traits\Uuid;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class PurchaseItem extends Model
 {
-    use HasFactory;
+    use HasFactory, Uuid;
 
-    // Menentukan tabel yang digunakan oleh model ini
-    protected $table = 'purchase_items';
+    protected $keyType = 'string';
+    public $incrementing = false;
 
-    // Menentukan kolom yang dapat diisi
     protected $fillable = [
         'purchase_id',
-        'item_id',
+        'inventory_id',
         'quantity',
         'price',
         'total',
+    ];
+
+    protected $casts = [
+        'quantity' => 'float',
+        'price' => 'float',
+        'total' => 'float'
     ];
 
     /**
@@ -27,15 +33,11 @@ class PurchaseItem extends Model
      */
     public function purchase()
     {
-        return $this->belongsTo(Purchase::class);
+        return $this->belongsTo(Purchase::class, 'purchase_id');
     }
 
-    /**
-     * Relasi dengan Item (many-to-one)
-     * Setiap purchase_item berhubungan dengan satu item
-     */
-    public function item()
+    public function inventory()
     {
-        return $this->belongsTo(Item::class);
+        return $this->belongsTo(Inventory::class, 'inventory_id');
     }
 }

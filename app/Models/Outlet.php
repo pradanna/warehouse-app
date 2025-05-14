@@ -2,22 +2,21 @@
 
 namespace App\Models;
 
+use App\Traits\Uuid;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class Outlet extends Model
 {
-    use HasFactory;
+    use HasFactory, Uuid;
 
-    protected $table = 'outlets';
+    protected $keyType = 'string';
+    public $incrementing = false;
 
     protected $fillable = [
-        'id',
         'name',
-        'owner_type',
         'address',
-        'contact',
-        'status'
+        'contact'
     ];
 
     // Relasi ke transaksi (1 ke banyak)
