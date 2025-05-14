@@ -2,17 +2,17 @@
 
 namespace App\Http\Resources\Category;
 
-use App\Commons\Http\BaseResource;
+use App\Commons\Http\BaseApiResource;
 use Illuminate\Http\Request;
 
-class CategoryResource extends BaseResource
+class CategoryResource extends BaseApiResource
 {
-    protected function toItemArray($item, Request $request): array
+    public function toArray(Request $request): array
     {
         return [
-            'id' => $item->id,
-            'name' => $item->name,
-            'items' => $item->whenLoaded('items')
+            'id' => $this->id,
+            'name' => $this->name,
+            'description' => $this->description,
         ];
     }
 }

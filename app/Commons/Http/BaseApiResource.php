@@ -3,10 +3,8 @@
 namespace App\Commons\Http;
 
 use Illuminate\Contracts\Support\Responsable;
-use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 
 class BaseApiResource extends JsonResource implements Responsable
 {
