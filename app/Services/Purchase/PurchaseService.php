@@ -8,6 +8,7 @@ use App\Commons\Pagination\Pagination;
 use App\Models\Inventory;
 use App\Models\Purchase;
 use App\Schemas\Purchase\PurchaseQuery;
+use App\Services\Inventory\InventoryService;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
@@ -42,10 +43,11 @@ class PurchaseService implements PurchaseServiceInterface
             $purchase = Purchase::create($data);
             $purchase->items()->createMany($items);
             $purchase->payment()->create($payment);
-            $patchInventoryResponse = $this->patchInventory($items);
-            if (!$patchInventoryResponse['success']) {
+            $inventoryService = new InventoryService();
+            $inventoryServiceResponse = $inventoryService->addStock($items);
+            if (!$inventoryServiceResponse->getStatus() !== 200) {
                 DB::rollBack();
-                return ServiceResponse::badRequest($patchInventoryResponse['message']);
+                return ServiceResponse::badRequest($inventoryServiceResponse->getMessage());
             }
             DB::commit();
             return ServiceResponse::statusCreated("successfully create purchase");

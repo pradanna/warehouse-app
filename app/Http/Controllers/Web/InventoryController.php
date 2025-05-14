@@ -23,8 +23,7 @@ class InventoryController extends CustomController
         $body = $this->jsonBody();
         $schema = new InventorySchema();
         $schema->hydrateSchemaBody($body);
-        $response = $this->service->create($schema);
-        return $this->toJSON($response);
+        return $this->service->create($schema);
     }
 
     public function findAll()
@@ -32,14 +31,12 @@ class InventoryController extends CustomController
         $queryParams = $this->queryParams();
         $query = new InventoryQuery();
         $query->hydrateSchemaQuery($queryParams);
-        $response = $this->service->findAll($query);
-        return $this->toJSON($response);
+        return $this->service->findAll($query);
     }
 
     public function findByID($id)
     {
-        $response = $this->service->findByID($id);
-        return $this->toJSON($response);
+        return $this->service->findByID($id);
     }
 
     public function patch($id)

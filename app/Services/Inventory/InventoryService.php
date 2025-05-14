@@ -2,21 +2,27 @@
 
 namespace App\Services\Inventory;
 
+use App\Commons\Http\HttpStatus;
 use App\Schemas\Inventory\InventorySchema;
 use App\Commons\Http\ServiceResponse;
 use App\Commons\Pagination\Pagination;
+use App\Http\Resources\Inventory\InventoryCollection;
+use App\Http\Resources\Inventory\InventoryResource;
 use App\Models\Inventory;
 use App\Models\Item;
 use App\Schemas\Inventory\InventoryQuery;
+use Illuminate\Contracts\Support\Responsable;
 
 class InventoryService implements InventoryServiceInterface
 {
-    public function create(InventorySchema $schema): ServiceResponse
+    public function create(InventorySchema $schema): Responsable
     {
         try {
             $validator = $schema->validate();
             if ($validator->fails()) {
-                return ServiceResponse::unprocessableEntity($validator->errors()->toArray());
+                return (new InventoryResource(null))
+                    ->withStatus(HttpStatus::UnprocessableEntity)
+                    ->withMessage("error validation");
             }
             $schema->hydrateBody();
             $data = [
@@ -30,17 +36,20 @@ class InventoryService implements InventoryServiceInterface
                 'max_stock' => $schema->getMaxStock()
             ];
             Inventory::create($data);
-            return ServiceResponse::statusCreated("successfully create inventory");
+            return (new InventoryResource(null))
+                ->withStatus(HttpStatus::Created)
+                ->withMessage("successfully create inventory");
         } catch (\Throwable $e) {
-            return ServiceResponse::internalServerError($e->getMessage());
+            return (new InventoryResource(null))
+                ->withMessage($e->getMessage());
         }
     }
 
-    public function findAll(InventoryQuery $queryParams): ServiceResponse
+    public function findAll(InventoryQuery $queryParams): Responsable
     {
         try {
             $queryParams->hydrateQuery();
-            $query = Inventory::with(['item:id,name', 'unit:id,name'])
+            $query = Inventory::with(['item', 'unit'])
                 ->when($queryParams->getParam(), function ($q) use ($queryParams) {
                     /** @var Builder $q */
                     return $q->whereRelation('item', 'name', 'LIKE', "%{$queryParams->getParam()}%");
@@ -49,42 +58,34 @@ class InventoryService implements InventoryServiceInterface
                     Item::select('name')
                         ->whereColumn('item_id', 'items.id')
                 );
-            $pagination = new Pagination();
-            $pagination->setQuery($query)
-                ->setPage($queryParams->getPage())
-                ->setPerPage($queryParams->getPerPage())
-                ->paginate();
-            $data = $pagination->getData()->makeHidden([
-                'created_at',
-                'updated_at',
-                'item_id',
-                'unit_id'
-            ]);
-            $meta = $pagination->getJsonMeta();
-            return ServiceResponse::statusOK("successfully get inventories", $data, $meta);
+            $data = $query->paginate($queryParams->getPerPage(), '*', 'page', $queryParams->getPage());
+            return (new InventoryCollection($data))
+                ->withStatus(HttpStatus::OK)
+                ->withMessage('successfully retrieved inventories');
         } catch (\Throwable $e) {
-            return ServiceResponse::internalServerError($e->getMessage());
+            return (new InventoryResource(null))
+                ->withStatus(HttpStatus::InternalServerError)
+                ->withMessage($e->getMessage());
         }
     }
 
-    public function findByID($id): ServiceResponse
+    public function findByID($id): Responsable
     {
         try {
-            $stock = Inventory::with(['item:id,name', 'unit:id,name'])
+            $inventory = Inventory::with(['item', 'unit'])
                 ->where('id', '=', $id)
                 ->first();
-            if (!$stock) {
-                return ServiceResponse::notFound("stock not found");
+            if (!$inventory) {
+                return (new InventoryResource(null))
+                    ->withStatus(HttpStatus::NotFound)
+                    ->withMessage("inventory not found");
             }
-            $stock->makeHidden([
-                'created_at',
-                'updated_at',
-                'item_id',
-                'unit_id'
-            ]);
-            return ServiceResponse::statusOK("successfully get inventory", $stock);
+            return (new InventoryResource($inventory))
+                ->withStatus(HttpStatus::OK)
+                ->withMessage("successfully retrieved inventory");
         } catch (\Throwable $e) {
-            return ServiceResponse::internalServerError($e->getMessage());
+            return (new InventoryResource(null))
+                ->withMessage($e->getMessage());
         }
     }
 
@@ -126,6 +127,27 @@ class InventoryService implements InventoryServiceInterface
         try {
             Inventory::destroy($id);
             return ServiceResponse::statusOK("successfully delete inventory");
+        } catch (\Throwable $e) {
+            return ServiceResponse::internalServerError($e->getMessage());
+        }
+    }
+
+    public function addStock($items): ServiceResponse
+    {
+        try {
+            foreach ($items as $item) {
+                $inventory = Inventory::where('id', $item['inventory_id'])
+                    ->first();
+                if (!$inventory) {
+                    return ServiceResponse::notFound("inventory not found");
+                }
+                $currentStock = $inventory->current_stock;
+                $newStock = $currentStock + $item['quantity'];
+                $inventory->update([
+                    'current_stock' => $newStock
+                ]);
+            }
+            return ServiceResponse::statusOK("successfully add stock");
         } catch (\Throwable $e) {
             return ServiceResponse::internalServerError($e->getMessage());
         }

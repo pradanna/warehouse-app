@@ -32,7 +32,7 @@ class PurchaseSchema extends BaseSchema
             'description' => 'string',
             'payment_type' => 'required|in:cash,installment',
             'items' => 'required|array|min:1',
-            'items.*.item_id' => 'required|string',
+            'items.*.inventory_id' => 'required|string',
             'items.*.unit_id' => 'required|string',
             'items.*.quantity' => 'required|numeric',
             'items.*.price' => 'required|numeric',
@@ -70,8 +70,7 @@ class PurchaseSchema extends BaseSchema
 
         $dataItems = [];
         foreach ($items as $item) {
-            $tmp['item_id'] = $item['item_id'];
-            $tmp['unit_id'] = $item['unit_id'];
+            $tmp['inventory_id'] = $item['inventory_id'];
             $tmp['quantity'] = $item['quantity'];
             $tmp['price'] = $item['price'];
             $tmp['total'] = $item['total'];

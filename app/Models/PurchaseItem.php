@@ -13,11 +13,9 @@ class PurchaseItem extends Model
     protected $keyType = 'string';
     public $incrementing = false;
 
-    // Menentukan kolom yang dapat diisi
     protected $fillable = [
         'purchase_id',
-        'item_id',
-        'unit_id',
+        'inventory_id',
         'quantity',
         'price',
         'total',
@@ -38,17 +36,8 @@ class PurchaseItem extends Model
         return $this->belongsTo(Purchase::class, 'purchase_id');
     }
 
-    /**
-     * Relasi dengan Item (many-to-one)
-     * Setiap purchase_item berhubungan dengan satu item
-     */
-    public function item()
+    public function inventory()
     {
-        return $this->belongsTo(Item::class, 'item_id');
-    }
-
-    public function unit()
-    {
-        return $this->belongsTo(Unit::class, 'unit_id');
+        return $this->belongsTo(Inventory::class, 'inventory_id');
     }
 }
