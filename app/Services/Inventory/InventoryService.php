@@ -21,6 +21,7 @@ class InventoryService implements InventoryServiceInterface
             $validator = $schema->validate();
             if ($validator->fails()) {
                 return (new InventoryResource(null))
+                    ->additional(['errors' => $validator->errors()->toArray()])
                     ->withStatus(HttpStatus::UnprocessableEntity)
                     ->withMessage("error validation");
             }
@@ -89,12 +90,14 @@ class InventoryService implements InventoryServiceInterface
         }
     }
 
-    public function patch($id, InventorySchema $schema): ServiceResponse
+    public function patch($id, InventorySchema $schema): Responsable
     {
         try {
             $validator = $schema->validate();
             if ($validator->fails()) {
-                return ServiceResponse::unprocessableEntity($validator->errors()->toArray());
+                return (new InventoryResource(null))
+                    ->withStatus(HttpStatus::UnprocessableEntity)
+                    ->withMessage("error validation");
             }
             $schema->hydrateBody();
 
@@ -102,7 +105,9 @@ class InventoryService implements InventoryServiceInterface
                 ->where('id', '=', $id)
                 ->first();
             if (!$inventory) {
-                return ServiceResponse::notFound("inventory not found");
+                return (new InventoryResource(null))
+                    ->withStatus(HttpStatus::NotFound)
+                    ->withMessage("inventory not found");
             }
 
             $data = [
@@ -116,19 +121,25 @@ class InventoryService implements InventoryServiceInterface
                 'max_stock' => $schema->getMaxStock()
             ];
             $inventory->update($data);
-            return ServiceResponse::statusOK("successfully update inventory");
+            return (new InventoryResource(null))
+                ->withStatus(HttpStatus::OK)
+                ->withMessage("successfully update inventory");
         } catch (\Throwable $e) {
-            return ServiceResponse::internalServerError($e->getMessage());
+            return (new InventoryResource(null))
+                ->withMessage($e->getMessage());
         }
     }
 
-    public function delete($id): ServiceResponse
+    public function delete($id): Responsable
     {
         try {
             Inventory::destroy($id);
-            return ServiceResponse::statusOK("successfully delete inventory");
+            return (new InventoryResource(null))
+                ->withStatus(HttpStatus::OK)
+                ->withMessage("successfully delete inventory");
         } catch (\Throwable $e) {
-            return ServiceResponse::internalServerError($e->getMessage());
+            return (new InventoryResource(null))
+                ->withMessage($e->getMessage());
         }
     }
 

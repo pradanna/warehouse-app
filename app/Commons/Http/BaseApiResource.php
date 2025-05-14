@@ -34,11 +34,23 @@ class BaseApiResource extends JsonResource implements Responsable
 
     public function toResponse($request): JsonResponse
     {
-        return response()->json([
+        $response = [
             'status' => $this->httpStatus->value,
             'message' => $this->message,
-            'data' => is_null($this->resource) ? null : $this->toArray($request),
-            'meta' => $this->meta
-        ], $this->httpStatus->value);
+        ];
+
+        $data = is_null($this->resource) ? null : $this->toArray($request);
+        if (!is_null($data)) {
+            $response['data'] = $data;
+        }
+
+        if (!is_null($this->meta)) {
+            $response['meta'] = $this->meta;
+        }
+
+        if (!empty($this->additional)) {
+            $response = array_merge($response, $this->additional);
+        }
+        return response()->json($response, $this->httpStatus->value);
     }
 }

@@ -44,13 +44,11 @@ class InventoryController extends CustomController
         $body = $this->jsonBody();
         $schema = new InventorySchema();
         $schema->hydrateSchemaBody($body);
-        $response = $this->service->patch($id, $schema);
-        return $this->toJSON($response);
+        return $this->service->patch($id, $schema);
     }
 
     public function delete($id)
     {
-        $response = $this->service->delete($id);
-        return $this->toJSON($response);
+        return $this->service->delete($id);
     }
 }

@@ -12,7 +12,7 @@ interface InventoryServiceInterface
     public function create(InventorySchema $schema): Responsable;
     public function findAll(InventoryQuery $queryParams): Responsable;
     public function findByID($id): Responsable;
-    public function patch($id, InventorySchema $schema): ServiceResponse;
-    public function delete($id): ServiceResponse;
+    public function patch($id, InventorySchema $schema): Responsable;
+    public function delete($id): Responsable;
     public function addStock($items): ServiceResponse;
 }
