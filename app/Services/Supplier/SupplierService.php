@@ -1,16 +1,16 @@
 <?php
 
-namespace App\Services\Item;
+namespace App\Services\Supplier;
 
-use App\Schemas\Item\ItemSchema;
+use App\Schemas\Supplier\SupplierSchema;
 use App\Commons\Http\ServiceResponse;
 use App\Commons\Pagination\Pagination;
-use App\Models\Item;
-use App\Schemas\Item\ItemQuery;
+use App\Models\Supplier;
+use App\Schemas\Supplier\SupplierQuery;
 
-class ItemService implements ItemServiceInterface
+class SupplierService implements SupplierServiceInterface
 {
-    public function create(ItemSchema $schema): ServiceResponse
+    public function create(SupplierSchema $schema): ServiceResponse
     {
         try {
             $validator = $schema->validate();
@@ -19,22 +19,22 @@ class ItemService implements ItemServiceInterface
             }
             $schema->hydrateBody();
             $data = [
-                'category_id' => $schema->getCategoryId(),
                 'name' => $schema->getName(),
-                'description' => $schema->getDescription(),
+                'address' => $schema->getAddress(),
+                'contact' => $schema->getContact()
             ];
-            Item::create($data);
-            return ServiceResponse::statusCreated("successfully create item");
+            Supplier::create($data);
+            return ServiceResponse::statusCreated("successfully create supplier");
         } catch (\Throwable $e) {
             return ServiceResponse::internalServerError($e->getMessage());
         }
     }
 
-    public function findAll(ItemQuery $queryParams): ServiceResponse
+    public function findAll(SupplierQuery $queryParams): ServiceResponse
     {
         try {
             $queryParams->hydrateQuery();
-            $query = Item::with(['category:id,name'])
+            $query = Supplier::with([])
                 ->when($queryParams->getParam(), function ($q) use ($queryParams) {
                     /** @var Builder $q */
                     return $q->where('name', 'LIKE', "%{$queryParams->getParam()}%");
@@ -45,9 +45,9 @@ class ItemService implements ItemServiceInterface
                 ->setPage($queryParams->getPage())
                 ->setPerPage($queryParams->getPerPage())
                 ->paginate();
-            $data = $pagination->getData()->makeHidden(['created_at', 'updated_at', 'category_id']);
+            $data = $pagination->getData()->makeHidden(['created_at', 'updated_at']);
             $meta = $pagination->getJsonMeta();
-            return ServiceResponse::statusOK("successfully get items", $data, $meta);
+            return ServiceResponse::statusOK("successfully get supplier", $data, $meta);
         } catch (\Throwable $e) {
             return ServiceResponse::internalServerError($e->getMessage());
         }
@@ -56,20 +56,20 @@ class ItemService implements ItemServiceInterface
     public function findByID($id): ServiceResponse
     {
         try {
-            $item = Item::with(['category:id,name'])
+            $supplier = Supplier::with([])
                 ->where('id', '=', $id)
                 ->first();
-            if (!$item) {
-                return ServiceResponse::notFound("item not found");
+            if (!$supplier) {
+                return ServiceResponse::notFound("supplier not found");
             }
-            $item->makeHidden(['created_at', 'updated_at', 'category_id']);
-            return ServiceResponse::statusOK("successfully get item", $item);
+            $supplier->makeHidden(['created_at', 'updated_at']);
+            return ServiceResponse::statusOK("successfully get supplier", $supplier);
         } catch (\Throwable $e) {
             return ServiceResponse::internalServerError($e->getMessage());
         }
     }
 
-    public function patch($id, ItemSchema $schema): ServiceResponse
+    public function patch($id, SupplierSchema $schema): ServiceResponse
     {
         try {
             $validator = $schema->validate();
@@ -77,22 +77,19 @@ class ItemService implements ItemServiceInterface
                 return ServiceResponse::unprocessableEntity($validator->errors()->toArray());
             }
             $schema->hydrateBody();
-
-            $item = Item::with(['category:id,name'])
+            $supplier = Supplier::with([])
                 ->where('id', '=', $id)
                 ->first();
-            if (!$item) {
-                return ServiceResponse::notFound("item not found");
+            if (!$supplier) {
+                return ServiceResponse::notFound("supplier not found");
             }
-
             $data = [
-                'category_id' => $schema->getCategoryId(),
                 'name' => $schema->getName(),
-                'description' => $schema->getDescription(),
+                'address' => $schema->getAddress(),
+                'contact' => $schema->getContact()
             ];
-
-            $item->update($data);
-            return ServiceResponse::statusOK("successfully update item");
+            $supplier->update($data);
+            return ServiceResponse::statusOK("successfully update supplier");
         } catch (\Throwable $e) {
             return ServiceResponse::internalServerError($e->getMessage());
         }
@@ -101,8 +98,8 @@ class ItemService implements ItemServiceInterface
     public function delete($id): ServiceResponse
     {
         try {
-            Item::destroy($id);
-            return ServiceResponse::statusOK("successfully delete item");
+            Supplier::destroy($id);
+            return ServiceResponse::statusOK("successfully delete supplier");
         } catch (\Throwable $e) {
             return ServiceResponse::internalServerError($e->getMessage());
         }

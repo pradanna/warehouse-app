@@ -2,28 +2,26 @@
 
 namespace App\Http\Controllers\Web;
 
-use App\Http\Controllers\Controller;
 use App\Http\Controllers\CustomController;
-use App\Schemas\Item\ItemQuery;
-use App\Schemas\Item\ItemSchema;
-use App\Services\Item\ItemService;
-use Illuminate\Http\Request;
+use App\Schemas\Supplier\SupplierQuery;
+use App\Schemas\Supplier\SupplierSchema;
+use App\Services\Supplier\SupplierService;
 
-class ItemController extends CustomController
+class SupplierController extends CustomController
 {
-    /** @var ItemService $service */
+    /** @var SupplierService $service */
     private $service;
 
     public function __construct()
     {
         parent::__construct();
-        $this->service = new ItemService();
+        $this->service = new SupplierService();
     }
 
     public function create()
     {
         $body = $this->jsonBody();
-        $schema = new ItemSchema();
+        $schema = new SupplierSchema();
         $schema->hydrateSchemaBody($body);
         $response = $this->service->create($schema);
         return $this->toJSON($response);
@@ -32,7 +30,7 @@ class ItemController extends CustomController
     public function findAll()
     {
         $queryParams = $this->queryParams();
-        $query = new ItemQuery();
+        $query = new SupplierQuery();
         $query->hydrateSchemaQuery($queryParams);
         $response = $this->service->findAll($query);
         return $this->toJSON($response);
@@ -47,7 +45,7 @@ class ItemController extends CustomController
     public function patch($id)
     {
         $body = $this->jsonBody();
-        $schema = new ItemSchema();
+        $schema = new SupplierSchema();
         $schema->hydrateSchemaBody($body);
         $response = $this->service->patch($id, $schema);
         return $this->toJSON($response);

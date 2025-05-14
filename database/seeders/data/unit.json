@@ -1,0 +1,22 @@
+[
+    {
+        "id": "3a30c13f-4d48-4eae-a5e4-589777587fa6",
+        "name": "Liter"
+    },
+    {
+        "id": "f3f941fc-3037-4159-a6b2-049ab788ce48",
+        "name": "Gram"
+    },
+    {
+        "id": "b367a763-a86f-41b4-b9b7-12c1c0edfde1",
+        "name": "Pcs"
+    },
+    {
+        "id": "6a6793ed-c87e-436e-9b86-75269d50ec14",
+        "name": "Carton"
+    },
+    {
+        "id": "f364ce63-952f-4409-937f-2bae1a09aa3b",
+        "name": "Botol"
+    }
+]
