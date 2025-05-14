@@ -1,0 +1,39 @@
+[
+    {
+        "id": "5e657db4-8e0a-41a9-b799-9c3ad4d92ee8",
+        "category_id": "6ca60da1-63d0-49e2-843b-e99d683e5af0",
+        "name": "Greenfield Fresh Milk",
+        "description": "Fresh Milk"
+    },
+    {
+        "id": "01989937-f5c2-4b8c-a4f8-92f81fbb76ed",
+        "category_id": "6ca60da1-63d0-49e2-843b-e99d683e5af0",
+        "name": "Indomilk UHT Milk",
+        "description": "UHT Milk"
+    },
+    {
+        "id": "12df7490-7aa2-4ad2-b3ec-2179fcb2f9fa",
+        "category_id": "3b2d1689-c2d0-4263-9029-ecbfb18349cd",
+        "name": "Toffico Matcha Powder",
+        "description": "Matcha Powder"
+    },
+    {
+        "id": "4d08f52f-2a50-4a13-8eaf-3c6a775a6ed3",
+        "category_id": "3b2d1689-c2d0-4263-9029-ecbfb18349cd",
+        "name": "Toffico Red Velvet Powder",
+        "description": "Red Velvet Powder"
+    },
+    {
+        "id": "313476b1-26e7-46c1-8458-7753139df302",
+        "category_id": "852e4fe2-9df4-46f7-8846-6692db2aed12",
+        "name": "Toffico Lychee Syrup",
+        "description": "Lychee Syrup"
+    },
+    {
+        "id": "f78e6c1a-e1c2-4f8a-a316-c25706eac5c2",
+        "category_id": "5b5deccf-97ad-416d-9f4e-d224f1bf090d",
+        "name": "Merayu Beans",
+        "description": "Arabica Merayu Beans"
+    }
+]
+
