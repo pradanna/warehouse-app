@@ -6,9 +6,8 @@ use App\Traits\Uuid;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class ItemInventory extends Model
+class Inventory extends Model
 {
-    //
     use HasFactory, Uuid;
 
     protected $keyType = 'string';
@@ -25,6 +24,11 @@ class ItemInventory extends Model
         'max_stock'
     ];
 
+    protected $casts = [
+        'current_stock' => 'float',
+        'min_stock' => 'float',
+        'max_stock' => 'float',
+    ];
     public function item()
     {
         return $this->belongsTo(Item::class, 'item_id');

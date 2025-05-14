@@ -10,15 +10,17 @@ return new class extends Migration
     {
         Schema::create('purchases', function (Blueprint $table) {
             $table->uuid('id')->primary(); // Primary key
-            $table->uuid('supplier_id'); // Foreign key ke supplier
-            $table->date('purchase_date');
-            $table->integer('total_amount'); // Total pembelian dalam satuan terkecil (sen)
-            $table->enum('payment_status', ['unpaid', 'paid', 'partial']);
-            $table->enum('status', ['pending', 'completed', 'canceled']);
-            $table->string('receipt_image')->nullable();
+            $table->uuid('supplier_id')->nullable(); // Foreign key ke supplier
+            $table->date('date');
+            $table->string('reference_number')->nullable();
+            $table->decimal('sub_total', 15, 2)->default(0);
+            $table->decimal('discount', 15, 2)->default(0);
+            $table->decimal('tax', 15, 2)->default(0);
+            $table->decimal('total', 15, 2)->default(0);
+            $table->text('description')->nullable();
+            $table->enum('payment_type', ['cash', 'installment']); //pembayaran secara langsung atau berkala
+            $table->enum('payment_status', ['unpaid', 'partial', 'paid'])->default('paid');
             $table->timestamps();
-
-            // Definisikan foreign key
             $table->foreign('supplier_id')->references('id')->on('suppliers')->onDelete('cascade');
         });
     }
