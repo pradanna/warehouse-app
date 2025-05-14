@@ -4,8 +4,6 @@ namespace App\Services\Inventory;
 
 use App\Commons\Http\HttpStatus;
 use App\Schemas\Inventory\InventorySchema;
-use App\Commons\Http\ServiceResponse;
-use App\Commons\Pagination\Pagination;
 use App\Http\Resources\Inventory\InventoryCollection;
 use App\Http\Resources\Inventory\InventoryResource;
 use App\Models\Inventory;
