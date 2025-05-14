@@ -2,12 +2,15 @@
 
 namespace App\Services\Category;
 
+use App\Commons\Http\HttpStatus;
 use App\Commons\Http\ServiceResponse;
 use App\Commons\Pagination\Pagination;
+use App\Http\Resources\Category\CategoryResource;
 use App\Models\Category;
 use App\Schemas\Category\CategoryQuery;
 use App\Schemas\Category\CategorySchema;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Http\Resources\Json\JsonResource;
 
 class CategoryService implements CategoryServiceInterface
 {
@@ -30,11 +33,11 @@ class CategoryService implements CategoryServiceInterface
         }
     }
 
-    public function findAll(CategoryQuery $queryParams): ServiceResponse
+    public function findAll(CategoryQuery $queryParams): JsonResource
     {
         try {
             $queryParams->hydrateQuery();
-            $query = Category::with([])
+            $query = Category::with(['items'])
                 ->when($queryParams->getParam(), function ($q) use ($queryParams) {
                     /** @var Builder $q */
                     return $q->where('name', 'LIKE', "%{$queryParams->getParam()}%");
@@ -46,24 +49,29 @@ class CategoryService implements CategoryServiceInterface
                 ->paginate();
             $data = $pagination->getData();
             $meta = $pagination->getJsonMeta();
-            return ServiceResponse::statusOK("successfully get categories", $data, $meta);
+            // return CategoryResource::collection($data);
+            return (new CategoryResource($data))->withMessage('successfully get categories')->withStatus(HttpStatus::OK);
+            // return ServiceResponse::statusOK("successfully get categories", CategoryResource::collection($data), $meta);
         } catch (\Throwable $e) {
-            return ServiceResponse::internalServerError($e->getMessage());
+            return new CategoryResource(null);
+            // return ServiceResponse::internalServerError($e->getMessage());
         }
     }
 
-    public function findByID($id): ServiceResponse
+    public function findByID($id): JsonResource
     {
         try {
             $category = Category::with([])
                 ->where('id', '=', $id)
                 ->first();
             if (!$category) {
-                return ServiceResponse::notFound("category not found");
+                return new CategoryResource(null);
             }
-            return ServiceResponse::statusOK("successfully get category", $category);
+            // return ServiceResponse::statusOK("successfully get category", $category);
+            return new CategoryResource($category);
         } catch (\Throwable $e) {
-            return ServiceResponse::internalServerError($e->getMessage());
+            return new CategoryResource(null);
+            // return ServiceResponse::internalServerError($e->getMessage());
         }
     }
 

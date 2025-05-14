@@ -1,0 +1,20 @@
+[
+    {
+        "id": "2e962c08-d04d-4d1b-9836-835e8adbe93a",
+        "name": "Toffico",
+        "contact": "62788177289",
+        "address": "jl. sumpah pemuda no.18, jakarta selatan"
+    },
+    {
+        "id": "b3770de1-81bb-4522-8121-bf7184d94d7a",
+        "name": "Astery.co",
+        "contact": "6288917772874",
+        "address": "jl. manahan no. 24, surakarta"
+    },
+    {
+        "id": "78dc1b3a-b2f5-48ec-9c33-91f719f34cf9",
+        "name": "Lottemart",
+        "contact": "62967728848",
+        "address": "jl. Tipes no. 5, surakarta"
+    }
+]
