@@ -24,8 +24,7 @@ class OutletController extends CustomController
         $body = $this->jsonBody();
         $schema = new OutletSchema();
         $schema->hydrateSchemaBody($body);
-        $response = $this->service->create($schema);
-        return $this->toJSON($response);
+        return $this->service->create($schema);
     }
 
     public function findAll()
@@ -33,14 +32,12 @@ class OutletController extends CustomController
         $queryParams = $this->queryParams();
         $query = new OutletQuery();
         $query->hydrateSchemaQuery($queryParams);
-        $response = $this->service->findAll($query);
-        return $this->toJSON($response);
+        return $this->service->findAll($query);
     }
 
     public function findByID($id)
     {
-        $response = $this->service->findByID($id);
-        return $this->toJSON($response);
+        return $this->service->findByID($id);
     }
 
     public function patch($id)
@@ -48,13 +45,11 @@ class OutletController extends CustomController
         $body = $this->jsonBody();
         $schema = new OutletSchema();
         $schema->hydrateSchemaBody($body);
-        $response = $this->service->patch($id, $schema);
-        return $this->toJSON($response);
+        return $this->service->patch($id, $schema);
     }
 
     public function delete($id)
     {
-        $response = $this->service->delete($id);
-        return $this->toJSON($response);
+        return $this->service->delete($id);
     }
 }
