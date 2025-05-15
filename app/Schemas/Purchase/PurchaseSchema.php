@@ -33,7 +33,6 @@ class PurchaseSchema extends BaseSchema
             'payment_type' => 'required|in:cash,installment',
             'items' => 'required|array|min:1',
             'items.*.inventory_id' => 'required|string',
-            'items.*.unit_id' => 'required|string',
             'items.*.quantity' => 'required|numeric',
             'items.*.price' => 'required|numeric',
             'items.*.total' => 'required|numeric',

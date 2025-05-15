@@ -24,8 +24,7 @@ class PurchaseController extends CustomController
         $body = $this->jsonBody();
         $schema = new PurchaseSchema();
         $schema->hydrateSchemaBody($body);
-        $response = $this->service->create($schema);
-        return $this->toJSON($response);
+        return $this->service->create($schema);
     }
 
     public function findAll()
@@ -33,7 +32,11 @@ class PurchaseController extends CustomController
         $queryParams = $this->queryParams();
         $query = new PurchaseQuery();
         $query->hydrateSchemaQuery($queryParams);
-        $response = $this->service->findAll($query);
-        return $this->toJSON($response);
+        return $this->service->findAll($query);
+    }
+
+    public function findByID($id)
+    {
+        return $this->service->findByID($id);
     }
 }
