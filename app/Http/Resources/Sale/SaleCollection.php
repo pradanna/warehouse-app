@@ -1,12 +1,13 @@
 <?php
 
-namespace App\Http\Resources\Purchase;
+namespace App\Http\Resources\Sale;
 
 use App\Commons\Http\BaseApiCollection;
 use Illuminate\Contracts\Support\Responsable;
 use Illuminate\Http\Request;
+use Illuminate\Http\Resources\Json\ResourceCollection;
 
-class PurchaseCollection extends BaseApiCollection implements Responsable
+class SaleCollection extends BaseApiCollection implements Responsable
 {
     /**
      * Transform the resource collection into an array.
@@ -15,8 +16,8 @@ class PurchaseCollection extends BaseApiCollection implements Responsable
      */
     public function toArray(Request $request): array
     {
-        return $this->collection->transform(function ($purchase) {
-            return new PurchaseResource($purchase);
+        return $this->collection->transform(function ($sale) {
+            return new SaleResource($sale);
         })->all();
     }
 }
