@@ -25,8 +25,7 @@ class UnitController extends CustomController
         $body = $this->jsonBody();
         $schema = new UnitSchema();
         $schema->hydrateSchemaBody($body);
-        $response = $this->service->create($schema);
-        return $this->toJSON($response);
+        return $this->service->create($schema);
     }
 
     public function findAll()
@@ -34,14 +33,12 @@ class UnitController extends CustomController
         $queryParams = $this->queryParams();
         $query = new UnitQuery();
         $query->hydrateSchemaQuery($queryParams);
-        $response = $this->service->findAll($query);
-        return $this->toJSON($response);
+        return $this->service->findAll($query);
     }
 
     public function findById($id)
     {
-        $response = $this->service->findById($id);
-        return $this->toJSON($response);
+        return $this->service->findById($id);
     }
 
     public function patch($id)
@@ -50,13 +47,11 @@ class UnitController extends CustomController
         $body = $this->jsonBody();
         $schema = new UnitSchema();
         $schema->hydrateSchemaBody($body);
-        $response = $this->service->patch($id, $schema);
-        return $this->toJSON($response);
+        return $this->service->patch($id, $schema);
     }
 
     public function delete($id)
     {
-        $response = $this->service->delete($id);
-        return $this->toJSON($response);
+        return $this->service->delete($id);
     }
 }

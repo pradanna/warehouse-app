@@ -2,7 +2,6 @@
 
 namespace App\Services\Inventory;
 
-use App\Commons\Http\ServiceResponse;
 use App\Schemas\Inventory\InventoryQuery;
 use App\Schemas\Inventory\InventorySchema;
 use Illuminate\Contracts\Support\Responsable;

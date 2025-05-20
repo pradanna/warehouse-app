@@ -24,8 +24,7 @@ class CategoryController extends CustomController
         $body = $this->jsonBody();
         $schema = new CategorySchema();
         $schema->hydrateSchemaBody($body);
-        $response = $this->service->create($schema);
-        return $this->toJSON($response);
+        return $this->service->create($schema);
     }
 
     public function findAll()
@@ -34,13 +33,11 @@ class CategoryController extends CustomController
         $query = new CategoryQuery();
         $query->hydrateSchemaQuery($queryParams);
         return $this->service->findAll($query);
-        // return $this->toJSON($response);
     }
 
     public function findByID($id)
     {
         return $this->service->findByID($id);
-        // return $this->toJSON($response);
     }
 
     public function patch($id)
@@ -48,13 +45,11 @@ class CategoryController extends CustomController
         $body = $this->jsonBody();
         $schema = new CategorySchema();
         $schema->hydrateSchemaBody($body);
-        $response = $this->service->patch($id, $schema);
-        return $this->toJSON($response);
+        return $this->service->patch($id, $schema);
     }
 
     public function delete($id)
     {
-        $response = $this->service->delete($id);
-        return $this->toJSON($response);
+        return $this->service->delete($id);
     }
 }

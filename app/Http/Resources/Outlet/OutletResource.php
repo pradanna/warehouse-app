@@ -1,18 +1,20 @@
 <?php
 
-namespace App\Http\Resources\Category;
+namespace App\Http\Resources\Outlet;
 
 use App\Commons\Http\BaseApiResource;
 use Illuminate\Http\Request;
+use Illuminate\Http\Resources\Json\JsonResource;
 
-class CategoryResource extends BaseApiResource
+class OutletResource extends BaseApiResource
 {
     public function toArray(Request $request): array
     {
         return [
             'id' => $this->id,
             'name' => $this->name,
-            'description' => $this->description,
+            'address' => $this->address,
+            'contact' => $this->contact,
         ];
     }
 }
