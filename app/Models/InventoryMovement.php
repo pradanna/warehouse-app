@@ -16,14 +16,18 @@ class InventoryMovement extends Model
     protected $fillable = [
         'inventory_id',
         'type',
+        'quantity_open',
         'quantity',
+        'quantity_close',
         'description',
         'movement_type',
         'movement_reference'
     ];
 
     protected $casts = [
-        'quantity' => 'float'
+        'quantity_open' => 'float',
+        'quantity' => 'float',
+        'quantity_close' => 'float'
     ];
 
     public function invetory()
