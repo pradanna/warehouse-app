@@ -6,7 +6,7 @@ use App\Traits\Uuid;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class InventoryMovement extends Model
+class SaleItem extends Model
 {
     use HasFactory, Uuid;
 
@@ -14,23 +14,25 @@ class InventoryMovement extends Model
     public $incrementing = false;
 
     protected $fillable = [
+        'sale_id',
         'inventory_id',
-        'type',
-        'quantity_open',
         'quantity',
-        'quantity_close',
-        'description',
-        'movement_type',
-        'movement_reference'
+        'price',
+        'total',
     ];
 
     protected $casts = [
-        'quantity_open' => 'float',
         'quantity' => 'float',
-        'quantity_close' => 'float'
+        'price' => 'float',
+        'total' => 'float'
     ];
 
-    public function invetory()
+    public function sale()
+    {
+        return $this->belongsTo(Sale::class, 'sale_id');
+    }
+
+    public function inventory()
     {
         return $this->belongsTo(Inventory::class, 'inventory_id');
     }
