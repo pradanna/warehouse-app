@@ -2,6 +2,7 @@
 
 namespace App\Services\Purchase;
 
+use App\Commons\Enum\InventoryMovementType;
 use App\Commons\Http\HttpStatus;
 use App\Schemas\Purchase\PurchaseSchema;
 use App\Commons\Http\ServiceResponse;
@@ -72,7 +73,7 @@ class PurchaseService implements PurchaseServiceInterface
                     'quantity' => $item['quantity'],
                     'quantity_close' => $newStock,
                     'description' => 'Purchasing',
-                    'movement_type' => 'purchase',
+                    'movement_type' => InventoryMovementType::Purhcase->value,
                     'movement_reference' => $purchase->id
                 ];
                 InventoryMovement::create($movementData);
