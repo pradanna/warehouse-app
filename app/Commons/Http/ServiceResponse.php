@@ -36,7 +36,7 @@ class ServiceResponse
     /**
      * @return mixed
      */
-    public function getSuccess()
+    public function isSuccess()
     {
         return $this->success;
     }
