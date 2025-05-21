@@ -6,15 +6,16 @@ use App\Traits\Uuid;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Purchase extends Model
+class Sale extends Model
 {
+    //
     use HasFactory, Uuid;
 
     protected $keyType = 'string';
     public $incrementing = false;
 
     protected $fillable = [
-        'supplier_id',
+        'outlet_id',
         'date',
         'reference_number',
         'sub_total',
@@ -33,31 +34,23 @@ class Purchase extends Model
         'total' => 'float',
     ];
 
-    /**
-     * Relasi dengan Supplier (many-to-one)
-     * Setiap purchase berhubungan dengan satu supplier
-     */
-    public function supplier()
+    public function outlet()
     {
-        return $this->belongsTo(Supplier::class, 'supplier_id');
+        return $this->belongsTo(Outlet::class, 'outlet_id');
     }
 
-    /**
-     * Relasi dengan PurchaseItem (one-to-many)
-     * Setiap purchase memiliki banyak purchase_item
-     */
     public function items()
     {
-        return $this->hasMany(PurchaseItem::class, 'purchase_id');
+        return $this->hasMany(SaleItem::class, 'sale_id');
     }
 
     public function payment()
     {
-        return $this->hasOne(PurchasePayment::class, 'purchase_id');
+        return $this->hasOne(SalePayment::class, 'sale_id');
     }
 
     public function payments()
     {
-        return $this->hasMany(PurchasePayment::class, 'purchase_id');
+        return $this->hasMany(SalePayment::class, 'sale_id');
     }
 }

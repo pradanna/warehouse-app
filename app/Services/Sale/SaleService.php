@@ -1,32 +1,29 @@
 <?php
 
-namespace App\Services\Purchase;
+namespace App\Services\Sale;
 
 use App\Commons\Enum\InventoryMovementType;
 use App\Commons\Http\HttpStatus;
-use App\Schemas\Purchase\PurchaseSchema;
-use App\Commons\Http\ServiceResponse;
-use App\Commons\Pagination\Pagination;
-use App\Http\Resources\Purchase\PurchaseCollection;
-use App\Http\Resources\Purchase\PurchaseResource;
+use App\Http\Resources\Sale\SaleCollection;
+use App\Http\Resources\Sale\SaleResource;
 use App\Models\Inventory;
 use App\Models\InventoryMovement;
-use App\Models\Purchase;
-use App\Schemas\Purchase\PurchaseQuery;
-use App\Services\Inventory\InventoryService;
+use App\Models\Sale;
+use App\Schemas\Sale\SaleQuery;
+use App\Schemas\Sale\SaleSchema;
 use Illuminate\Contracts\Support\Responsable;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
-class PurchaseService implements PurchaseServiceInterface
+class SaleService implements SaleServiceInterface
 {
-    public function create(PurchaseSchema $schema): Responsable
+    public function create(SaleSchema $schema): Responsable
     {
         try {
             DB::beginTransaction();
             $validator = $schema->validate();
             if ($validator->fails()) {
-                return (new PurchaseResource(null))
+                return (new SaleResource(null))
                     ->additional(['errors' => $validator->errors()->toArray()])
                     ->withStatus(HttpStatus::UnprocessableEntity)
                     ->withMessage("error validation");
@@ -35,76 +32,80 @@ class PurchaseService implements PurchaseServiceInterface
             $items = $schema->getItems();
             $payment = $schema->getPayment();
             $payment['author_id'] = Auth::user()->id;
-
+            $itemCollections = collect($items);
+            $subTotal = $itemCollections->sum(function ($item) {
+                return $item['quantity'] * $item['price'];
+            });
+            $total = $subTotal + $schema->getTax() - $schema->getDiscount();
             $paymentStatus = 'paid';
             $data = [
-                'supplier_id' => $schema->getSupplierId(),
+                'outlet_id' => $schema->getOutletId(),
                 'date' => $schema->getDate(),
                 'reference_number' => $schema->getReferenceNumber(),
-                'sub_total' => $schema->getSubTotal(),
+                'sub_total' => $subTotal,
                 'discount' => $schema->getDiscount(),
                 'tax' => $schema->getTax(),
-                'total' => $schema->getTotal(),
+                'total' => $total,
                 'description' => $schema->getDescription(),
                 'payment_type' => $schema->getPaymentType(),
                 'payment_status' => $paymentStatus
             ];
-            $purchase = Purchase::create($data);
-            $purchase->items()->createMany($items);
-            $purchase->payment()->create($payment);
+            $sale = Sale::create($data);
+            $sale->items()->createMany($items);
+            $sale->payment()->create($payment);
             foreach ($items as $item) {
                 $inventory = Inventory::with([])
                     ->where('id', '=', $item['inventory_id'])
                     ->first();
                 if (!$inventory) {
                     DB::rollBack();
-                    return (new PurchaseResource(null))
+                    return (new SaleResource(null))
                         ->withStatus(HttpStatus::NotFound)
                         ->withMessage("inventory not found");
                 }
                 $currentStock = $inventory->current_stock;
-                $newStock = $currentStock + $item['quantity'];
+                $newStock = $currentStock - $item['quantity'];
                 $inventory->update(['current_stock' => $newStock]);
 
                 $movementData = [
                     'inventory_id' => $item['inventory_id'],
-                    'type' => 'in',
+                    'type' => 'out',
                     'quantity_open' => $currentStock,
                     'quantity' => $item['quantity'],
                     'quantity_close' => $newStock,
                     'description' => 'Purchasing',
-                    'movement_type' => InventoryMovementType::Purhcase->value,
-                    'movement_reference' => $purchase->id
+                    'movement_type' => InventoryMovementType::Sale->value,
+                    'movement_reference' => $sale->id
                 ];
                 InventoryMovement::create($movementData);
             }
             DB::commit();
-            return (new PurchaseResource(null))
+            return (new SaleResource(null))
                 ->withStatus(HttpStatus::Created)
-                ->withMessage("successfully create purchase");
+                ->withMessage("successfully create sale");
         } catch (\Throwable $e) {
             DB::rollBack();
-            return (new PurchaseResource(null))
+            return (new SaleResource(null))
                 ->withMessage($e->getMessage());
         }
     }
 
-    public function findAll(PurchaseQuery $queryParams): Responsable
+    public function findAll(SaleQuery $queryParams): Responsable
     {
         try {
             $queryParams->hydrateQuery();
-            $query = Purchase::with([
-                'supplier',
+            $query = Sale::with([
+                'outlet',
                 'items.inventory',
                 'payments'
             ])
                 ->orderBy('date', 'DESC');
             $data = $query->paginate($queryParams->getPerPage(), '*', 'page', $queryParams->getPage());
-            return (new PurchaseCollection($data))
+            return (new SaleCollection($data))
                 ->withStatus(HttpStatus::OK)
-                ->withMessage('successfully retrieved purchases');
+                ->withMessage('successfully retrieved sales');
         } catch (\Throwable $e) {
-            return (new PurchaseResource(null))
+            return (new SaleResource(null))
                 ->withStatus(HttpStatus::InternalServerError)
                 ->withMessage($e->getMessage());
         }
@@ -113,23 +114,23 @@ class PurchaseService implements PurchaseServiceInterface
     public function findByID($id): Responsable
     {
         try {
-            $purchase = Purchase::with([
-                'supplier',
+            $sale = Sale::with([
+                'outlet',
                 'items.inventory',
                 'payments'
             ])
                 ->where('id', '=', $id)
                 ->first();
-            if (!$purchase) {
-                return (new PurchaseResource(null))
+            if (!$sale) {
+                return (new SaleResource(null))
                     ->withStatus(HttpStatus::NotFound)
                     ->withMessage("purchase not found");
             }
-            return (new PurchaseResource($purchase))
+            return (new SaleResource($sale))
                 ->withStatus(HttpStatus::OK)
                 ->withMessage("successfully retrieved purchase");
         } catch (\Throwable $e) {
-            return (new PurchaseResource(null))
+            return (new SaleResource(null))
                 ->withStatus(HttpStatus::InternalServerError)
                 ->withMessage($e->getMessage());
         }

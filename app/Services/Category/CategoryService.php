@@ -3,8 +3,6 @@
 namespace App\Services\Category;
 
 use App\Commons\Http\HttpStatus;
-use App\Commons\Http\ServiceResponse;
-use App\Commons\Pagination\Pagination;
 use App\Http\Resources\Category\CategoryCollection;
 use App\Http\Resources\Category\CategoryResource;
 use App\Models\Category;
@@ -12,7 +10,6 @@ use App\Schemas\Category\CategoryQuery;
 use App\Schemas\Category\CategorySchema;
 use Illuminate\Contracts\Support\Responsable;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Http\Resources\Json\JsonResource;
 
 class CategoryService implements CategoryServiceInterface
 {

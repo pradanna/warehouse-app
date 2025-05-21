@@ -6,6 +6,7 @@ use App\Http\Controllers\Web\InventoryController;
 use App\Http\Controllers\Web\ItemController;
 use App\Http\Controllers\Web\OutletController;
 use App\Http\Controllers\Web\PurchaseController;
+use App\Http\Controllers\Web\SaleController;
 use App\Http\Controllers\Web\SupplierController;
 use App\Http\Controllers\Web\UnitController;
 use App\Http\Middleware\JWTVerify;
@@ -66,9 +67,15 @@ Route::group(['prefix' => 'v1'], function () {
         Route::group(['prefix' => 'purchase'], function () {
             Route::post('/', [PurchaseController::class, 'create']);
             Route::get('/', [PurchaseController::class, 'findAll']);
-            // Route::get('/{id}', [SupplierController::class, 'findByID']);
+            Route::get('/{id}', [PurchaseController::class, 'findByID']);
             // Route::put('/{id}', [SupplierController::class, 'patch']);
             // Route::delete('/{id}', [SupplierController::class, 'delete']);
+        });
+
+        Route::group(['prefix' => 'sale'], function () {
+            Route::post('/', [SaleController::class, 'create']);
+            Route::get('/', [SaleController::class, 'findAll']);
+            Route::get('/{id}', [SaleController::class, 'findByID']);
         });
     });
 });

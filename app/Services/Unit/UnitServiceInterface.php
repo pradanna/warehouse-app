@@ -5,6 +5,7 @@ namespace App\Services\Unit;
 use App\Commons\Http\ServiceResponse;
 use App\Schemas\Unit\UnitQuery;
 use App\Schemas\Unit\UnitSchema;
+use Illuminate\Contracts\Support\Responsable;
 
 interface UnitServiceInterface
 {
