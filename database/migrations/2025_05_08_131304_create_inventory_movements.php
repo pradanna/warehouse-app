@@ -15,7 +15,9 @@ return new class extends Migration
             $table->uuid('id')->primary();
             $table->uuid('inventory_id');
             $table->enum('type', ['in', 'out']);
+            $table->decimal('quantity_open', 15, 2)->default(0);
             $table->decimal('quantity', 15, 2)->default(0);
+            $table->decimal('quantity_close', 15, 2)->default(0);
             $table->text('description')->nullable();
             $table->enum('movement_type', ['purchase', 'sale', 'transfer', 'adjustment', 'conversion', 'return', 'wastage']);
             $table->string('movement_reference')->nullable();

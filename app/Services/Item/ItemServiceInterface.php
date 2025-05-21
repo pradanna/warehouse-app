@@ -2,15 +2,15 @@
 
 namespace App\Services\Item;
 
-use App\Commons\Http\ServiceResponse;
 use App\Schemas\Item\ItemQuery;
 use App\Schemas\Item\ItemSchema;
+use Illuminate\Contracts\Support\Responsable;
 
 interface ItemServiceInterface
 {
-    public function create(ItemSchema $schema): ServiceResponse;
-    public function findAll(ItemQuery $queryParams): ServiceResponse;
-    public function findByID($id): ServiceResponse;
-    public function patch($id, ItemSchema $schema): ServiceResponse;
-    public function delete($id): ServiceResponse;
+    public function create(ItemSchema $schema): Responsable;
+    public function findAll(ItemQuery $queryParams): Responsable;
+    public function findByID($id): Responsable;
+    public function patch($id, ItemSchema $schema): Responsable;
+    public function delete($id): Responsable;
 }

@@ -2,20 +2,25 @@
 
 namespace App\Services\Supplier;
 
+use App\Commons\Http\HttpStatus;
 use App\Schemas\Supplier\SupplierSchema;
-use App\Commons\Http\ServiceResponse;
-use App\Commons\Pagination\Pagination;
+use App\Http\Resources\Supplier\SupplierCollection;
+use App\Http\Resources\Supplier\SupplierResource;
 use App\Models\Supplier;
 use App\Schemas\Supplier\SupplierQuery;
+use Illuminate\Contracts\Support\Responsable;
 
 class SupplierService implements SupplierServiceInterface
 {
-    public function create(SupplierSchema $schema): ServiceResponse
+    public function create(SupplierSchema $schema): Responsable
     {
         try {
             $validator = $schema->validate();
             if ($validator->fails()) {
-                return ServiceResponse::unprocessableEntity($validator->errors()->toArray());
+                return (new SupplierResource(null))
+                    ->additional(['errors' => $validator->errors()->toArray()])
+                    ->withStatus(HttpStatus::UnprocessableEntity)
+                    ->withMessage("error validation");
             }
             $schema->hydrateBody();
             $data = [
@@ -24,13 +29,16 @@ class SupplierService implements SupplierServiceInterface
                 'contact' => $schema->getContact()
             ];
             Supplier::create($data);
-            return ServiceResponse::statusCreated("successfully create supplier");
+            return (new SupplierResource(null))
+                ->withStatus(HttpStatus::Created)
+                ->withMessage("successfully create supplier");
         } catch (\Throwable $e) {
-            return ServiceResponse::internalServerError($e->getMessage());
+            return (new SupplierResource(null))
+                ->withMessage($e->getMessage());
         }
     }
 
-    public function findAll(SupplierQuery $queryParams): ServiceResponse
+    public function findAll(SupplierQuery $queryParams): Responsable
     {
         try {
             $queryParams->hydrateQuery();
@@ -40,48 +48,54 @@ class SupplierService implements SupplierServiceInterface
                     return $q->where('name', 'LIKE', "%{$queryParams->getParam()}%");
                 })
                 ->orderBy('name', 'ASC');
-            $pagination = new Pagination();
-            $pagination->setQuery($query)
-                ->setPage($queryParams->getPage())
-                ->setPerPage($queryParams->getPerPage())
-                ->paginate();
-            $data = $pagination->getData()->makeHidden(['created_at', 'updated_at']);
-            $meta = $pagination->getJsonMeta();
-            return ServiceResponse::statusOK("successfully get supplier", $data, $meta);
+            $data = $query->paginate($queryParams->getPerPage(), '*', 'page', $queryParams->getPage());
+            return (new SupplierCollection($data))
+                ->withStatus(HttpStatus::OK)
+                ->withMessage('successfully retrieved suppliers');
         } catch (\Throwable $e) {
-            return ServiceResponse::internalServerError($e->getMessage());
+            return (new SupplierResource(null))
+                ->withMessage($e->getMessage());
         }
     }
 
-    public function findByID($id): ServiceResponse
+    public function findByID($id): Responsable
     {
         try {
             $supplier = Supplier::with([])
                 ->where('id', '=', $id)
                 ->first();
             if (!$supplier) {
-                return ServiceResponse::notFound("supplier not found");
+                return (new SupplierResource(null))
+                    ->withStatus(HttpStatus::NotFound)
+                    ->withMessage("supplier not found");
             }
-            $supplier->makeHidden(['created_at', 'updated_at']);
-            return ServiceResponse::statusOK("successfully get supplier", $supplier);
+            return (new SupplierResource($supplier))
+                ->withStatus(HttpStatus::OK)
+                ->withMessage("successfully retrieved supplier");
         } catch (\Throwable $e) {
-            return ServiceResponse::internalServerError($e->getMessage());
+            return (new SupplierResource(null))
+                ->withMessage($e->getMessage());
         }
     }
 
-    public function patch($id, SupplierSchema $schema): ServiceResponse
+    public function patch($id, SupplierSchema $schema): Responsable
     {
         try {
             $validator = $schema->validate();
             if ($validator->fails()) {
-                return ServiceResponse::unprocessableEntity($validator->errors()->toArray());
+                return (new SupplierResource(null))
+                    ->additional(['errors' => $validator->errors()->toArray()])
+                    ->withStatus(HttpStatus::UnprocessableEntity)
+                    ->withMessage("error validation");
             }
             $schema->hydrateBody();
             $supplier = Supplier::with([])
                 ->where('id', '=', $id)
                 ->first();
             if (!$supplier) {
-                return ServiceResponse::notFound("supplier not found");
+                return (new SupplierResource(null))
+                    ->withStatus(HttpStatus::NotFound)
+                    ->withMessage("supplier not found");
             }
             $data = [
                 'name' => $schema->getName(),
@@ -89,19 +103,25 @@ class SupplierService implements SupplierServiceInterface
                 'contact' => $schema->getContact()
             ];
             $supplier->update($data);
-            return ServiceResponse::statusOK("successfully update supplier");
+            return (new SupplierResource(null))
+                ->withStatus(HttpStatus::OK)
+                ->withMessage("successfully update supplier");
         } catch (\Throwable $e) {
-            return ServiceResponse::internalServerError($e->getMessage());
+            return (new SupplierResource(null))
+                ->withMessage($e->getMessage());
         }
     }
 
-    public function delete($id): ServiceResponse
+    public function delete($id): Responsable
     {
         try {
             Supplier::destroy($id);
-            return ServiceResponse::statusOK("successfully delete supplier");
+            return (new SupplierResource(null))
+                ->withStatus(HttpStatus::OK)
+                ->withMessage("successfully delete supplier");
         } catch (\Throwable $e) {
-            return ServiceResponse::internalServerError($e->getMessage());
+            return (new SupplierResource(null))
+                ->withMessage($e->getMessage());
         }
     }
 }
