@@ -67,18 +67,10 @@ class UnitService implements UnitServiceInterface
                 ->first();
             if (!$unit) {
                 return ServiceResponse::notFound("unit not found");
-                // return (new UnitResource(null))
-                //     ->withStatus(HttpStatus::NotFound)
-                //     ->withMessage("unit not found");
             }
             return ServiceResponse::statusOK("successfully get unit", $unit);
-            // return (new UnitResource($unit))
-            //     ->withStatus(HttpStatus::OK)
-            //     ->withMessage("successfully retrieved unit");
         } catch (\Throwable $e) {
             return ServiceResponse::internalServerError($e->getMessage());
-            // return (new UnitResource(null))
-            //     ->withMessage($e->getMessage());
         }
     }
 

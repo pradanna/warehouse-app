@@ -12,11 +12,13 @@ class BaseSchema
     public function hydrateSchemaBody($body)
     {
         $this->body = $body;
+        return $this;
     }
 
     public function hydrateSchemaQuery($query)
     {
         $this->query = $query;
+        return $this;
     }
 
     protected function rules()
