@@ -14,31 +14,30 @@ use Illuminate\Contracts\Support\Responsable;
 
 class UnitService implements UnitServiceInterface
 {
-    public function create(UnitSchema $schema): Responsable
+    public function create(UnitSchema $schema): ServiceResponse
     {
         try {
             $validator = $schema->validate();
             if ($validator->fails()) {
-                return (new UnitResource(null))
-                    ->additional(['errors' => $validator->errors()->toArray()])
-                    ->withStatus(HttpStatus::UnprocessableEntity)
-                    ->withMessage("error validation");
+                return ServiceResponse::unprocessableEntity($validator->errors()->toArray(), "error validation");
             }
             $schema->hydrateBody();
             $data = [
                 'name' => $schema->getName()
             ];
-            Unit::create($data);
-            return (new UnitResource(null))
-                ->withStatus(HttpStatus::Created)
-                ->withMessage("successfully create unit");
+            $unit = Unit::create($data);
+            return ServiceResponse::statusCreated("successfully create unit", $unit);
+            // return (new UnitResource(null))
+            //     ->withStatus(HttpStatus::Created)
+            //     ->withMessage("successfully create unit");
         } catch (\Throwable $e) {
-            return (new UnitResource(null))
-                ->withMessage($e->getMessage());
+            return ServiceResponse::internalServerError($e->getMessage());
+            // return (new UnitResource(null))
+            //     ->withMessage($e->getMessage());
         }
     }
 
-    public function findAll(UnitQuery $queryParams): Responsable
+    public function findAll(UnitQuery $queryParams): ServiceResponse
     {
         try {
             $queryParams->hydrateQuery();
@@ -49,44 +48,50 @@ class UnitService implements UnitServiceInterface
                 })
                 ->orderBy('name', 'ASC');
             $data = $query->paginate($queryParams->getPerPage(), '*', 'page', $queryParams->getPage());
-            return (new UnitCollection($data))
-                ->withStatus(HttpStatus::OK)
-                ->withMessage('successfully retrieved units');
+            return ServiceResponse::statusOK("successfully get units", $data);
+            // return (new UnitCollection($data))
+            //     ->withStatus(HttpStatus::OK)
+            //     ->withMessage('successfully retrieved units');
         } catch (\Throwable $e) {
-            return (new UnitResource(null))
-                ->withMessage($e->getMessage());
+            return ServiceResponse::internalServerError($e->getMessage());
+            // return (new UnitResource(null))
+            //     ->withMessage($e->getMessage());
         }
     }
 
-    public function findById($id): Responsable
+    public function findById($id): ServiceResponse
     {
         try {
             $unit = Unit::with([])
                 ->where('id', '=', $id)
                 ->first();
             if (!$unit) {
-                return (new UnitResource(null))
-                    ->withStatus(HttpStatus::NotFound)
-                    ->withMessage("unit not found");
+                return ServiceResponse::notFound("unit not found");
+                // return (new UnitResource(null))
+                //     ->withStatus(HttpStatus::NotFound)
+                //     ->withMessage("unit not found");
             }
-            return (new UnitResource($unit))
-                ->withStatus(HttpStatus::OK)
-                ->withMessage("successfully retrieved unit");
+            return ServiceResponse::statusOK("successfully get unit", $unit);
+            // return (new UnitResource($unit))
+            //     ->withStatus(HttpStatus::OK)
+            //     ->withMessage("successfully retrieved unit");
         } catch (\Throwable $e) {
-            return (new UnitResource(null))
-                ->withMessage($e->getMessage());
+            return ServiceResponse::internalServerError($e->getMessage());
+            // return (new UnitResource(null))
+            //     ->withMessage($e->getMessage());
         }
     }
 
-    public function patch($id, UnitSchema $schema): Responsable
+    public function patch($id, UnitSchema $schema): ServiceResponse
     {
         try {
             $validator = $schema->validate();
             if ($validator->fails()) {
-                return (new UnitResource(null))
-                    ->additional(['errors' => $validator->errors()->toArray()])
-                    ->withStatus(HttpStatus::UnprocessableEntity)
-                    ->withMessage("error validation");
+                return ServiceResponse::unprocessableEntity($validator->errors()->toArray(), "error validation");
+                // return (new UnitResource(null))
+                //     ->additional(['errors' => $validator->errors()->toArray()])
+                //     ->withStatus(HttpStatus::UnprocessableEntity)
+                //     ->withMessage("error validation");
             }
             $schema->hydrateBody();
 
@@ -94,9 +99,10 @@ class UnitService implements UnitServiceInterface
                 ->where('id', '=', $id)
                 ->first();
             if (!$unit) {
-                return (new UnitResource(null))
-                    ->withStatus(HttpStatus::NotFound)
-                    ->withMessage("unit not found");
+                return ServiceResponse::notFound("unit not found");
+                // return (new UnitResource(null))
+                //     ->withStatus(HttpStatus::NotFound)
+                //     ->withMessage("unit not found");
             }
 
             $data = [
@@ -104,25 +110,29 @@ class UnitService implements UnitServiceInterface
             ];
 
             $unit->update($data);
-            return (new UnitResource(null))
-                ->withStatus(HttpStatus::OK)
-                ->withMessage("successfully update unit");
+            return ServiceResponse::statusOK("successfully update unit", $unit);
+            // return (new UnitResource(null))
+            //     ->withStatus(HttpStatus::OK)
+            //     ->withMessage("successfully update unit");
         } catch (\Throwable $e) {
-            return (new UnitResource(null))
-                ->withMessage($e->getMessage());
+            return ServiceResponse::internalServerError($e->getMessage());
+            // return (new UnitResource(null))
+            //     ->withMessage($e->getMessage());
         }
     }
 
-    public function delete($id): Responsable
+    public function delete($id): ServiceResponse
     {
         try {
             Unit::destroy($id);
-            return (new UnitResource(null))
-                ->withStatus(HttpStatus::OK)
-                ->withMessage("successfully delete unit");
+            return ServiceResponse::statusOK("successfully delete unit");
+            // return (new UnitResource(null))
+            //     ->withStatus(HttpStatus::OK)
+            //     ->withMessage("successfully delete unit");
         } catch (\Throwable $e) {
-            return (new UnitResource(null))
-                ->withMessage($e->getMessage());
+            return ServiceResponse::internalServerError($e->getMessage());
+            // return (new UnitResource(null))
+            //     ->withMessage($e->getMessage());
         }
     }
 }
