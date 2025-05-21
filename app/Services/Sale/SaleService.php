@@ -2,6 +2,7 @@
 
 namespace App\Services\Sale;
 
+use App\Commons\Enum\InventoryMovementType;
 use App\Commons\Http\HttpStatus;
 use App\Http\Resources\Sale\SaleCollection;
 use App\Http\Resources\Sale\SaleResource;
@@ -73,7 +74,7 @@ class SaleService implements SaleServiceInterface
                     'quantity' => $item['quantity'],
                     'quantity_close' => $newStock,
                     'description' => 'Purchasing',
-                    'movement_type' => 'purchase',
+                    'movement_type' => InventoryMovementType::Sale->value,
                     'movement_reference' => $sale->id
                 ];
                 InventoryMovement::create($movementData);
