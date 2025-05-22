@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Web;
 
+use App\Commons\Http\HttpStatus;
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\CustomController;
 use App\Http\Resources\Unit\UnitCollection;
@@ -29,13 +30,9 @@ class UnitController extends CustomController
 
     public function create()
     {
-        $body = $this->jsonBody();
-        $schema = new UnitSchema();
-        $schema->hydrateSchemaBody($body);
+        $schema = (new UnitSchema())->hydrateSchemaBody($this->jsonBody());
         $response = $this->service->create($schema);
-        if ($response->isSuccess()) {
-            $this->unitResource = $response->getData();
-        }
+        $this->unitResource = $response->getData();
         return (new UnitResource($this->unitResource))
             ->withStatus($response->getStatus())
             ->withMessage($response->getMessage());
