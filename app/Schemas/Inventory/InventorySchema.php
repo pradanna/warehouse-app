@@ -10,21 +10,22 @@ class InventorySchema extends BaseSchema
     private $unitId;
     private $sku;
     private $description;
-    private $price;
-    private $currentStock;
     private $minStock;
     private $maxStock;
+    private array $prices;
 
     protected function rules()
     {
         return [
             'item_id' => 'required',
             'unit_id' => 'required',
-            'sku' => 'required|string',
+            'sku' => 'string',
             'description' => 'string',
-            'price' => 'required|numeric',
-            'min_stock' => 'required|numeric',
-            'max_stock' => 'required|numeric'
+            'min_stock' => 'numeric',
+            'max_stock' => 'numeric',
+            'prices' => 'required|array|min:1',
+            'prices.*.outlet_id' => 'required|string',
+            'prices.*.price' => 'required|numeric'
         ];
     }
 
@@ -32,21 +33,26 @@ class InventorySchema extends BaseSchema
     {
         $itemId = $this->body['item_id'];
         $unitId = $this->body['unit_id'];
-        $sku = $this->body['sku'] ?? null;
-        $description = $this->body['description'] ?? null;
-        $price = $this->body['price'];
-        $currentStock = $this->body['current_stock'];
-        $minStock = $this->body['min_stock'];
-        $maxStock = $this->body['max_stock'];
+        $sku = !empty(trim($this->body['sku'] ?? '')) ? $this->body['sku'] : null;
+        $description = !empty(trim($this->body['description'] ?? '')) ? $this->body['description'] : null;;
+        $minStock = $this->body['min_stock'] ?? 0;
+        $maxStock = $this->body['max_stock'] ?? 99;
+        $prices = $this->body['prices'];
+
+        $dataPrices = [];
+        foreach ($prices as $price) {
+            $tmp['outlet_id'] = $price['outlet_id'];
+            $tmp['price'] = $price['price'];
+            array_push($dataPrices, $tmp);
+        }
 
         $this->setItemId($itemId)
             ->setUnitId($unitId)
             ->setSku($sku)
             ->setDescription($description)
-            ->setPrice($price)
-            ->setCurrentStock($currentStock)
             ->setMinStock($minStock)
-            ->setMaxStock($maxStock);
+            ->setMaxStock($maxStock)
+            ->setPrices($dataPrices);
     }
 
     /**
@@ -130,46 +136,6 @@ class InventorySchema extends BaseSchema
     }
 
     /**
-     * Get the value of price
-     */
-    public function getPrice()
-    {
-        return $this->price;
-    }
-
-    /**
-     * Set the value of price
-     *
-     * @return  self
-     */
-    public function setPrice($price)
-    {
-        $this->price = $price;
-
-        return $this;
-    }
-
-    /**
-     * Get the value of currentStock
-     */
-    public function getCurrentStock()
-    {
-        return $this->currentStock;
-    }
-
-    /**
-     * Set the value of currentStock
-     *
-     * @return  self
-     */
-    public function setCurrentStock($currentStock)
-    {
-        $this->currentStock = $currentStock;
-
-        return $this;
-    }
-
-    /**
      * Get the value of minStock
      */
     public function getMinStock()
@@ -205,6 +171,26 @@ class InventorySchema extends BaseSchema
     public function setMaxStock($maxStock)
     {
         $this->maxStock = $maxStock;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of prices
+     */
+    public function getPrices()
+    {
+        return $this->prices;
+    }
+
+    /**
+     * Set the value of prices
+     *
+     * @return  self
+     */
+    public function setPrices($prices)
+    {
+        $this->prices = $prices;
 
         return $this;
     }

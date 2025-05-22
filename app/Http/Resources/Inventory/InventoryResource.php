@@ -24,10 +24,20 @@ class InventoryResource extends BaseApiResource
             }),
             'sku' => $this->sku,
             'description' => $this->description,
-            'price' => $this->price,
             'current_stock' => $this->current_stock,
             'min_stock' => $this->min_stock,
             'max_stock' => $this->max_stock,
+            'prices' => $this->relationLoaded('prices') ?
+                $this->prices->map(function ($price) {
+                    return [
+                        'id' => $price->id,
+                        'outlet' => $price->relationLoaded('outlet') ? [
+                            'id' => $price->outlet->id,
+                            'name' => $price->outlet->name
+                        ] : null,
+                        'price' => $price->price
+                    ];
+                }) : [],
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at
         ];
