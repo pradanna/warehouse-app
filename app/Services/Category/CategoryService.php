@@ -2,14 +2,10 @@
 
 namespace App\Services\Category;
 
-use App\Commons\Http\HttpStatus;
 use App\Commons\Http\ServiceResponse;
-use App\Http\Resources\Category\CategoryCollection;
-use App\Http\Resources\Category\CategoryResource;
 use App\Models\Category;
 use App\Schemas\Category\CategoryQuery;
 use App\Schemas\Category\CategorySchema;
-use Illuminate\Contracts\Support\Responsable;
 use Illuminate\Database\Eloquent\Builder;
 
 class CategoryService implements CategoryServiceInterface
@@ -96,7 +92,7 @@ class CategoryService implements CategoryServiceInterface
     {
         try {
             Category::destroy($id);
-            return ServiceResponse::statusOK("category delete category");
+            return ServiceResponse::statusOK("successfully delete category");
         } catch (\Throwable $e) {
             return ServiceResponse::internalServerError($e->getMessage());
         }

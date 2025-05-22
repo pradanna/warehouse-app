@@ -15,15 +15,11 @@ class CategoryController extends CustomController
     /** @var CategoryService $service */
     private $service;
 
-    private $categoryResource;
-    private $categoryCollection;
 
     public function __construct()
     {
         parent::__construct();
         $this->service = new CategoryService();
-        $this->categoryResource = null;
-        $this->categoryCollection = [];
     }
 
     public function create()
@@ -39,8 +35,7 @@ class CategoryController extends CustomController
     {
         $query = (new CategoryQuery())->hydrateSchemaQuery($this->queryParams());
         $response = $this->service->findAll($query);
-        $this->categoryCollection = $response->getData();
-        return (new CategoryCollection($this->categoryCollection))
+        return (new CategoryCollection($response->getData()))
             ->withStatus($response->getStatus())
             ->withMessage($response->getMessage());
     }
@@ -55,14 +50,18 @@ class CategoryController extends CustomController
 
     public function patch($id)
     {
-        $body = $this->jsonBody();
-        $schema = new CategorySchema();
-        $schema->hydrateSchemaBody($body);
-        return $this->service->patch($id, $schema);
+        $schema = (new CategorySchema())->hydrateSchemaBody($this->jsonBody());
+        $response = $this->service->patch($id, $schema);
+        return (new CategoryResource($response->getData()))
+            ->withStatus($response->getStatus())
+            ->withMessage($response->getMessage());
     }
 
     public function delete($id)
     {
-        return $this->service->delete($id);
+        $response = $this->service->delete($id);
+        return (new CategoryResource($response->getData()))
+            ->withStatus($response->getStatus())
+            ->withMessage($response->getMessage());
     }
 }
