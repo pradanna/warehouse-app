@@ -17,7 +17,6 @@ return new class extends Migration
             $table->uuid('unit_id')->nullable();
             $table->string('sku')->unique()->nullable();
             $table->text('description')->nullable();
-            $table->integer('price')->default(0);
             $table->decimal('current_stock', 15, 2);
             $table->decimal('min_stock', 15, 2);
             $table->decimal('max_stock', 15, 2);
