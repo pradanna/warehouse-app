@@ -107,7 +107,7 @@ class InventoryService implements InventoryServiceInterface
             $inventory->update($data);
             $inventory->prices()->delete();
             $inventory->prices()->createMany($prices);
-            $inventory->load(['item', 'unit', 'prices']);
+            $inventory->load(['item', 'unit', 'prices.outlet']);
             DB::commit();
             return ServiceResponse::statusOK("successfully update inventory", $inventory);
         } catch (\Throwable $e) {
