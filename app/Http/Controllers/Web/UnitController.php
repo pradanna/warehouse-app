@@ -17,37 +17,26 @@ class UnitController extends CustomController
     /** @var UnitService $service */
     private $service;
 
-    private $unitResource;
-    private $unitCollection;
-
     public function __construct()
     {
         parent::__construct();
         $this->service = new UnitService();
-        $this->unitResource = null;
-        $this->unitCollection = [];
     }
 
     public function create()
     {
         $schema = (new UnitSchema())->hydrateSchemaBody($this->jsonBody());
         $response = $this->service->create($schema);
-        $this->unitResource = $response->getData();
-        return (new UnitResource($this->unitResource))
+        return (new UnitResource($response->getData()))
             ->withStatus($response->getStatus())
             ->withMessage($response->getMessage());
     }
 
     public function findAll()
     {
-        $queryParams = $this->queryParams();
-        $query = new UnitQuery();
-        $query->hydrateSchemaQuery($queryParams);
+        $query = (new UnitQuery())->hydrateSchemaQuery($this->queryParams());
         $response = $this->service->findAll($query);
-        if ($response->isSuccess()) {
-            $this->unitCollection = $response->getData();
-        }
-        return (new UnitCollection($this->unitCollection))
+        return (new UnitCollection($response->getData()))
             ->withStatus($response->getStatus())
             ->withMessage($response->getMessage());
     }
@@ -55,10 +44,7 @@ class UnitController extends CustomController
     public function findById($id)
     {
         $response = $this->service->findById($id);
-        if ($response->isSuccess()) {
-            $this->unitResource = $response->getData();
-        }
-        return (new UnitResource($this->unitResource))
+        return (new UnitResource($response->getData()))
             ->withStatus($response->getStatus())
             ->withMessage($response->getMessage());
     }
@@ -66,14 +52,9 @@ class UnitController extends CustomController
     public function patch($id)
     {
 
-        $body = $this->jsonBody();
-        $schema = new UnitSchema();
-        $schema->hydrateSchemaBody($body);
+        $schema = (new UnitSchema())->hydrateSchemaBody($this->jsonBody());
         $response = $this->service->patch($id, $schema);
-        if ($response->isSuccess()) {
-            $this->unitResource = $response->getData();
-        }
-        return (new UnitResource($this->unitResource))
+        return (new UnitResource($response->getData()))
             ->withStatus($response->getStatus())
             ->withMessage($response->getMessage());
     }
@@ -81,10 +62,7 @@ class UnitController extends CustomController
     public function delete($id)
     {
         $response = $this->service->delete($id);
-        if ($response->isSuccess()) {
-            $this->unitResource = $response->getData();
-        }
-        return (new UnitResource($this->unitResource))
+        return (new UnitResource($response->getData()))
             ->withStatus($response->getStatus())
             ->withMessage($response->getMessage());
     }
