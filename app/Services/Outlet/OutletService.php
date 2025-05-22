@@ -9,19 +9,15 @@ use App\Http\Resources\Outlet\OutletCollection;
 use App\Http\Resources\Outlet\OutletResource;
 use App\Models\Outlet;
 use App\Schemas\Outlet\OutletQuery;
-use Illuminate\Contracts\Support\Responsable;
 
 class OutletService implements OutletServiceInterface
 {
-    public function create(OutletSchema $schema): Responsable
+    public function create(OutletSchema $schema): ServiceResponse
     {
         try {
             $validator = $schema->validate();
             if ($validator->fails()) {
-                return (new OutletResource(null))
-                    ->additional(['errors' => $validator->errors()->toArray()])
-                    ->withStatus(HttpStatus::UnprocessableEntity)
-                    ->withMessage("error validation");
+                return ServiceResponse::unprocessableEntity($validator->errors()->toArray(), "error validation");
             }
             $schema->hydrateBody();
             $data = [
@@ -29,17 +25,14 @@ class OutletService implements OutletServiceInterface
                 'address' => $schema->getAddress(),
                 'contact' => $schema->getContact()
             ];
-            Outlet::create($data);
-            return (new OutletResource(null))
-                ->withStatus(HttpStatus::Created)
-                ->withMessage("successfully create outlet");
+            $outlet = Outlet::create($data);
+            return ServiceResponse::statusCreated("successfully create outlet", $outlet);
         } catch (\Throwable $e) {
-            return (new OutletResource(null))
-                ->withMessage($e->getMessage());
+            return ServiceResponse::internalServerError($e->getMessage());
         }
     }
 
-    public function findAll(OutletQuery $queryParams): Responsable
+    public function findAll(OutletQuery $queryParams): ServiceResponse
     {
         try {
             $queryParams->hydrateQuery();
@@ -50,54 +43,41 @@ class OutletService implements OutletServiceInterface
                 })
                 ->orderBy('name', 'ASC');
             $data = $query->paginate($queryParams->getPerPage(), '*', 'page', $queryParams->getPage());
-            return (new OutletCollection($data))
-                ->withStatus(HttpStatus::OK)
-                ->withMessage('successfully retrieved outlets');
+            return ServiceResponse::statusOK("successfully get outlets", $data);
         } catch (\Throwable $e) {
-            return (new OutletResource(null))
-                ->withMessage($e->getMessage());
+            return ServiceResponse::internalServerError($e->getMessage());
         }
     }
 
-    public function findByID($id): Responsable
+    public function findByID($id): ServiceResponse
     {
         try {
             $outlet = Outlet::with([])
                 ->where('id', '=', $id)
                 ->first();
             if (!$outlet) {
-                return (new OutletResource(null))
-                    ->withStatus(HttpStatus::NotFound)
-                    ->withMessage("outlet not found");
+                return ServiceResponse::notFound("outlet not found");
             }
-            return (new OutletResource($outlet))
-                ->withStatus(HttpStatus::OK)
-                ->withMessage("successfully retrieved outlet");
+            return ServiceResponse::statusOK("successfully get outlet", $outlet);
         } catch (\Throwable $e) {
-            return (new OutletResource(null))
-                ->withMessage($e->getMessage());
+            return ServiceResponse::internalServerError($e->getMessage());
         }
     }
 
-    public function patch($id, OutletSchema $schema): Responsable
+    public function patch($id, OutletSchema $schema): ServiceResponse
     {
 
         try {
             $validator = $schema->validate();
             if ($validator->fails()) {
-                return (new OutletResource(null))
-                    ->additional(['errors' => $validator->errors()->toArray()])
-                    ->withStatus(HttpStatus::UnprocessableEntity)
-                    ->withMessage("error validation");
+                return ServiceResponse::unprocessableEntity($validator->errors()->toArray(), "error validation");
             }
             $schema->hydrateBody();
             $outlet = Outlet::with([])
                 ->where('id', '=', $id)
                 ->first();
             if (!$outlet) {
-                return (new OutletResource(null))
-                    ->withStatus(HttpStatus::NotFound)
-                    ->withMessage("outlet not found");
+                return ServiceResponse::notFound("outlet not found");
             }
             $data = [
                 'name' => $schema->getName(),
@@ -105,25 +85,19 @@ class OutletService implements OutletServiceInterface
                 'contact' => $schema->getContact()
             ];
             $outlet->update($data);
-            return (new OutletResource(null))
-                ->withStatus(HttpStatus::OK)
-                ->withMessage("successfully update outlet");
+            return ServiceResponse::statusOK("successfully update outlet", $outlet);
         } catch (\Throwable $e) {
-            return (new OutletResource(null))
-                ->withMessage($e->getMessage());
+            return ServiceResponse::internalServerError($e->getMessage());
         }
     }
 
-    public function delete($id): Responsable
+    public function delete($id): ServiceResponse
     {
         try {
             Outlet::destroy($id);
-            return (new OutletResource(null))
-                ->withStatus(HttpStatus::OK)
-                ->withMessage("successfully delete outlet");
+            return ServiceResponse::statusOK("successfully delete outlet");
         } catch (\Throwable $e) {
-            return (new OutletResource(null))
-                ->withMessage($e->getMessage());
+            return ServiceResponse::internalServerError($e->getMessage());
         }
     }
 }
