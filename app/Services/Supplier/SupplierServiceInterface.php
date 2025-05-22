@@ -2,15 +2,15 @@
 
 namespace App\Services\Supplier;
 
+use App\Commons\Http\ServiceResponse;
 use App\Schemas\Supplier\SupplierQuery;
 use App\Schemas\Supplier\SupplierSchema;
-use Illuminate\Contracts\Support\Responsable;
 
 interface SupplierServiceInterface
 {
-    public function create(SupplierSchema $schema): Responsable;
-    public function findAll(SupplierQuery $queryParams): Responsable;
-    public function findByID($id): Responsable;
-    public function patch($id, SupplierSchema $schema): Responsable;
-    public function delete($id): Responsable;
+    public function create(SupplierSchema $schema): ServiceResponse;
+    public function findAll(SupplierQuery $queryParams): ServiceResponse;
+    public function findByID($id): ServiceResponse;
+    public function patch($id, SupplierSchema $schema): ServiceResponse;
+    public function delete($id): ServiceResponse;
 }
