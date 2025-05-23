@@ -21,7 +21,8 @@ class InventoryMovement extends Model
         'quantity_close',
         'description',
         'movement_type',
-        'movement_reference'
+        'movement_reference',
+        'author_id'
     ];
 
     protected $casts = [
@@ -33,5 +34,10 @@ class InventoryMovement extends Model
     public function invetory()
     {
         return $this->belongsTo(Inventory::class, 'inventory_id');
+    }
+
+    public function author()
+    {
+        return $this->belongsTo(User::class, 'author_id');
     }
 }

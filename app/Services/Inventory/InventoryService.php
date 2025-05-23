@@ -10,14 +10,17 @@ use App\Http\Resources\Inventory\InventoryResource;
 use App\Models\Inventory;
 use App\Models\Item;
 use App\Schemas\Inventory\InventoryQuery;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
 class InventoryService implements InventoryServiceInterface
 {
     public function create(InventorySchema $schema): ServiceResponse
     {
+
         DB::beginTransaction();
         try {
+            $userId = Auth::user()->id;
             $validator = $schema->validate();
             if ($validator->fails()) {
                 return ServiceResponse::unprocessableEntity($validator->errors()->toArray(), "error validation");
@@ -31,11 +34,12 @@ class InventoryService implements InventoryServiceInterface
                 'description' => $schema->getDescription(),
                 'current_stock' => 0,
                 'min_stock' => $schema->getMinStock(),
-                'max_stock' => $schema->getMaxStock()
+                'max_stock' => $schema->getMaxStock(),
+                'modified_by' => $userId
             ];
             $inventory = Inventory::create($data);
             $inventory->prices()->createMany($prices);
-            $inventory->load(['item', 'unit', 'prices.outlet']);
+            $inventory->load(['item', 'unit', 'prices.outlet', 'modifiedBy']);
             DB::commit();
             return ServiceResponse::statusCreated("successfully create inventory", $inventory);
         } catch (\Throwable $e) {
@@ -48,7 +52,7 @@ class InventoryService implements InventoryServiceInterface
     {
         try {
             $queryParams->hydrateQuery();
-            $query = Inventory::with(['item', 'unit', 'prices.outlet'])
+            $query = Inventory::with(['item', 'unit', 'prices.outlet', 'modifiedBy'])
                 ->when($queryParams->getParam(), function ($q) use ($queryParams) {
                     /** @var Builder $q */
                     return $q->whereRelation('item', 'name', 'LIKE', "%{$queryParams->getParam()}%");
@@ -67,7 +71,7 @@ class InventoryService implements InventoryServiceInterface
     public function findByID($id): ServiceResponse
     {
         try {
-            $inventory = Inventory::with(['item', 'unit', 'prices.outlet'])
+            $inventory = Inventory::with(['item', 'unit', 'prices.outlet', 'modifiedBy'])
                 ->where('id', '=', $id)
                 ->first();
             if (!$inventory) {
@@ -83,6 +87,7 @@ class InventoryService implements InventoryServiceInterface
     {
         DB::beginTransaction();
         try {
+            $userId = Auth::user()->id;
             $validator = $schema->validate();
             if ($validator->fails()) {
                 return ServiceResponse::unprocessableEntity($validator->errors()->toArray(), "error validation");
@@ -102,12 +107,13 @@ class InventoryService implements InventoryServiceInterface
                 'sku' => $schema->getSku(),
                 'description' => $schema->getDescription(),
                 'min_stock' => $schema->getMinStock(),
-                'max_stock' => $schema->getMaxStock()
+                'max_stock' => $schema->getMaxStock(),
+                'modified_by' => $userId
             ];
             $inventory->update($data);
             $inventory->prices()->delete();
             $inventory->prices()->createMany($prices);
-            $inventory->load(['item', 'unit', 'prices.outlet']);
+            $inventory->load(['item', 'unit', 'prices.outlet', 'modifiedBy']);
             DB::commit();
             return ServiceResponse::statusOK("successfully update inventory", $inventory);
         } catch (\Throwable $e) {
