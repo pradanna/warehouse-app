@@ -20,7 +20,8 @@ class Inventory extends Model
         'description',
         'current_stock',
         'min_stock',
-        'max_stock'
+        'max_stock',
+        'modified_by'
     ];
 
     protected $casts = [
@@ -42,5 +43,10 @@ class Inventory extends Model
     public function prices()
     {
         return $this->hasMany(InventoryPrice::class, 'inventory_id');
+    }
+
+    public function modifiedBy()
+    {
+        return $this->belongsTo(User::class, 'modified_by');
     }
 }

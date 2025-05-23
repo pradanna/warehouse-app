@@ -23,7 +23,8 @@ class Purchase extends Model
         'total',
         'description',
         'payment_type',
-        'payment_status'
+        'payment_status',
+        'author_id'
     ];
 
     protected $casts = [
@@ -59,5 +60,10 @@ class Purchase extends Model
     public function payments()
     {
         return $this->hasMany(PurchasePayment::class, 'purchase_id');
+    }
+
+    public function author()
+    {
+        return $this->belongsTo(User::class, 'author_id');
     }
 }

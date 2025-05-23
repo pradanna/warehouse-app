@@ -37,7 +37,7 @@ class BaseApiResource extends JsonResource implements Responsable
             'message' => $this->message,
         ];
 
-        if ($this->httpStatus === HttpStatus::UnprocessableEntity && is_array($this->resource)) {
+        if ($this->httpStatus === HttpStatus::UnprocessableEntity || $this->httpStatus === HttpStatus::BadRequest && is_array($this->resource)) {
             # code...
             $response['errors'] = $this->resource;
         } else {

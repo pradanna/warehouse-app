@@ -38,6 +38,10 @@ class InventoryResource extends BaseApiResource
                         'price' => $price->price
                     ];
                 }) : [],
+            'modified_by' => $this->relationLoaded('modifiedBy') ? [
+                'id' => $this->modifiedBy->id,
+                'username' => $this->modifiedBy->username
+            ] : null,
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at
         ];
