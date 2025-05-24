@@ -34,7 +34,7 @@ class InventorySchema extends BaseSchema
         $itemId = $this->body['item_id'];
         $unitId = $this->body['unit_id'];
         $sku = !empty(trim($this->body['sku'] ?? '')) ? $this->body['sku'] : null;
-        $description = !empty(trim($this->body['description'] ?? '')) ? $this->body['description'] : null;;
+        $description = !empty(trim($this->body['description'] ?? '')) ? $this->body['description'] : null;
         $minStock = $this->body['min_stock'] ?? 0;
         $maxStock = $this->body['max_stock'] ?? 99;
         $prices = $this->body['prices'];

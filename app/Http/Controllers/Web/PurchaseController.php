@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Web;
 use App\Http\Controllers\CustomController;
 use App\Http\Resources\Purchase\PurchaseCollection;
 use App\Http\Resources\Purchase\PurchaseResource;
+use App\Schemas\Purchase\PurchasePaymentSchema;
 use App\Schemas\Purchase\PurchaseQuery;
 use App\Schemas\Purchase\PurchaseSchema;
 use App\Services\Purchase\PurchaseService;
@@ -45,4 +46,14 @@ class PurchaseController extends CustomController
             ->withStatus($response->getStatus())
             ->withMessage($response->getMessage());
     }
+
+    public function payment($id)
+    {
+        $schema = (new PurchasePaymentSchema())->hydrateSchemaBody($this->jsonBody());
+        $response = $this->service->payment($id, $schema);
+        return (new PurchaseResource($response->getData()))
+            ->withStatus($response->getStatus())
+            ->withMessage($response->getMessage());
+    }
+
 }

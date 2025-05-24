@@ -3,6 +3,8 @@
 namespace App\Services\Purchase;
 
 use App\Commons\Enum\InventoryMovementType;
+use App\Commons\Enum\PurchasePaymentStatus;
+use App\Commons\Enum\PurchasePaymentType;
 use App\Commons\Http\HttpStatus;
 use App\Schemas\Purchase\PurchaseSchema;
 use App\Commons\Http\ServiceResponse;
@@ -12,6 +14,7 @@ use App\Http\Resources\Purchase\PurchaseResource;
 use App\Models\Inventory;
 use App\Models\InventoryMovement;
 use App\Models\Purchase;
+use App\Schemas\Purchase\PurchasePaymentSchema;
 use App\Schemas\Purchase\PurchaseQuery;
 use App\Services\Inventory\InventoryService;
 use Illuminate\Contracts\Support\Responsable;
@@ -32,15 +35,22 @@ class PurchaseService implements PurchaseServiceInterface
             $schema->hydrateBody();
             $items = $schema->getItems();
             $payment = $schema->getPayment();
-            $payment['author_id'] = $userId;
+
             $itemCollections = collect($items);
             $subTotal = $itemCollections->sum('total');
             $total = $subTotal + $schema->getTax() - $schema->getDiscount();
-            $paymentStatus = 'paid';
-            if ($schema->getPaymentType() === 'cash' && ($payment['amount'] !== $total)) {
-                return ServiceResponse::badRequest("bad request (Payment mismatch: the amount paid does not correspond to the total required.)");
+            $paymentStatus = PurchasePaymentStatus::Unpaid->value;
+            if ($payment) {
+                $payment['author_id'] = $userId;
+                if ($schema->getPaymentType() === PurchasePaymentType::Cash->value) {
+                    $paymentStatus = PurchasePaymentStatus::Paid->value;
+                    if ($payment['amount'] !== $total) {
+                        return ServiceResponse::badRequest("bad request (Payment mismatch: the amount paid does not correspond to the total required.)");
+                    }
+                } else {
+                    $paymentStatus = PurchasePaymentStatus::Partial->value;
+                }
             }
-
 
             $data = [
                 'supplier_id' => $schema->getSupplierId(),
@@ -57,7 +67,11 @@ class PurchaseService implements PurchaseServiceInterface
             ];
             $purchase = Purchase::create($data);
             $purchase->items()->createMany($items);
-            $purchase->payment()->create($payment);
+
+            if ($payment) {
+                $purchase->payment()->create($payment);
+            }
+
             foreach ($items as $item) {
                 $inventory = Inventory::with([])
                     ->where('id', '=', $item['inventory_id'])
@@ -130,6 +144,35 @@ class PurchaseService implements PurchaseServiceInterface
                 return ServiceResponse::notFound("purchase not found");
             }
             return ServiceResponse::statusOK("successfully get purchase", $purchase);
+        } catch (\Throwable $e) {
+            return ServiceResponse::internalServerError($e->getMessage());
+        }
+    }
+
+    public function payment($id, PurchasePaymentSchema $schema): ServiceResponse
+    {
+        try {
+            $validator = $schema->validate();
+            if ($validator->fails()) {
+                return ServiceResponse::unprocessableEntity($validator->errors()->toArray(), "error validation");
+            }
+            $schema->hydrateBody();
+            $purchase = Purchase::with([])
+                ->where('id', '=', $id)
+                ->first();
+            if (!$purchase) {
+                return ServiceResponse::notFound("purchase not found");
+            }
+            $dataPayment = [
+                'date' => $schema->getDate(),
+                'payment_type' => $schema->getPaymentType(),
+                'amount' => $schema->getAmount(),
+                'description' => $schema->getDescription(),
+                'author_id' => Auth::user()->id
+            ];
+            $purchase->payment()->create($dataPayment);
+            $purchase->load('payment');
+            return ServiceResponse::statusCreated("successfully create purchase payment", $purchase);
         } catch (\Throwable $e) {
             return ServiceResponse::internalServerError($e->getMessage());
         }

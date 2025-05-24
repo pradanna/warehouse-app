@@ -31,11 +31,11 @@ class PurchaseSchema extends BaseSchema
             'items.*.inventory_id' => 'required|string',
             'items.*.quantity' => 'required|numeric',
             'items.*.price' => 'required|numeric',
-            'payment' => 'required|array',
-            'payment.date' => 'required|date',
+            'payment' => 'required_if:payment_type,cash|array',
+            'payment.date' => 'required_if:payment_type,cash|date',
             'payment.description' => 'string',
-            'payment.payment_type' => 'required|in:cash,digital',
-            'payment.amount' => 'required|numeric',
+            'payment.payment_type' => 'required_if:payment_type,cash|in:cash,digital',
+            'payment.amount' => 'required_if:payment_type,cash|numeric',
         ];
     }
 
@@ -49,16 +49,20 @@ class PurchaseSchema extends BaseSchema
         $description = $this->body['description'] ?? null;
         $paymentType = $this->body['payment_type'];
         $items = $this->body['items'];
-        $paymentDate = $this->body['payment']['date'];
-        $paymentDescription = $this->body['payment']['description'] ?? null;
-        $paymentPaymentType = $this->body['payment']['payment_type'];
-        $paymentAmount = $this->body['payment']['amount'];
-        $payment = [
-            'date' => $paymentDate,
-            'description' => $paymentDescription,
-            'payment_type' => $paymentPaymentType,
-            'amount' => $paymentAmount
-        ];
+        $payment = null;
+        if (isset($this->body['payment'])) {
+            $paymentDate = $this->body['payment']['date'];
+            $paymentDescription = $this->body['payment']['description'] ?? null;
+            $paymentPaymentType = $this->body['payment']['payment_type'];
+            $paymentAmount = $this->body['payment']['amount'];
+            $payment = [
+                'date' => $paymentDate,
+                'description' => $paymentDescription,
+                'payment_type' => $paymentPaymentType,
+                'amount' => $paymentAmount
+            ];
+        }
+
 
         $dataItems = [];
         foreach ($items as $item) {
