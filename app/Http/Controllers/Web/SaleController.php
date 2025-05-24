@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\Web;
 
 use App\Http\Controllers\CustomController;
+use App\Http\Resources\Sale\SaleCollection;
+use App\Http\Resources\Sale\SaleResource;
 use App\Schemas\Sale\SaleQuery;
 use App\Schemas\Sale\SaleSchema;
 use App\Services\Sale\SaleService;
@@ -20,22 +22,27 @@ class SaleController extends CustomController
 
     public function create()
     {
-        $body = $this->jsonBody();
-        $schema = new SaleSchema();
-        $schema->hydrateSchemaBody($body);
-        return $this->service->create($schema);
+        $schema = (new SaleSchema())->hydrateSchemaBody($this->jsonBody());
+        $response = $this->service->create($schema);
+        return (new SaleResource($response->getData()))
+            ->withStatus($response->getStatus())
+            ->withMessage($response->getMessage());
     }
 
     public function findAll()
     {
-        $queryParams = $this->queryParams();
-        $query = new SaleQuery();
-        $query->hydrateSchemaQuery($queryParams);
-        return $this->service->findAll($query);
+        $query = (new SaleQuery())->hydrateSchemaQuery($this->queryParams());
+        $response = $this->service->findAll($query);
+        return (new SaleCollection($response->getData()))
+            ->withStatus($response->getStatus())
+            ->withMessage($response->getMessage());
     }
 
     public function findByID($id)
     {
-        return $this->service->findByID($id);
+        $response = $this->service->findByID($id);
+        return (new SaleResource($response->getData()))
+            ->withStatus($response->getStatus())
+            ->withMessage($response->getMessage());
     }
 }

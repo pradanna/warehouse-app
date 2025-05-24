@@ -36,11 +36,12 @@ class PurchaseService implements PurchaseServiceInterface
             $itemCollections = collect($items);
             $subTotal = $itemCollections->sum('total');
             $total = $subTotal + $schema->getTax() - $schema->getDiscount();
+            $paymentStatus = 'paid';
             if ($schema->getPaymentType() === 'cash' && ($payment['amount'] !== $total)) {
                 return ServiceResponse::badRequest("bad request (Payment mismatch: the amount paid does not correspond to the total required.)");
             }
 
-            $paymentStatus = 'paid';
+
             $data = [
                 'supplier_id' => $schema->getSupplierId(),
                 'date' => $schema->getDate(),
