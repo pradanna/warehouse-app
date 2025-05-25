@@ -54,7 +54,7 @@ class Purchase extends Model
 
     public function payment()
     {
-        return $this->hasOne(PurchasePayment::class, 'purchase_id');
+        return $this->hasOne(PurchasePayment::class, 'purchase_id')->orderBy('created_at', 'DESC');
     }
 
     public function payments()

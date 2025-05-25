@@ -49,6 +49,12 @@ class PurchaseResource extends BaseApiResource
                     ];
                 });
             }),
+            'payment' => $this->relationLoaded('payment') ? [
+                'amount' => $this->payment->amount,
+                'date' => $this->payment->date,
+                'payment_type' => $this->payment->payment_type,
+                'description' => $this->payment->description
+            ] : null,
             'author' => $this->relationLoaded('author') ? [
                 'id' => $this->author->id,
                 'username' => $this->author->username

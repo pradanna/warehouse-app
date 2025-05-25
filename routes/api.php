@@ -68,6 +68,7 @@ Route::group(['prefix' => 'v1'], function () {
             Route::post('/', [PurchaseController::class, 'create']);
             Route::get('/', [PurchaseController::class, 'findAll']);
             Route::get('/{id}', [PurchaseController::class, 'findByID']);
+            Route::post('/{id}/payment', [PurchaseController::class, 'payment']);
             // Route::put('/{id}', [SupplierController::class, 'patch']);
             // Route::delete('/{id}', [SupplierController::class, 'delete']);
         });
