@@ -171,8 +171,8 @@ class PurchaseService implements PurchaseServiceInterface
                 'author_id' => Auth::user()->id
             ];
             $purchase->payment()->create($dataPayment);
-            $purchase->load('payment');
-            return ServiceResponse::statusCreated("successfully create purchase payment", $purchase);
+            $purchase->load('payment.author');
+            return ServiceResponse::statusCreated("successfully create purchase payment");
         } catch (\Throwable $e) {
             return ServiceResponse::internalServerError($e->getMessage());
         }
