@@ -148,33 +148,4 @@ class PurchaseService implements PurchaseServiceInterface
             return ServiceResponse::internalServerError($e->getMessage());
         }
     }
-
-    public function payment($id, PurchasePaymentSchema $schema): ServiceResponse
-    {
-        try {
-            $validator = $schema->validate();
-            if ($validator->fails()) {
-                return ServiceResponse::unprocessableEntity($validator->errors()->toArray(), "error validation");
-            }
-            $schema->hydrateBody();
-            $purchase = Purchase::with([])
-                ->where('id', '=', $id)
-                ->first();
-            if (!$purchase) {
-                return ServiceResponse::notFound("purchase not found");
-            }
-            $dataPayment = [
-                'date' => $schema->getDate(),
-                'payment_type' => $schema->getPaymentType(),
-                'amount' => $schema->getAmount(),
-                'description' => $schema->getDescription(),
-                'author_id' => Auth::user()->id
-            ];
-            $purchase->payment()->create($dataPayment);
-            $purchase->load('payment.author');
-            return ServiceResponse::statusCreated("successfully create purchase payment");
-        } catch (\Throwable $e) {
-            return ServiceResponse::internalServerError($e->getMessage());
-        }
-    }
 }
