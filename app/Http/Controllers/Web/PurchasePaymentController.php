@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Controllers\CustomController;
 use App\Http\Resources\PurchasePayment\PurchasePaymentCollection;
 use App\Http\Resources\PurchasePayment\PurchasePaymentResource;
+use App\Schemas\PurchasePayment\PurchasePaymentEvidenceSchema;
 use App\Schemas\PurchasePayment\PurchasePaymentQuery;
 use App\Schemas\PurchasePayment\PurchasePaymentSchema;
 use App\Services\PurchasePayment\PurchasePaymentService;
@@ -43,6 +44,15 @@ class PurchasePaymentController extends CustomController
     public function findByID($id)
     {
         $response = $this->service->findByID($id);
+        return (new PurchasePaymentResource($response->getData()))
+            ->withStatus($response->getStatus())
+            ->withMessage($response->getMessage());
+    }
+
+    public function uploadEvidence($id)
+    {
+        $schema = (new PurchasePaymentEvidenceSchema())->hydrateSchemaBody($this->formBody());
+        $response = $this->service->uploadEvidence($id, $schema);
         return (new PurchasePaymentResource($response->getData()))
             ->withStatus($response->getStatus())
             ->withMessage($response->getMessage());

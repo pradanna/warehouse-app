@@ -20,7 +20,7 @@ class PurchasePaymentResource extends BaseApiResource
             'date' => $this->date,
             'amount' => $this->amount,
             'payment_type' => $this->payment_type,
-            'evidence' => $this->evidence,
+            'evidence' => $this->evidence ? url($this->evidence) : null,
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
             'purchase' => $this->relationLoaded('purchase') && $this->purchase ? [

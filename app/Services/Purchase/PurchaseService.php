@@ -11,6 +11,7 @@ use App\Commons\Http\ServiceResponse;
 use App\Commons\Pagination\Pagination;
 use App\Http\Resources\Purchase\PurchaseCollection;
 use App\Http\Resources\Purchase\PurchaseResource;
+use App\Models\Debt;
 use App\Models\Inventory;
 use App\Models\InventoryMovement;
 use App\Models\Purchase;
@@ -72,6 +73,7 @@ class PurchaseService implements PurchaseServiceInterface
                 $purchase->payment()->create($payment);
             }
 
+            # update inventory stock and create inventory movements
             foreach ($items as $item) {
                 $inventory = Inventory::with([])
                     ->where('id', '=', $item['inventory_id'])
@@ -97,10 +99,28 @@ class PurchaseService implements PurchaseServiceInterface
                 ];
                 InventoryMovement::create($movementData);
             }
+
+            # create debt record if payment type is installment
+            if ($schema->getPaymentType() === PurchasePaymentType::Installment->value) {
+                $dataDebt = [
+                    'purchase_id' => $purchase->id,
+                    'amount_due' => $total,
+                    'amount_paid' => 0,
+                    'amount_rest' => $total,
+                    'due_date' => null
+                ];
+                if ($payment) {
+                    $dataDebt['amount_paid'] = $payment['amount'];
+                    $dataDebt['amount_rest'] = $total - $payment['amount'];
+                }
+                Debt::create($dataDebt);
+            }
+
             $purchase->load([
                 'supplier',
                 'items.inventory',
                 'payments',
+                'debt',
                 'author'
             ]);
             DB::commit();

@@ -2,10 +2,12 @@
 
 namespace App\Services\PurchasePayment;
 
+use App\Commons\File\FileUploadService;
 use App\Schemas\PurchasePayment\PurchasePaymentQuery;
 use App\Commons\Http\ServiceResponse;
 use App\Models\Purchase;
 use App\Models\PurchasePayment;
+use App\Schemas\PurchasePayment\PurchasePaymentEvidenceSchema;
 use App\Schemas\PurchasePayment\PurchasePaymentSchema;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Auth;
@@ -70,6 +72,37 @@ class PurchasePaymentService implements PurchasePaymentServiceInterface
             if (!$purchasePayment) {
                 return ServiceResponse::notFound("purchase payment not found");
             }
+            return ServiceResponse::statusOK("successfully get purchase payment", $purchasePayment);
+        } catch (\Throwable $e) {
+            return ServiceResponse::internalServerError($e->getMessage());
+        }
+    }
+
+    public function uploadEvidence($id, PurchasePaymentEvidenceSchema $schema): ServiceResponse
+    {
+        try {
+            $validator = $schema->validate();
+            if ($validator->fails()) {
+                return ServiceResponse::unprocessableEntity($validator->errors()->toArray(), "error validation");
+            }
+            $schema->hydrateBody();
+            $purchasePayment = PurchasePayment::with([
+                'purchase.supplier',
+                'author'
+            ])->where('id', '=', $id)
+                ->first();
+            if (!$purchasePayment) {
+                return ServiceResponse::notFound("purchase payment not found");
+            }
+            $fileUploadService = new FileUploadService($schema->getEvidence(), "evidences/purchase");
+            $fileUploadResponse = $fileUploadService->upload();
+            if (!$fileUploadResponse->isSuccess()) {
+                return ServiceResponse::internalServerError('failed to upload file');
+            }
+            $dataUpdate = [
+                'evidence' => $fileUploadResponse->getFileName()
+            ];
+            $purchasePayment->update($dataUpdate);
             return ServiceResponse::statusOK("successfully get purchase payment", $purchasePayment);
         } catch (\Throwable $e) {
             return ServiceResponse::internalServerError($e->getMessage());

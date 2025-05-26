@@ -78,6 +78,7 @@ Route::group(['prefix' => 'v1'], function () {
             Route::post('/', [PurchasePaymentController::class, 'create']);
             Route::get('/', [PurchasePaymentController::class, 'findAll']);
             Route::get('/{id}', [PurchasePaymentController::class, 'findByID']);
+            Route::post('/{id}/evidence', [PurchasePaymentController::class, 'uploadEvidence']);
         });
 
         Route::group(['prefix' => 'sale'], function () {
