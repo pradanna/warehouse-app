@@ -33,6 +33,14 @@ class PurchasePaymentResource extends BaseApiResource
                 'total' => $this->purchase->total,
                 'payment_type' => $this->purchase->payment_type
             ] : null,
+            'debt' => $this->relationLoaded('purchase') && $this->purchase ? (
+                $this->purchase->debt ? [
+                    'id' => $this->purchase->debt->id,
+                    'amount_due' => $this->purchase->debt->amount_due,
+                    'amount_paid' => $this->purchase->debt->amount_paid,
+                    'amount_rest' => $this->purchase->debt->amount_rest,
+                ] : null
+            ) : null,
             'supplier' => $this->relationLoaded('purchase') && $this->purchase ? ($this->purchase->supplier ?  [
                 'id' => $this->purchase->supplier->id,
                 'name' => $this->purchase->supplier->name
