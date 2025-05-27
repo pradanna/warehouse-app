@@ -14,15 +14,12 @@ use Illuminate\Contracts\Support\Responsable;
 
 class ItemService implements ItemServiceInterface
 {
-    public function create(ItemSchema $schema): Responsable
+    public function create(ItemSchema $schema): ServiceResponse
     {
         try {
             $validator = $schema->validate();
             if ($validator->fails()) {
-                return (new ItemResource(null))
-                    ->additional(['errors' => $validator->errors()->toArray()])
-                    ->withStatus(HttpStatus::UnprocessableEntity)
-                    ->withMessage("error validation");
+                return ServiceResponse::unprocessableEntity($validator->errors()->toArray(), "error validation");
             }
             $schema->hydrateBody();
             $data = [
@@ -30,17 +27,15 @@ class ItemService implements ItemServiceInterface
                 'name' => $schema->getName(),
                 'description' => $schema->getDescription(),
             ];
-            Item::create($data);
-            return (new ItemResource(null))
-                ->withStatus(HttpStatus::Created)
-                ->withMessage("successfully create item");
+            $item = Item::create($data);
+            $item->load('category');
+            return ServiceResponse::statusCreated("successfully create item", $item);
         } catch (\Throwable $e) {
-            return (new ItemResource(null))
-                ->withMessage($e->getMessage());
+            return ServiceResponse::internalServerError($e->getMessage());
         }
     }
 
-    public function findAll(ItemQuery $queryParams): Responsable
+    public function findAll(ItemQuery $queryParams): ServiceResponse
     {
         try {
             $queryParams->hydrateQuery();
@@ -51,44 +46,33 @@ class ItemService implements ItemServiceInterface
                 })
                 ->orderBy('name', 'ASC');
             $data = $query->paginate($queryParams->getPerPage(), '*', 'page', $queryParams->getPage());
-            return (new ItemCollection($data))
-                ->withStatus(HttpStatus::OK)
-                ->withMessage('successfully retrieved items');
+            return ServiceResponse::statusOK("successfully get items", $data);
         } catch (\Throwable $e) {
-            return (new ItemResource(null))
-                ->withMessage($e->getMessage());
+            return ServiceResponse::internalServerError($e->getMessage());
         }
     }
 
-    public function findByID($id): Responsable
+    public function findByID($id): ServiceResponse
     {
         try {
             $item = Item::with(['category'])
                 ->where('id', '=', $id)
                 ->first();
             if (!$item) {
-                return (new ItemResource(null))
-                    ->withStatus(HttpStatus::NotFound)
-                    ->withMessage("item not found");
+                return ServiceResponse::notFound("item not found");
             }
-            return (new ItemResource($item))
-                ->withStatus(HttpStatus::OK)
-                ->withMessage("successfully retrieved item");
+            return ServiceResponse::statusOK("successfully get item", $item);
         } catch (\Throwable $e) {
-            return (new ItemResource(null))
-                ->withMessage($e->getMessage());
+            return ServiceResponse::internalServerError($e->getMessage());
         }
     }
 
-    public function patch($id, ItemSchema $schema): Responsable
+    public function patch($id, ItemSchema $schema): ServiceResponse
     {
         try {
             $validator = $schema->validate();
             if ($validator->fails()) {
-                return (new ItemResource(null))
-                    ->additional(['errors' => $validator->errors()->toArray()])
-                    ->withStatus(HttpStatus::UnprocessableEntity)
-                    ->withMessage("error validation");
+                return ServiceResponse::unprocessableEntity($validator->errors()->toArray(), "error validation");
             }
             $schema->hydrateBody();
 
@@ -96,9 +80,7 @@ class ItemService implements ItemServiceInterface
                 ->where('id', '=', $id)
                 ->first();
             if (!$item) {
-                return (new ItemResource(null))
-                    ->withStatus(HttpStatus::NotFound)
-                    ->withMessage("item not found");
+                return ServiceResponse::notFound("item not found");
             }
             $data = [
                 'category_id' => $schema->getCategoryId(),
@@ -107,25 +89,20 @@ class ItemService implements ItemServiceInterface
             ];
 
             $item->update($data);
-            return (new ItemResource(null))
-                ->withStatus(HttpStatus::OK)
-                ->withMessage("successfully update item");
+            $item->load('category');
+            return ServiceResponse::statusOK("successfully update item", $item);
         } catch (\Throwable $e) {
-            return (new ItemResource(null))
-                ->withMessage($e->getMessage());
+            return ServiceResponse::internalServerError($e->getMessage());
         }
     }
 
-    public function delete($id): Responsable
+    public function delete($id): ServiceResponse
     {
         try {
             Item::destroy($id);
-            return (new ItemResource(null))
-                ->withStatus(HttpStatus::OK)
-                ->withMessage("successfully delete item");
+            return ServiceResponse::statusOK("successfully delete item");
         } catch (\Throwable $e) {
-            return (new ItemResource(null))
-                ->withMessage($e->getMessage());
+            return ServiceResponse::internalServerError($e->getMessage());
         }
     }
 }

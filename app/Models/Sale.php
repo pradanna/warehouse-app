@@ -24,7 +24,8 @@ class Sale extends Model
         'total',
         'description',
         'payment_type',
-        'payment_status'
+        'payment_status',
+        'author_id'
     ];
 
     protected $casts = [
@@ -52,5 +53,10 @@ class Sale extends Model
     public function payments()
     {
         return $this->hasMany(SalePayment::class, 'sale_id');
+    }
+
+    public function author()
+    {
+        return $this->belongsTo(User::class, 'author_id');
     }
 }

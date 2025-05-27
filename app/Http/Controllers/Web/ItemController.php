@@ -4,6 +4,8 @@ namespace App\Http\Controllers\Web;
 
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\CustomController;
+use App\Http\Resources\Item\ItemCollection;
+use App\Http\Resources\Item\ItemResource;
 use App\Schemas\Item\ItemQuery;
 use App\Schemas\Item\ItemSchema;
 use App\Services\Item\ItemService;
@@ -22,35 +24,44 @@ class ItemController extends CustomController
 
     public function create()
     {
-        $body = $this->jsonBody();
-        $schema = new ItemSchema();
-        $schema->hydrateSchemaBody($body);
-        return $this->service->create($schema);
+        $schema = (new ItemSchema())->hydrateSchemaBody($this->jsonBody());
+        $response = $this->service->create($schema);
+        return (new ItemResource($response->getData()))
+            ->withStatus($response->getStatus())
+            ->withMessage($response->getMessage());
     }
 
     public function findAll()
     {
-        $queryParams = $this->queryParams();
-        $query = new ItemQuery();
-        $query->hydrateSchemaQuery($queryParams);
-        return $this->service->findAll($query);
+        $query = (new ItemQuery())->hydrateSchemaQuery($this->queryParams());
+        $response = $this->service->findAll($query);
+        return (new ItemCollection($response->getData()))
+            ->withStatus($response->getStatus())
+            ->withMessage($response->getMessage());
     }
 
     public function findByID($id)
     {
-        return $this->service->findByID($id);
+        $response = $this->service->findByID($id);
+        return (new ItemResource($response->getData()))
+            ->withStatus($response->getStatus())
+            ->withMessage($response->getMessage());
     }
 
     public function patch($id)
     {
-        $body = $this->jsonBody();
-        $schema = new ItemSchema();
-        $schema->hydrateSchemaBody($body);
-        return $this->service->patch($id, $schema);
+        $schema = (new ItemSchema())->hydrateSchemaBody($this->jsonBody());
+        $response = $this->service->patch($id, $schema);
+        return (new ItemResource($response->getData()))
+            ->withStatus($response->getStatus())
+            ->withMessage($response->getMessage());
     }
 
     public function delete($id)
     {
-        return $this->service->delete($id);
+        $response = $this->service->delete($id);
+        return (new ItemResource($response->getData()))
+            ->withStatus($response->getStatus())
+            ->withMessage($response->getMessage());
     }
 }

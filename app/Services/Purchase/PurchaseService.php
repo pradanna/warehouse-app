@@ -2,15 +2,20 @@
 
 namespace App\Services\Purchase;
 
+use App\Commons\Enum\InventoryMovementType;
+use App\Commons\Enum\PurchasePaymentStatus;
+use App\Commons\Enum\PurchasePaymentType;
 use App\Commons\Http\HttpStatus;
 use App\Schemas\Purchase\PurchaseSchema;
 use App\Commons\Http\ServiceResponse;
 use App\Commons\Pagination\Pagination;
 use App\Http\Resources\Purchase\PurchaseCollection;
 use App\Http\Resources\Purchase\PurchaseResource;
+use App\Models\Debt;
 use App\Models\Inventory;
 use App\Models\InventoryMovement;
 use App\Models\Purchase;
+use App\Schemas\Purchase\PurchasePaymentSchema;
 use App\Schemas\Purchase\PurchaseQuery;
 use App\Services\Inventory\InventoryService;
 use Illuminate\Contracts\Support\Responsable;
@@ -19,47 +24,63 @@ use Illuminate\Support\Facades\DB;
 
 class PurchaseService implements PurchaseServiceInterface
 {
-    public function create(PurchaseSchema $schema): Responsable
+    public function create(PurchaseSchema $schema): ServiceResponse
     {
         try {
+            $userId = Auth::user()->id;
             DB::beginTransaction();
             $validator = $schema->validate();
             if ($validator->fails()) {
-                return (new PurchaseResource(null))
-                    ->additional(['errors' => $validator->errors()->toArray()])
-                    ->withStatus(HttpStatus::UnprocessableEntity)
-                    ->withMessage("error validation");
+                return ServiceResponse::unprocessableEntity($validator->errors()->toArray(), "error validation");
             }
             $schema->hydrateBody();
             $items = $schema->getItems();
             $payment = $schema->getPayment();
-            $payment['author_id'] = Auth::user()->id;
 
-            $paymentStatus = 'paid';
+            $itemCollections = collect($items);
+            $subTotal = $itemCollections->sum('total');
+            $total = $subTotal + $schema->getTax() - $schema->getDiscount();
+            $paymentStatus = PurchasePaymentStatus::Unpaid->value;
+            if ($payment) {
+                $payment['author_id'] = $userId;
+                if ($schema->getPaymentType() === PurchasePaymentType::Cash->value) {
+                    $paymentStatus = PurchasePaymentStatus::Paid->value;
+                    if ($payment['amount'] !== $total) {
+                        return ServiceResponse::badRequest("bad request (Payment mismatch: the amount paid does not correspond to the total required.)");
+                    }
+                } else {
+                    $paymentStatus = PurchasePaymentStatus::Partial->value;
+                }
+            }
+
             $data = [
                 'supplier_id' => $schema->getSupplierId(),
                 'date' => $schema->getDate(),
                 'reference_number' => $schema->getReferenceNumber(),
-                'sub_total' => $schema->getSubTotal(),
+                'sub_total' => $subTotal,
                 'discount' => $schema->getDiscount(),
                 'tax' => $schema->getTax(),
-                'total' => $schema->getTotal(),
+                'total' => $total,
                 'description' => $schema->getDescription(),
                 'payment_type' => $schema->getPaymentType(),
-                'payment_status' => $paymentStatus
+                'payment_status' => $paymentStatus,
+                'author_id' => $userId
             ];
             $purchase = Purchase::create($data);
             $purchase->items()->createMany($items);
-            $purchase->payment()->create($payment);
+
+            if ($payment) {
+                $purchase->payment()->create($payment);
+            }
+
+            # update inventory stock and create inventory movements
             foreach ($items as $item) {
                 $inventory = Inventory::with([])
                     ->where('id', '=', $item['inventory_id'])
                     ->first();
                 if (!$inventory) {
                     DB::rollBack();
-                    return (new PurchaseResource(null))
-                        ->withStatus(HttpStatus::NotFound)
-                        ->withMessage("inventory not found");
+                    return ServiceResponse::notFound("inventory not found");
                 }
                 $currentStock = $inventory->current_stock;
                 $newStock = $currentStock + $item['quantity'];
@@ -72,65 +93,79 @@ class PurchaseService implements PurchaseServiceInterface
                     'quantity' => $item['quantity'],
                     'quantity_close' => $newStock,
                     'description' => 'Purchasing',
-                    'movement_type' => 'purchase',
-                    'movement_reference' => $purchase->id
+                    'movement_type' => InventoryMovementType::Purhcase->value,
+                    'movement_reference' => $purchase->id,
+                    'author_id' => $userId
                 ];
                 InventoryMovement::create($movementData);
             }
+
+            # create debt record if payment type is installment
+            if ($schema->getPaymentType() === PurchasePaymentType::Installment->value) {
+                $dataDebt = [
+                    'purchase_id' => $purchase->id,
+                    'amount_due' => $total,
+                    'amount_paid' => 0,
+                    'amount_rest' => $total,
+                    'due_date' => null
+                ];
+                if ($payment) {
+                    $dataDebt['amount_paid'] = $payment['amount'];
+                    $dataDebt['amount_rest'] = $total - $payment['amount'];
+                }
+                Debt::create($dataDebt);
+            }
+
+            $purchase->load([
+                'supplier',
+                'items.inventory',
+                'payments',
+                'debt',
+                'author'
+            ]);
             DB::commit();
-            return (new PurchaseResource(null))
-                ->withStatus(HttpStatus::Created)
-                ->withMessage("successfully create purchase");
+            return ServiceResponse::statusCreated("successfully create purchase", $purchase);
         } catch (\Throwable $e) {
             DB::rollBack();
-            return (new PurchaseResource(null))
-                ->withMessage($e->getMessage());
+            return ServiceResponse::internalServerError($e->getMessage());
         }
     }
 
-    public function findAll(PurchaseQuery $queryParams): Responsable
+    public function findAll(PurchaseQuery $queryParams): ServiceResponse
     {
         try {
             $queryParams->hydrateQuery();
             $query = Purchase::with([
                 'supplier',
                 'items.inventory',
-                'payments'
+                'payments',
+                'author'
             ])
                 ->orderBy('date', 'DESC');
             $data = $query->paginate($queryParams->getPerPage(), '*', 'page', $queryParams->getPage());
-            return (new PurchaseCollection($data))
-                ->withStatus(HttpStatus::OK)
-                ->withMessage('successfully retrieved purchases');
+            return ServiceResponse::statusOK("successfully get purchases", $data);
         } catch (\Throwable $e) {
-            return (new PurchaseResource(null))
-                ->withStatus(HttpStatus::InternalServerError)
-                ->withMessage($e->getMessage());
+            return ServiceResponse::internalServerError($e->getMessage());
         }
     }
 
-    public function findByID($id): Responsable
+    public function findByID($id): ServiceResponse
     {
         try {
             $purchase = Purchase::with([
                 'supplier',
                 'items.inventory',
-                'payments'
+                'payments',
+                'author'
             ])
                 ->where('id', '=', $id)
                 ->first();
             if (!$purchase) {
-                return (new PurchaseResource(null))
-                    ->withStatus(HttpStatus::NotFound)
-                    ->withMessage("purchase not found");
+                return ServiceResponse::notFound("purchase not found");
             }
-            return (new PurchaseResource($purchase))
-                ->withStatus(HttpStatus::OK)
-                ->withMessage("successfully retrieved purchase");
+            return ServiceResponse::statusOK("successfully get purchase", $purchase);
         } catch (\Throwable $e) {
-            return (new PurchaseResource(null))
-                ->withStatus(HttpStatus::InternalServerError)
-                ->withMessage($e->getMessage());
+            return ServiceResponse::internalServerError($e->getMessage());
         }
     }
 }

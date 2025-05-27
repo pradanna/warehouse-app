@@ -6,6 +6,7 @@ use App\Http\Controllers\Web\InventoryController;
 use App\Http\Controllers\Web\ItemController;
 use App\Http\Controllers\Web\OutletController;
 use App\Http\Controllers\Web\PurchaseController;
+use App\Http\Controllers\Web\PurchasePaymentController;
 use App\Http\Controllers\Web\SaleController;
 use App\Http\Controllers\Web\SupplierController;
 use App\Http\Controllers\Web\UnitController;
@@ -68,8 +69,16 @@ Route::group(['prefix' => 'v1'], function () {
             Route::post('/', [PurchaseController::class, 'create']);
             Route::get('/', [PurchaseController::class, 'findAll']);
             Route::get('/{id}', [PurchaseController::class, 'findByID']);
+            Route::post('/{id}/payment', [PurchaseController::class, 'payment']);
             // Route::put('/{id}', [SupplierController::class, 'patch']);
             // Route::delete('/{id}', [SupplierController::class, 'delete']);
+        });
+
+        Route::group(['prefix' => 'purchase-payment'], function () {
+            Route::post('/', [PurchasePaymentController::class, 'create']);
+            Route::get('/', [PurchasePaymentController::class, 'findAll']);
+            Route::get('/{id}', [PurchasePaymentController::class, 'findByID']);
+            Route::post('/{id}/evidence', [PurchasePaymentController::class, 'uploadEvidence']);
         });
 
         Route::group(['prefix' => 'sale'], function () {

@@ -16,7 +16,7 @@ class ItemResource extends BaseApiResource
                     'id' => $this->category->id,
                     'name' => $this->category->name
                 ];
-            }),
+            }) ?? null,
             'name' => $this->name,
             'description' => $this->description,
         ];

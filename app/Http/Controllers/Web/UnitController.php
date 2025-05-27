@@ -2,8 +2,11 @@
 
 namespace App\Http\Controllers\Web;
 
+use App\Commons\Http\HttpStatus;
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\CustomController;
+use App\Http\Resources\Unit\UnitCollection;
+use App\Http\Resources\Unit\UnitResource;
 use App\Schemas\Unit\UnitQuery;
 use App\Schemas\Unit\UnitSchema;
 use App\Services\Unit\UnitService;
@@ -22,36 +25,45 @@ class UnitController extends CustomController
 
     public function create()
     {
-        $body = $this->jsonBody();
-        $schema = new UnitSchema();
-        $schema->hydrateSchemaBody($body);
-        return $this->service->create($schema);
+        $schema = (new UnitSchema())->hydrateSchemaBody($this->jsonBody());
+        $response = $this->service->create($schema);
+        return (new UnitResource($response->getData()))
+            ->withStatus($response->getStatus())
+            ->withMessage($response->getMessage());
     }
 
     public function findAll()
     {
-        $queryParams = $this->queryParams();
-        $query = new UnitQuery();
-        $query->hydrateSchemaQuery($queryParams);
-        return $this->service->findAll($query);
+        $query = (new UnitQuery())->hydrateSchemaQuery($this->queryParams());
+        $response = $this->service->findAll($query);
+        return (new UnitCollection($response->getData()))
+            ->withStatus($response->getStatus())
+            ->withMessage($response->getMessage());
     }
 
     public function findById($id)
     {
-        return $this->service->findById($id);
+        $response = $this->service->findById($id);
+        return (new UnitResource($response->getData()))
+            ->withStatus($response->getStatus())
+            ->withMessage($response->getMessage());
     }
 
     public function patch($id)
     {
 
-        $body = $this->jsonBody();
-        $schema = new UnitSchema();
-        $schema->hydrateSchemaBody($body);
-        return $this->service->patch($id, $schema);
+        $schema = (new UnitSchema())->hydrateSchemaBody($this->jsonBody());
+        $response = $this->service->patch($id, $schema);
+        return (new UnitResource($response->getData()))
+            ->withStatus($response->getStatus())
+            ->withMessage($response->getMessage());
     }
 
     public function delete($id)
     {
-        return $this->service->delete($id);
+        $response = $this->service->delete($id);
+        return (new UnitResource($response->getData()))
+            ->withStatus($response->getStatus())
+            ->withMessage($response->getMessage());
     }
 }

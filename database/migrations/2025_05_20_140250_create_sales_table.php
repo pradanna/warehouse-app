@@ -23,8 +23,10 @@ return new class extends Migration
             $table->text('description')->nullable();
             $table->enum('payment_type', ['cash', 'installment']); //pembayaran secara langsung atau berkala
             $table->enum('payment_status', ['unpaid', 'partial', 'paid'])->default('paid');
+            $table->uuid('author_id');
             $table->timestamps();
             $table->foreign('outlet_id')->references('id')->on('outlets')->onDelete('cascade');
+            $table->foreign('author_id')->references('id')->on('users')->onDelete('cascade');
         });
     }
 
