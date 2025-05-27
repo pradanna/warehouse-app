@@ -2,43 +2,34 @@
 
 namespace App\Services\Category;
 
-use App\Commons\Http\HttpStatus;
-use App\Http\Resources\Category\CategoryCollection;
-use App\Http\Resources\Category\CategoryResource;
+use App\Commons\Http\ServiceResponse;
 use App\Models\Category;
 use App\Schemas\Category\CategoryQuery;
 use App\Schemas\Category\CategorySchema;
-use Illuminate\Contracts\Support\Responsable;
 use Illuminate\Database\Eloquent\Builder;
 
 class CategoryService implements CategoryServiceInterface
 {
-    public function create(CategorySchema $schema): Responsable
+    public function create(CategorySchema $schema): ServiceResponse
     {
         try {
             $validator = $schema->validate();
             if ($validator->fails()) {
-                return (new CategoryResource(null))
-                    ->additional(['errors' => $validator->errors()->toArray()])
-                    ->withStatus(HttpStatus::UnprocessableEntity)
-                    ->withMessage("error validation");
+                return ServiceResponse::unprocessableEntity($validator->errors()->toArray(), "error validation");
             }
             $schema->hydrateBody();
             $data = [
                 'name' => $schema->getName(),
                 'description' => $schema->getDescription()
             ];
-            Category::create($data);
-            return (new CategoryResource(null))
-                ->withStatus(HttpStatus::Created)
-                ->withMessage("successfully create category");
+            $category = Category::create($data);
+            return ServiceResponse::statusCreated("successfully create category", $category);
         } catch (\Throwable $e) {
-            return (new CategoryResource(null))
-                ->withMessage($e->getMessage());
+            return ServiceResponse::internalServerError($e->getMessage());
         }
     }
 
-    public function findAll(CategoryQuery $queryParams): Responsable
+    public function findAll(CategoryQuery $queryParams): ServiceResponse
     {
         try {
             $queryParams->hydrateQuery();
@@ -49,44 +40,33 @@ class CategoryService implements CategoryServiceInterface
                 })
                 ->orderBy('name', 'ASC');
             $data = $query->paginate($queryParams->getPerPage(), '*', 'page', $queryParams->getPage());
-            return (new CategoryCollection($data))
-                ->withStatus(HttpStatus::OK)
-                ->withMessage('successfully retrieved categories');
+            return ServiceResponse::statusOK("successfully get categories", $data);
         } catch (\Throwable $e) {
-            return (new CategoryResource(null))
-                ->withMessage($e->getMessage());
+            return ServiceResponse::internalServerError($e->getMessage());
         }
     }
 
-    public function findByID($id): Responsable
+    public function findByID($id): ServiceResponse
     {
         try {
             $category = Category::with([])
                 ->where('id', '=', $id)
                 ->first();
             if (!$category) {
-                return (new CategoryResource(null))
-                    ->withStatus(HttpStatus::NotFound)
-                    ->withMessage("category not found");
+                return ServiceResponse::notFound("category not found");
             }
-            return (new CategoryResource($category))
-                ->withStatus(HttpStatus::OK)
-                ->withMessage("successfully retrieved category");
+            return ServiceResponse::statusOK("successfully get category", $category);
         } catch (\Throwable $e) {
-            return (new CategoryResource(null))
-                ->withMessage($e->getMessage());
+            return ServiceResponse::internalServerError($e->getMessage());
         }
     }
 
-    public function patch($id, CategorySchema $schema): Responsable
+    public function patch($id, CategorySchema $schema): ServiceResponse
     {
         try {
             $validator = $schema->validate();
             if ($validator->fails()) {
-                return (new CategoryResource(null))
-                    ->additional(['errors' => $validator->errors()->toArray()])
-                    ->withStatus(HttpStatus::UnprocessableEntity)
-                    ->withMessage("error validation");
+                return ServiceResponse::unprocessableEntity($validator->errors()->toArray(), "error validation");
             }
             $schema->hydrateBody();
 
@@ -99,30 +79,22 @@ class CategoryService implements CategoryServiceInterface
                 ->where('id', '=', $id)
                 ->first();
             if (!$category) {
-                return (new CategoryResource(null))
-                    ->withStatus(HttpStatus::NotFound)
-                    ->withMessage("category not found");
+                return ServiceResponse::notFound("category not found");
             }
             $category->update($data);
-            return (new CategoryResource(null))
-                ->withStatus(HttpStatus::OK)
-                ->withMessage("successfully update category");
+            return ServiceResponse::statusOK("successfully update category", $category);
         } catch (\Throwable $e) {
-            return (new CategoryResource(null))
-                ->withMessage($e->getMessage());
+            return ServiceResponse::internalServerError($e->getMessage());
         }
     }
 
-    public function delete($id): Responsable
+    public function delete($id): ServiceResponse
     {
         try {
             Category::destroy($id);
-            return (new CategoryResource(null))
-                ->withStatus(HttpStatus::OK)
-                ->withMessage("successfully delete category");
+            return ServiceResponse::statusOK("successfully delete category");
         } catch (\Throwable $e) {
-            return (new CategoryResource(null))
-                ->withMessage($e->getMessage());
+            return ServiceResponse::internalServerError($e->getMessage());
         }
     }
 }

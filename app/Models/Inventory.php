@@ -18,10 +18,10 @@ class Inventory extends Model
         'unit_id',
         'sku',
         'description',
-        'price',
         'current_stock',
         'min_stock',
-        'max_stock'
+        'max_stock',
+        'modified_by'
     ];
 
     protected $casts = [
@@ -29,6 +29,7 @@ class Inventory extends Model
         'min_stock' => 'float',
         'max_stock' => 'float',
     ];
+
     public function item()
     {
         return $this->belongsTo(Item::class, 'item_id');
@@ -37,5 +38,15 @@ class Inventory extends Model
     public function unit()
     {
         return $this->belongsTo(Unit::class, 'unit_id');
+    }
+
+    public function prices()
+    {
+        return $this->hasMany(InventoryPrice::class, 'inventory_id');
+    }
+
+    public function modifiedBy()
+    {
+        return $this->belongsTo(User::class, 'modified_by');
     }
 }

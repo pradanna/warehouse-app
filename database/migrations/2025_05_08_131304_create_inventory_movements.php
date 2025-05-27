@@ -21,8 +21,10 @@ return new class extends Migration
             $table->text('description')->nullable();
             $table->enum('movement_type', ['purchase', 'sale', 'transfer', 'adjustment', 'conversion', 'return', 'wastage']);
             $table->string('movement_reference')->nullable();
+            $table->uuid('author_id');
             $table->timestamps();
             $table->foreign('inventory_id')->references('id')->on('inventories');
+            $table->foreign('author_id')->references('id')->on('users')->onDelete('cascade');
         });
     }
 

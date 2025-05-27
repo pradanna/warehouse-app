@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\Web;
 
 use App\Http\Controllers\CustomController;
+use App\Http\Resources\Inventory\InventoryCollection;
+use App\Http\Resources\Inventory\InventoryResource;
 use App\Schemas\Inventory\InventoryQuery;
 use App\Schemas\Inventory\InventorySchema;
 use App\Services\Inventory\InventoryService;
@@ -20,35 +22,44 @@ class InventoryController extends CustomController
 
     public function create()
     {
-        $body = $this->jsonBody();
-        $schema = new InventorySchema();
-        $schema->hydrateSchemaBody($body);
-        return $this->service->create($schema);
+        $schema = (new InventorySchema())->hydrateSchemaBody($this->jsonBody());
+        $response = $this->service->create($schema);
+        return (new InventoryResource($response->getData()))
+            ->withStatus($response->getStatus())
+            ->withMessage($response->getMessage());
     }
 
     public function findAll()
     {
-        $queryParams = $this->queryParams();
-        $query = new InventoryQuery();
-        $query->hydrateSchemaQuery($queryParams);
-        return $this->service->findAll($query);
+        $query = (new InventoryQuery())->hydrateSchemaQuery($this->queryParams());
+        $response = $this->service->findAll($query);
+        return (new InventoryCollection($response->getData()))
+            ->withStatus($response->getStatus())
+            ->withMessage($response->getMessage());
     }
 
     public function findByID($id)
     {
-        return $this->service->findByID($id);
+        $response = $this->service->findByID($id);
+        return (new InventoryResource($response->getData()))
+            ->withStatus($response->getStatus())
+            ->withMessage($response->getMessage());
     }
 
     public function patch($id)
     {
-        $body = $this->jsonBody();
-        $schema = new InventorySchema();
-        $schema->hydrateSchemaBody($body);
-        return $this->service->patch($id, $schema);
+        $schema = (new InventorySchema())->hydrateSchemaBody($this->jsonBody());
+        $response = $this->service->patch($id, $schema);
+        return (new InventoryResource($response->getData()))
+            ->withStatus($response->getStatus())
+            ->withMessage($response->getMessage());
     }
 
     public function delete($id)
     {
-        return $this->service->delete($id);
+        $response = $this->service->delete($id);
+        return (new InventoryResource($response->getData()))
+            ->withStatus($response->getStatus())
+            ->withMessage($response->getMessage());
     }
 }

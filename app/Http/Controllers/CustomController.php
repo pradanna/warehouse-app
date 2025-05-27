@@ -34,7 +34,7 @@ class CustomController extends Controller
     public function toJSON(ServiceResponse $serviceResponse)
     {
         return APIResponse::toJSONResponse(
-            $serviceResponse->getStatus(),
+            $serviceResponse->getStatus()->value,
             $serviceResponse->getMessage(),
             $serviceResponse->getData(),
             $serviceResponse->getMeta()

@@ -37,18 +37,24 @@ class BaseApiResource extends JsonResource implements Responsable
             'message' => $this->message,
         ];
 
-        $data = is_null($this->resource) ? null : $this->toArray($request);
-        if (!is_null($data)) {
-            $response['data'] = $data;
+        if ($this->httpStatus === HttpStatus::UnprocessableEntity || $this->httpStatus === HttpStatus::BadRequest && is_array($this->resource)) {
+            # code...
+            $response['errors'] = $this->resource;
+        } else {
+            $data = is_null($this->resource) ? null : $this->toArray($request);
+            if (!is_null($data)) {
+                $response['data'] = $data;
+            }
         }
+
 
         if (!is_null($this->meta)) {
             $response['meta'] = $this->meta;
         }
 
-        if (!empty($this->additional)) {
-            $response = array_merge($response, $this->additional);
-        }
+        // if (!empty($this->additional)) {
+        //     $response = array_merge($response, $this->additional);
+        // }
         return response()->json($response, $this->httpStatus->value);
     }
 }

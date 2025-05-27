@@ -53,7 +53,11 @@ class SaleResource extends BaseApiResource
                         'evidence' => $payment->evidence,
                     ];
                 });
-            })
+            }),
+            'author' => $this->relationLoaded('author') ? [
+                'id' => $this->author->id,
+                'username' => $this->author->username
+            ] : null
         ];
     }
 }

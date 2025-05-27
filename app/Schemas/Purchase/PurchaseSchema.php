@@ -9,10 +9,8 @@ class PurchaseSchema extends BaseSchema
     private $supplierId;
     private $date;
     private $referenceNumber;
-    private $subTotal;
     private $discount;
     private $tax;
-    private $total;
     private $description;
     private $paymentType;
     private $paymentStatus;
@@ -25,22 +23,19 @@ class PurchaseSchema extends BaseSchema
             'supplier_id' => 'string',
             'date' => 'required|date',
             'reference_number' => 'string',
-            'sub_total' => 'required|numeric',
             'discount' => 'required|numeric',
             'tax' => 'required|numeric',
-            'total' => 'required|numeric',
             'description' => 'string',
             'payment_type' => 'required|in:cash,installment',
             'items' => 'required|array|min:1',
             'items.*.inventory_id' => 'required|string',
             'items.*.quantity' => 'required|numeric',
             'items.*.price' => 'required|numeric',
-            'items.*.total' => 'required|numeric',
-            'payment' => 'required|array',
-            'payment.date' => 'required|date',
+            'payment' => 'required_if:payment_type,cash|array',
+            'payment.date' => 'required_if:payment_type,cash|date',
             'payment.description' => 'string',
-            'payment.payment_type' => 'required|in:cash,digital',
-            'payment.amount' => 'required|numeric',
+            'payment.payment_type' => 'required_if:payment_type,cash|in:cash,digital',
+            'payment.amount' => 'required_if:payment_type,cash|numeric',
         ];
     }
 
@@ -49,42 +44,41 @@ class PurchaseSchema extends BaseSchema
         $supplierId = $this->body['supplier_id'];
         $date = $this->body['date'];
         $referenceNumber = $this->body['reference_number'] ?? null;
-        $subTotal = $this->body['sub_total'];
         $discount = $this->body['discount'];
         $tax = $this->body['tax'];
-        $total = $this->body['total'];
         $description = $this->body['description'] ?? null;
         $paymentType = $this->body['payment_type'];
         $items = $this->body['items'];
-        $paymentDate = $this->body['payment']['date'];
-        $paymentDescription = $this->body['payment']['description'] ?? null;
-        $paymentPaymentType = $this->body['payment']['payment_type'];
-        $paymentAmount = $this->body['payment']['amount'];
-        $payment = [
-            'date' => $paymentDate,
-            'description' => $paymentDescription,
-            'payment_type' => $paymentPaymentType,
-            'amount' => $paymentAmount
-        ];
+        $payment = null;
+        if (isset($this->body['payment'])) {
+            $paymentDate = $this->body['payment']['date'];
+            $paymentDescription = $this->body['payment']['description'] ?? null;
+            $paymentPaymentType = $this->body['payment']['payment_type'];
+            $paymentAmount = $this->body['payment']['amount'];
+            $payment = [
+                'date' => $paymentDate,
+                'description' => $paymentDescription,
+                'payment_type' => $paymentPaymentType,
+                'amount' => $paymentAmount
+            ];
+        }
+
 
         $dataItems = [];
         foreach ($items as $item) {
             $tmp['inventory_id'] = $item['inventory_id'];
             $tmp['quantity'] = $item['quantity'];
             $tmp['price'] = $item['price'];
-            $tmp['total'] = $item['total'];
+            $tmp['total'] = $item['quantity'] * $item['price'];
             array_push($dataItems, $tmp);
         }
 
         $this->setSupplierId($supplierId)
             ->setDate($date)
             ->setReferenceNumber($referenceNumber)
-            ->setSubTotal($subTotal)
             ->setDiscount($discount)
             ->setTax($tax)
-            ->setTotal($total)
             ->setDescription($description)
-            // ->setPaymentStatus($paymentStatus)
             ->setPaymentType($paymentType)
             ->setItems($dataItems)
             ->setPayment($payment);
@@ -150,25 +144,6 @@ class PurchaseSchema extends BaseSchema
         return $this;
     }
 
-    /**
-     * Get the value of subTotal
-     */
-    public function getSubTotal()
-    {
-        return $this->subTotal;
-    }
-
-    /**
-     * Set the value of subTotal
-     *
-     * @return  self
-     */
-    public function setSubTotal($subTotal)
-    {
-        $this->subTotal = $subTotal;
-
-        return $this;
-    }
 
     /**
      * Get the value of discount
@@ -206,26 +181,6 @@ class PurchaseSchema extends BaseSchema
     public function setTax($tax)
     {
         $this->tax = $tax;
-
-        return $this;
-    }
-
-    /**
-     * Get the value of total
-     */
-    public function getTotal()
-    {
-        return $this->total;
-    }
-
-    /**
-     * Set the value of total
-     *
-     * @return  self
-     */
-    public function setTotal($total)
-    {
-        $this->total = $total;
 
         return $this;
     }
