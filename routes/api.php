@@ -8,6 +8,7 @@ use App\Http\Controllers\Web\OutletController;
 use App\Http\Controllers\Web\PurchaseController;
 use App\Http\Controllers\Web\PurchasePaymentController;
 use App\Http\Controllers\Web\SaleController;
+use App\Http\Controllers\Web\SalePaymentController;
 use App\Http\Controllers\Web\SupplierController;
 use App\Http\Controllers\Web\UnitController;
 use App\Http\Middleware\JWTVerify;
@@ -70,8 +71,6 @@ Route::group(['prefix' => 'v1'], function () {
             Route::get('/', [PurchaseController::class, 'findAll']);
             Route::get('/{id}', [PurchaseController::class, 'findByID']);
             Route::post('/{id}/payment', [PurchaseController::class, 'payment']);
-            // Route::put('/{id}', [SupplierController::class, 'patch']);
-            // Route::delete('/{id}', [SupplierController::class, 'delete']);
         });
 
         Route::group(['prefix' => 'purchase-payment'], function () {
@@ -85,6 +84,13 @@ Route::group(['prefix' => 'v1'], function () {
             Route::post('/', [SaleController::class, 'create']);
             Route::get('/', [SaleController::class, 'findAll']);
             Route::get('/{id}', [SaleController::class, 'findByID']);
+        });
+
+        Route::group(['prefix' => 'sale-payment'], function () {
+            Route::post('/', [SalePaymentController::class, 'create']);
+            Route::get('/', [SalePaymentController::class, 'findAll']);
+            Route::get('/{id}', [SalePaymentController::class, 'findByID']);
+            Route::post('/{id}/evidence', [SalePaymentController::class, 'uploadEvidence']);
         });
     });
 });

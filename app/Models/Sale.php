@@ -59,4 +59,9 @@ class Sale extends Model
     {
         return $this->belongsTo(User::class, 'author_id');
     }
+
+    public function credit()
+    {
+        return $this->hasOne(Credit::class, 'sale_id');
+    }
 }

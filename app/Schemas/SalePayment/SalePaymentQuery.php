@@ -1,16 +1,16 @@
 <?php
 
-namespace App\Schemas\PurchasePayment;
+namespace App\Schemas\SalePayment;
 
 use App\Commons\Schema\BaseSchema;
 
-class PurchasePaymentQuery extends BaseSchema
+class SalePaymentQuery extends BaseSchema
 {
     private $page;
     private $perPage;
     private $dateStart;
     private $dateEnd;
-    private $supplierId;
+    private $outletId;
 
     public function hydrateQuery()
     {
@@ -18,12 +18,12 @@ class PurchasePaymentQuery extends BaseSchema
         $perPage = $this->query['per_page'] ?? 10;
         $dateStart = !empty(trim($this->query['date_start'] ?? '')) ? $this->query['date_start'] : null;
         $dateEnd = !empty(trim($this->query['date_end'] ?? '')) ? $this->query['date_end'] : null;
-        $supplierId = !empty(trim($this->query['supplier_id'] ?? '')) ? $this->query['supplier_id'] : null;
+        $outletId = !empty(trim($this->query['outlet_id'] ?? '')) ? $this->query['outlet_id'] : null;
         $this->setPage($page)
             ->setPerPage($perPage)
             ->setDateStart($dateStart)
             ->setDateEnd($dateEnd)
-            ->setSupplierId($supplierId);
+            ->setOutletId($outletId);
     }
 
     /**
@@ -107,21 +107,21 @@ class PurchasePaymentQuery extends BaseSchema
     }
 
     /**
-     * Get the value of supplierId
+     * Get the value of outletId
      */
-    public function getSupplierId()
+    public function getOutletId()
     {
-        return $this->supplierId;
+        return $this->outletId;
     }
 
     /**
-     * Set the value of supplierId
+     * Set the value of outletId
      *
      * @return  self
      */
-    public function setSupplierId($supplierId)
+    public function setOutletId($outletId)
     {
-        $this->supplierId = $supplierId;
+        $this->outletId = $outletId;
 
         return $this;
     }

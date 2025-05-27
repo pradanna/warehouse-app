@@ -3,10 +3,13 @@
 namespace App\Services\Sale;
 
 use App\Commons\Enum\InventoryMovementType;
+use App\Commons\Enum\SalePaymentStatus;
+use App\Commons\Enum\SalePaymentType;
 use App\Commons\Http\HttpStatus;
 use App\Commons\Http\ServiceResponse;
 use App\Http\Resources\Sale\SaleCollection;
 use App\Http\Resources\Sale\SaleResource;
+use App\Models\Credit;
 use App\Models\Inventory;
 use App\Models\InventoryMovement;
 use App\Models\Sale;
@@ -29,14 +32,25 @@ class SaleService implements SaleServiceInterface
             $schema->hydrateBody();
             $items = $schema->getItems();
             $payment = $schema->getPayment();
-            $payment['author_id'] = $userId;
+
             $itemCollections = collect($items);
             $subTotal = $itemCollections->sum('total');
             $total = $subTotal + $schema->getTax() - $schema->getDiscount();
-            $paymentStatus = 'paid';
-            if ($schema->getPaymentType() === 'cash' && ($payment['amount'] !== $total)) {
-                return ServiceResponse::badRequest("bad request (Payment mismatch: the amount paid does not correspond to the total required.)");
+            $paymentStatus = SalePaymentStatus::Unpaid->value;
+
+            # create data payment if payment exist
+            if ($payment) {
+                $payment['author_id'] = $userId;
+                if ($schema->getPaymentType() === SalePaymentType::Cash->value) {
+                    $paymentStatus = SalePaymentStatus::Paid->value;
+                    if ($payment['amount'] !== $total) {
+                        return ServiceResponse::badRequest("bad request (Payment mismatch: the amount paid does not correspond to the total required.)");
+                    }
+                } else {
+                    $paymentStatus = SalePaymentStatus::Partial->value;
+                }
             }
+
             $data = [
                 'outlet_id' => $schema->getOutletId(),
                 'date' => $schema->getDate(),
@@ -52,7 +66,12 @@ class SaleService implements SaleServiceInterface
             ];
             $sale = Sale::create($data);
             $sale->items()->createMany($items);
-            $sale->payment()->create($payment);
+
+            if ($payment) {
+                $sale->payment()->create($payment);
+            }
+
+            # update inventory stock and create inventory movements
             foreach ($items as $item) {
                 $inventory = Inventory::with([])
                     ->where('id', '=', $item['inventory_id'])
@@ -78,11 +97,29 @@ class SaleService implements SaleServiceInterface
                 ];
                 InventoryMovement::create($movementData);
             }
+
+            # create credit record if payment type is installment
+            if ($schema->getPaymentType() === SalePaymentType::Installment->value) {
+                $dataCredit = [
+                    'sale_id' => $sale->id,
+                    'amount_due' => $total,
+                    'amount_paid' => 0,
+                    'amount_rest' => $total,
+                    'due_date' => null
+                ];
+                if ($payment) {
+                    $dataCredit['amount_paid'] = $payment['amount'];
+                    $dataCredit['amount_rest'] = $total - $payment['amount'];
+                }
+                Credit::create($dataCredit);
+            }
+
             $sale->load([
                 'outlet',
                 'items.inventory',
                 'payments',
-                'author'
+                'author',
+                'credit'
             ]);
             DB::commit();
             return ServiceResponse::statusCreated("successfully create sale", $sale);
@@ -100,6 +137,7 @@ class SaleService implements SaleServiceInterface
                 'outlet',
                 'items.inventory',
                 'payments',
+                'credit',
                 'author'
             ])
                 ->orderBy('date', 'DESC');
@@ -116,7 +154,9 @@ class SaleService implements SaleServiceInterface
             $sale = Sale::with([
                 'outlet',
                 'items.inventory',
-                'payments'
+                'payments',
+                'credit',
+                'author'
             ])
                 ->where('id', '=', $id)
                 ->first();
