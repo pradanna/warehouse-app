@@ -137,6 +137,7 @@ class SaleService implements SaleServiceInterface
                 'outlet',
                 'items.inventory',
                 'payments',
+                'credit',
                 'author'
             ])
                 ->orderBy('date', 'DESC');
@@ -153,7 +154,9 @@ class SaleService implements SaleServiceInterface
             $sale = Sale::with([
                 'outlet',
                 'items.inventory',
-                'payments'
+                'payments',
+                'credit',
+                'author'
             ])
                 ->where('id', '=', $id)
                 ->first();

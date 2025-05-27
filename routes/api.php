@@ -90,7 +90,7 @@ Route::group(['prefix' => 'v1'], function () {
             Route::post('/', [SalePaymentController::class, 'create']);
             Route::get('/', [SalePaymentController::class, 'findAll']);
             Route::get('/{id}', [SalePaymentController::class, 'findByID']);
-            // Route::post('/{id}/evidence', [PurchasePaymentController::class, 'uploadEvidence']);
+            Route::post('/{id}/evidence', [SalePaymentController::class, 'uploadEvidence']);
         });
     });
 });

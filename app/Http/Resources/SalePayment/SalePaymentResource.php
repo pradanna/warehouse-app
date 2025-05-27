@@ -15,7 +15,7 @@ class SalePaymentResource extends BaseApiResource
      */
     public function toArray(Request $request): array
     {
-        return [
+        $response = [
             'id' => $this->id,
             'date' => $this->date,
             'amount' => $this->amount,
@@ -23,7 +23,10 @@ class SalePaymentResource extends BaseApiResource
             'evidence' => $this->evidence ? url($this->evidence) : null,
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
-            'sale' => $this->relationLoaded('sale') && $this->sale ? [
+        ];
+
+        if ($this->relationLoaded('sale')) {
+            $response['sale'] = $this->sale ? [
                 'id' => $this->sale->id,
                 'date' => $this->sale->date,
                 'reference_number' => $this->sale->reference_number,
@@ -32,23 +35,42 @@ class SalePaymentResource extends BaseApiResource
                 'discount' => $this->sale->discount,
                 'total' => $this->sale->total,
                 'payment_type' => $this->sale->payment_type
-            ] : null,
-            'credit' => $this->relationLoaded('sale') && $this->sale ? (
-                $this->sale->credit ? [
-                    'id' => $this->sale->credit->id,
-                    'amount_due' => $this->sale->credit->amount_due,
-                    'amount_paid' => $this->sale->credit->amount_paid,
-                    'amount_rest' => $this->sale->credit->amount_rest,
-                ] : null
-            ) : null,
-            'outlet' => $this->relationLoaded('sale') && $this->sale ? ($this->sale->outlet ?  [
-                'id' => $this->sale->outlet->id,
-                'name' => $this->sale->outlet->name
-            ] : null) : null,
-            'author' => $this->relationLoaded('author') && $this->author ? [
+            ] : null;
+        }
+
+        if (
+            $this->relationLoaded('sale') &&
+            $this->sale &&
+            $this->sale->relationLoaded('credit')
+        ) {
+            $credit = $this->sale->getRelation('credit');
+            $response['credit'] = $credit ? [
+                'id' => $credit->id,
+                'amount_due' => $credit->amount_due,
+                'amount_paid' => $credit->amount_paid,
+                'amount_rest' => $credit->amount_rest,
+            ] : null;
+        }
+
+        if (
+            $this->relationLoaded('sale') &&
+            $this->sale &&
+            $this->sale->relationLoaded('outlet')
+        ) {
+            $outlet = $this->sale->getRelation('outlet');
+            $response['outlet'] = $outlet ? [
+                'id' => $outlet->id,
+                'name' => $outlet->name
+            ] : null;
+        }
+
+        if ($this->relationLoaded('author')) {
+            $response['author'] = $this->author ? [
                 'id' => $this->author->id,
                 'username' => $this->author->username
-            ] : null,
-        ];
+            ] : null;
+        }
+
+        return $response;
     }
 }

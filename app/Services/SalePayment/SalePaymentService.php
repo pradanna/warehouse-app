@@ -4,11 +4,13 @@ namespace App\Services\SalePayment;
 
 use App\Commons\Enum\SalePaymentStatus;
 use App\Commons\Enum\SalePaymentType;
+use App\Commons\File\FileUploadService;
 use App\Schemas\SalePayment\SalePaymentSchema;
 use App\Commons\Http\ServiceResponse;
 use App\Models\Credit;
 use App\Models\Sale;
 use App\Models\SalePayment;
+use App\Schemas\SalePayment\SalePaymentEvidenceSchema;
 use App\Schemas\SalePayment\SalePaymentQuery;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -123,6 +125,37 @@ class SalePaymentService implements SalePaymentServiceInterface
                 return ServiceResponse::notFound("sale payment not found");
             }
             return ServiceResponse::statusOK("successfully get sale payment", $salePayment);
+        } catch (\Throwable $e) {
+            return ServiceResponse::internalServerError($e->getMessage());
+        }
+    }
+
+    public function uploadEvidence($id, SalePaymentEvidenceSchema $schema): ServiceResponse
+    {
+        try {
+            $validator = $schema->validate();
+            if ($validator->fails()) {
+                return ServiceResponse::unprocessableEntity($validator->errors()->toArray(), "error validation");
+            }
+            $schema->hydrateBody();
+            $salePayment = SalePayment::with([
+                'sale.outlet',
+                'author'
+            ])->where('id', '=', $id)
+                ->first();
+            if (!$salePayment) {
+                return ServiceResponse::notFound("sale payment not found");
+            }
+            $fileUploadService = new FileUploadService($schema->getEvidence(), "evidences/sale");
+            $fileUploadResponse = $fileUploadService->upload();
+            if (!$fileUploadResponse->isSuccess()) {
+                return ServiceResponse::internalServerError('failed to upload file');
+            }
+            $dataUpdate = [
+                'evidence' => $fileUploadResponse->getFileName()
+            ];
+            $salePayment->update($dataUpdate);
+            return ServiceResponse::statusCreated("successfully upload sale payment evidence", $salePayment);
         } catch (\Throwable $e) {
             return ServiceResponse::internalServerError($e->getMessage());
         }

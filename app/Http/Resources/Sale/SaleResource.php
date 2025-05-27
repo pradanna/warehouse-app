@@ -14,7 +14,7 @@ class SaleResource extends BaseApiResource
      */
     public function toArray(Request $request): array
     {
-        return [
+        $response = [
             'id' => $this->id,
             'date' => $this->date,
             'reference_number' => $this->reference_number,
@@ -24,48 +24,57 @@ class SaleResource extends BaseApiResource
             'total' => $this->total,
             'description' => $this->description,
             'payment_type' => $this->payment_type,
-            'payment_status' => $this->payment_status,
-            'outlet' => $this->whenLoaded('outlet', function () {
+            'payment_status' => $this->payment_status
+        ];
+
+        if ($this->relationLoaded('outlet')) {
+            $response['outlet'] = $this->outlet ? [
+                'id' => $this->outlet->id,
+                'name' => $this->outlet->name,
+            ] : null;
+        }
+
+        if ($this->relationLoaded('items')) {
+            $response['items'] = $this->items->map(function ($item) {
                 return [
-                    'id' => $this->outlet->id,
-                    'name' => $this->outlet->name,
+                    'id' => $item->id,
+                    'name' => $item->relationLoaded('inventory') && $item->inventory ? optional($item->inventory->item)->name : null,
+                    'unit' => $item->relationLoaded('inventory') && $item->inventory ? optional($item->inventory->unit)->name : null,
+                    'quantity' => $item->quantity,
+                    'price' => $item->price,
+                    'total' => $item->total
                 ];
-            }),
-            'items' => $this->whenLoaded('items', function () {
-                return $this->items->map(function ($item) {
-                    return [
-                        'id' => $item->id,
-                        'name' => $item->relationLoaded('inventory') && $item->inventory ? optional($item->inventory->item)->name : null,
-                        'unit' => $item->relationLoaded('inventory') && $item->inventory ? optional($item->inventory->unit)->name : null,
-                        'quantity' => $item->quantity,
-                        'price' => $item->price,
-                        'total' => $item->total
-                    ];
-                });
-            }),
-            'payments' => $this->whenLoaded('payments', function () {
-                return $this->payments->map(function ($payment) {
-                    return [
-                        'date' => $payment->date,
-                        'payment_type' => $payment->payment_type,
-                        'amount' => $payment->amount,
-                        'description' => $payment->description,
-                        'evidence' => $payment->evidence,
-                    ];
-                });
-            }),
-            'credit' => $this->relationLoaded('credit') && $this->credit ? [
+            });
+        }
+
+        if ($this->relationLoaded('payments')) {
+            $response['payments'] = $this->payments->map(function ($payment) {
+                return [
+                    'date' => $payment->date,
+                    'payment_type' => $payment->payment_type,
+                    'amount' => $payment->amount,
+                    'description' => $payment->description,
+                    'evidence' => $payment->evidence ? url($payment->evidence) : null,
+                ];
+            });
+        }
+
+        if ($this->relationLoaded('credit')) {
+            $response['credit'] = $this->credit ? [
                 'id' => $this->credit->id,
                 'amount_due' => $this->credit->amount_due,
                 'amount_paid' => $this->credit->amount_paid,
                 'amount_rest' => $this->credit->amount_rest,
                 'due_date' => $this->credit->due_date,
+            ] : null;
+        }
 
-            ] : null,
-            'author' => $this->relationLoaded('author') ? [
+        if ($this->relationLoaded('author')) {
+            $response['author'] = $this->author ? [
                 'id' => $this->author->id,
                 'username' => $this->author->username
-            ] : null
-        ];
+            ] : null;
+        }
+        return $response;
     }
 }
