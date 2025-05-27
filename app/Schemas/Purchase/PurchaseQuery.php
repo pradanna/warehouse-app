@@ -6,16 +6,33 @@ use App\Commons\Schema\BaseSchema;
 
 class PurchaseQuery extends BaseSchema
 {
+    private $param;
     private $page;
     private $perPage;
+    private $dateStart;
+    private $dateEnd;
+    private $supplierId;
+    private $type;
+    private $status;
 
     public function hydrateQuery()
     {
         $param = $this->query['param'] ?? '';
         $page = $this->query['page'] ?? 1;
         $perPage = $this->query['per_page'] ?? 10;
+        $dateStart = !empty(trim($this->query['date_start'] ?? '')) ? $this->query['date_start'] : null;
+        $dateEnd = !empty(trim($this->query['date_end'] ?? '')) ? $this->query['date_end'] : null;
+        $supplierId = !empty(trim($this->query['supplier_id'] ?? '')) ? $this->query['supplier_id'] : null;
+        $type = !empty(trim($this->query['type'] ?? '')) ? $this->query['type'] : null;
+        $status = !empty(trim($this->query['status'] ?? '')) ? $this->query['status'] : null;
         $this->setPage($page)
-            ->setPerPage($perPage);
+            ->setPerPage($perPage)
+            ->setParam($param)
+            ->setDateStart($dateStart)
+            ->setDateEnd($dateEnd)
+            ->setSupplierId($supplierId)
+            ->setType($type)
+            ->setStatus($status);
     }
 
     /**
@@ -58,4 +75,124 @@ class PurchaseQuery extends BaseSchema
         return $this;
     }
 
+
+    /**
+     * Get the value of param
+     */
+    public function getParam()
+    {
+        return $this->param;
+    }
+
+    /**
+     * Set the value of param
+     *
+     * @return  self
+     */
+    public function setParam($param)
+    {
+        $this->param = $param;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of dateStart
+     */
+    public function getDateStart()
+    {
+        return $this->dateStart;
+    }
+
+    /**
+     * Set the value of dateStart
+     *
+     * @return  self
+     */
+    public function setDateStart($dateStart)
+    {
+        $this->dateStart = $dateStart;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of dateEnd
+     */
+    public function getDateEnd()
+    {
+        return $this->dateEnd;
+    }
+
+    /**
+     * Set the value of dateEnd
+     *
+     * @return  self
+     */
+    public function setDateEnd($dateEnd)
+    {
+        $this->dateEnd = $dateEnd;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of supplierId
+     */
+    public function getSupplierId()
+    {
+        return $this->supplierId;
+    }
+
+    /**
+     * Set the value of supplierId
+     *
+     * @return  self
+     */
+    public function setSupplierId($supplierId)
+    {
+        $this->supplierId = $supplierId;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of type
+     */
+    public function getType()
+    {
+        return $this->type;
+    }
+
+    /**
+     * Set the value of type
+     *
+     * @return  self
+     */
+    public function setType($type)
+    {
+        $this->type = $type;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of status
+     */
+    public function getStatus()
+    {
+        return $this->status;
+    }
+
+    /**
+     * Set the value of status
+     *
+     * @return  self
+     */
+    public function setStatus($status)
+    {
+        $this->status = $status;
+
+        return $this;
+    }
 }

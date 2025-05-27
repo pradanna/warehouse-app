@@ -75,6 +75,7 @@ class SaleResource extends BaseApiResource
                 'username' => $this->author->username
             ] : null;
         }
+
         return $response;
     }
 }
