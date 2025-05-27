@@ -55,6 +55,14 @@ class PurchaseResource extends BaseApiResource
                 'payment_type' => $this->payment->payment_type,
                 'description' => $this->payment->description
             ] : null,
+            'debt' => $this->relationLoaded('debt') && $this->debt ? [
+                'id' => $this->debt->id,
+                'amount_due' => $this->debt->amount_due,
+                'amount_paid' => $this->debt->amount_paid,
+                'amount_rest' => $this->debt->amount_rest,
+                'due_date' => $this->debt->due_date,
+
+            ] : null,
             'author' => $this->relationLoaded('author') ? [
                 'id' => $this->author->id,
                 'username' => $this->author->username

@@ -1,11 +1,12 @@
 <?php
 
-namespace App\Schemas\Purchase;
+namespace App\Schemas\PurchasePayment;
 
 use App\Commons\Schema\BaseSchema;
 
 class PurchasePaymentSchema extends BaseSchema
 {
+    private $purchaseId;
     private $date;
     private $paymentType;
     private $amount;
@@ -14,6 +15,7 @@ class PurchasePaymentSchema extends BaseSchema
     protected function rules()
     {
         return [
+            'purchase_id' => 'required',
             'date' => 'required|date',
             'payment_type' => 'required|in:cash,digital',
             'amount' => 'required|numeric',
@@ -23,15 +25,38 @@ class PurchasePaymentSchema extends BaseSchema
 
     public function hydrateBody()
     {
+        $purchaseId = $this->body['purchase_id'];
         $date = $this->body['date'];
         $paymentType = $this->body['payment_type'];
         $amount = $this->body['amount'];
         $description = !empty(trim($this->body['description'] ?? '')) ? $this->body['description'] : null;
 
-        $this->setDate($date)
+        $this
+            ->setPurchaseId($purchaseId)
+            ->setDate($date)
             ->setPaymentType($paymentType)
             ->setAmount($amount)
             ->setDescription($description);
+    }
+
+    /**
+     * Get the value of purchaseId
+     */
+    public function getPurchaseId()
+    {
+        return $this->purchaseId;
+    }
+
+    /**
+     * Set the value of purchaseId
+     *
+     * @return  self
+     */
+    public function setPurchaseId($purchaseId)
+    {
+        $this->purchaseId = $purchaseId;
+
+        return $this;
     }
 
     /**
