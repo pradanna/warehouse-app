@@ -54,6 +54,14 @@ class SaleResource extends BaseApiResource
                     ];
                 });
             }),
+            'credit' => $this->relationLoaded('credit') && $this->credit ? [
+                'id' => $this->credit->id,
+                'amount_due' => $this->credit->amount_due,
+                'amount_paid' => $this->credit->amount_paid,
+                'amount_rest' => $this->credit->amount_rest,
+                'due_date' => $this->credit->due_date,
+
+            ] : null,
             'author' => $this->relationLoaded('author') ? [
                 'id' => $this->author->id,
                 'username' => $this->author->username
