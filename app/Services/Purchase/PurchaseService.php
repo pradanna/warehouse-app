@@ -139,8 +139,29 @@ class PurchaseService implements PurchaseServiceInterface
                 'supplier',
                 'items.inventory',
                 'payments',
+                'debt',
                 'author'
             ])
+                ->when($queryParams->getParam(), function ($q) use ($queryParams) {
+                    /** @var Builder $q */
+                    return $q->where('reference_number', 'LIKE', "%{$queryParams->getParam()}%");
+                })
+                ->when(($queryParams->getDateStart() && $queryParams->getDateEnd()), function ($q) use ($queryParams) {
+                    /** @var Builder $q */
+                    return $q->whereBetween('date', [$queryParams->getDateStart(), $queryParams->getDateEnd()]);
+                })
+                ->when($queryParams->getSupplierId(), function ($q) use ($queryParams) {
+                    /** @var Builder $q */
+                    return $q->where('supplier_id', '=', $queryParams->getSupplierId());
+                })
+                ->when($queryParams->getType(), function ($q) use ($queryParams) {
+                    /** @var Builder $q */
+                    return $q->where('payment_type', '=', $queryParams->getType());
+                })
+                ->when($queryParams->getStatus(), function ($q) use ($queryParams) {
+                    /** @var Builder $q */
+                    return $q->where('payment_status', '=', $queryParams->getStatus());
+                })
                 ->orderBy('date', 'DESC');
             $data = $query->paginate($queryParams->getPerPage(), '*', 'page', $queryParams->getPage());
             return ServiceResponse::statusOK("successfully get purchases", $data);
@@ -156,6 +177,7 @@ class PurchaseService implements PurchaseServiceInterface
                 'supplier',
                 'items.inventory',
                 'payments',
+                'debt',
                 'author'
             ])
                 ->where('id', '=', $id)
