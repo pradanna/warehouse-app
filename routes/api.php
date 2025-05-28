@@ -10,6 +10,7 @@ use App\Http\Controllers\Web\PurchaseController;
 use App\Http\Controllers\Web\PurchasePaymentController;
 use App\Http\Controllers\Web\SaleController;
 use App\Http\Controllers\Web\SalePaymentController;
+use App\Http\Controllers\Web\SummaryController;
 use App\Http\Controllers\Web\SupplierController;
 use App\Http\Controllers\Web\UnitController;
 use App\Http\Middleware\JWTVerify;
@@ -98,6 +99,10 @@ Route::group(['prefix' => 'v1'], function () {
             Route::post('/', [InventoryAdjustmentController::class, 'create']);
             Route::get('/', [InventoryAdjustmentController::class, 'findAll']);
             Route::get('/{id}', [InventoryAdjustmentController::class, 'findByID']);
+        });
+
+        Route::group(['prefix' => 'summary'], function () {
+            Route::get('/purchase', [SummaryController::class, 'purchase']);
         });
     });
 });
