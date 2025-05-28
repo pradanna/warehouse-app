@@ -10,6 +10,9 @@ class InventoryAdjustment extends Model
 {
     use HasFactory, Uuid;
 
+    protected $keyType = 'string';
+    public $incrementing = false;
+
     // Menentukan kolom yang dapat diisi
     protected $fillable = [
         'inventory_id',
@@ -18,6 +21,10 @@ class InventoryAdjustment extends Model
         'type',
         'description',
         'author_id',
+    ];
+
+    protected $casts = [
+        'quantity' => 'float'
     ];
 
     /**

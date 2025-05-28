@@ -32,6 +32,7 @@ class InventoryAdjustmentService implements InventoryAdjustmentServiceInterface
                 'description' => $schema->getDescription(),
                 'author_id' => $userId,
             ];
+
             $inventoryAdjustment = InventoryAdjustment::create($data);
 
             # update inventory stock
@@ -54,17 +55,22 @@ class InventoryAdjustmentService implements InventoryAdjustmentServiceInterface
 
             # create inventory movements
             $movementData = [
-                'inventory_id' => $schema->getQuantity(),
+                'inventory_id' => $schema->getInventoryId(),
                 'type' => 'in',
                 'quantity_open' => $currentStock,
                 'quantity' => $schema->getQuantity(),
                 'quantity_close' => $newStock,
-                'description' => 'Purchasing',
+                'description' => $schema->getDescription() ? $schema->getDescription() : 'Adjustment',
                 'movement_type' => InventoryMovementType::Adjustment->value,
                 'movement_reference' => $inventoryAdjustment->id,
                 'author_id' => $userId
             ];
             InventoryMovement::create($movementData);
+            $inventoryAdjustment->load([
+                'inventory.item',
+                'inventory.unit',
+                'author'
+            ]);
             DB::commit();
             return ServiceResponse::statusCreated("successfully create inventory adjustment", $inventoryAdjustment);
         } catch (\Throwable $e) {
@@ -79,9 +85,22 @@ class InventoryAdjustmentService implements InventoryAdjustmentServiceInterface
             $queryParams->hydrateQuery();
             $query = InventoryAdjustment::with([
                 'inventory.item',
+                'inventory.unit',
                 'author'
             ])
-                ->orderBy('date', 'DESC');
+                ->when($queryParams->getParam(), function ($q) use ($queryParams) {
+                    /** @var Builder $q */
+                    return $q->whereRelation('inventory.item', 'name', 'LIKE', "%{$queryParams->getParam()}%");
+                })
+                ->when($queryParams->getType(), function ($q) use ($queryParams) {
+                    /** @var Builder $q */
+                    return $q->where('type', '=', $queryParams->getType());
+                })
+                ->when(($queryParams->getDateStart() && $queryParams->getDateEnd()), function ($q) use ($queryParams) {
+                    /** @var Builder $q */
+                    return $q->whereBetween('date', [$queryParams->getDateStart(), $queryParams->getDateEnd()]);
+                })
+                ->orderBy('created_at', 'DESC');
             $data = $query->paginate($queryParams->getPerPage(), '*', 'page', $queryParams->getPage());
             return ServiceResponse::statusOK("successfully get inventory adjustments", $data);
         } catch (\Throwable $e) {
@@ -101,7 +120,7 @@ class InventoryAdjustmentService implements InventoryAdjustmentServiceInterface
             if (!$inventoryAdjustment) {
                 return ServiceResponse::notFound("inventory adjustment not found");
             }
-            return ServiceResponse::statusOK("successfully get purchase", $inventoryAdjustment);
+            return ServiceResponse::statusOK("successfully get inventory adjustment", $inventoryAdjustment);
         } catch (\Throwable $e) {
             return ServiceResponse::internalServerError($e->getMessage());
         }
