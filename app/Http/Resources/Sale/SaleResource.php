@@ -50,6 +50,7 @@ class SaleResource extends BaseApiResource
         if ($this->relationLoaded('payments')) {
             $response['payments'] = $this->payments->map(function ($payment) {
                 return [
+                    'id' => $payment->id,
                     'date' => $payment->date,
                     'payment_type' => $payment->payment_type,
                     'amount' => $payment->amount,
@@ -61,7 +62,6 @@ class SaleResource extends BaseApiResource
 
         if ($this->relationLoaded('credit')) {
             $response['credit'] = $this->credit ? [
-                'id' => $this->credit->id,
                 'amount_due' => $this->credit->amount_due,
                 'amount_paid' => $this->credit->amount_paid,
                 'amount_rest' => $this->credit->amount_rest,

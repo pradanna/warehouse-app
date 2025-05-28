@@ -140,6 +140,26 @@ class SaleService implements SaleServiceInterface
                 'credit',
                 'author'
             ])
+                ->when($queryParams->getParam(), function ($q) use ($queryParams) {
+                    /** @var Builder $q */
+                    return $q->where('reference_number', 'LIKE', "%{$queryParams->getParam()}%");
+                })
+                ->when(($queryParams->getDateStart() && $queryParams->getDateEnd()), function ($q) use ($queryParams) {
+                    /** @var Builder $q */
+                    return $q->whereBetween('date', [$queryParams->getDateStart(), $queryParams->getDateEnd()]);
+                })
+                ->when($queryParams->getOutletId(), function ($q) use ($queryParams) {
+                    /** @var Builder $q */
+                    return $q->where('outlet_id', '=', $queryParams->getOutletId());
+                })
+                ->when($queryParams->getType(), function ($q) use ($queryParams) {
+                    /** @var Builder $q */
+                    return $q->where('payment_type', '=', $queryParams->getType());
+                })
+                ->when($queryParams->getStatus(), function ($q) use ($queryParams) {
+                    /** @var Builder $q */
+                    return $q->where('payment_status', '=', $queryParams->getStatus());
+                })
                 ->orderBy('date', 'DESC');
             $data = $query->paginate($queryParams->getPerPage(), '*', 'page', $queryParams->getPage());
             return ServiceResponse::statusOK("successfully get sales", $data);
