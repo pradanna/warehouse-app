@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Web\AuthController;
 use App\Http\Controllers\Web\CategoryController;
+use App\Http\Controllers\Web\InventoryAdjustmentController;
 use App\Http\Controllers\Web\InventoryController;
 use App\Http\Controllers\Web\ItemController;
 use App\Http\Controllers\Web\OutletController;
@@ -91,6 +92,12 @@ Route::group(['prefix' => 'v1'], function () {
             Route::get('/', [SalePaymentController::class, 'findAll']);
             Route::get('/{id}', [SalePaymentController::class, 'findByID']);
             Route::post('/{id}/evidence', [SalePaymentController::class, 'uploadEvidence']);
+        });
+
+        Route::group(['prefix' => 'inventory-adjustment'], function () {
+            Route::post('/', [InventoryAdjustmentController::class, 'create']);
+            Route::get('/', [InventoryAdjustmentController::class, 'findAll']);
+            Route::get('/{id}', [InventoryAdjustmentController::class, 'findByID']);
         });
     });
 });
