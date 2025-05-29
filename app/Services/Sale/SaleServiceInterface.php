@@ -11,4 +11,5 @@ interface SaleServiceInterface
     public function create(SaleSchema $schema): ServiceResponse;
     public function findAll(SaleQuery $queryParams): ServiceResponse;
     public function findByID($id): ServiceResponse;
+    public function summary(SaleQuery $queryParams): ServiceResponse;
 }
