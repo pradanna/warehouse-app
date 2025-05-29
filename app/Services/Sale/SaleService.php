@@ -15,6 +15,7 @@ use App\Models\InventoryMovement;
 use App\Models\Sale;
 use App\Schemas\Sale\SaleQuery;
 use App\Schemas\Sale\SaleSchema;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
@@ -132,36 +133,8 @@ class SaleService implements SaleServiceInterface
     public function findAll(SaleQuery $queryParams): ServiceResponse
     {
         try {
-            $queryParams->hydrateQuery();
-            $query = Sale::with([
-                'outlet',
-                'items.inventory',
-                'payments',
-                'credit',
-                'author'
-            ])
-                ->when($queryParams->getParam(), function ($q) use ($queryParams) {
-                    /** @var Builder $q */
-                    return $q->where('reference_number', 'LIKE', "%{$queryParams->getParam()}%");
-                })
-                ->when(($queryParams->getDateStart() && $queryParams->getDateEnd()), function ($q) use ($queryParams) {
-                    /** @var Builder $q */
-                    return $q->whereBetween('date', [$queryParams->getDateStart(), $queryParams->getDateEnd()]);
-                })
-                ->when($queryParams->getOutletId(), function ($q) use ($queryParams) {
-                    /** @var Builder $q */
-                    return $q->where('outlet_id', '=', $queryParams->getOutletId());
-                })
-                ->when($queryParams->getType(), function ($q) use ($queryParams) {
-                    /** @var Builder $q */
-                    return $q->where('payment_type', '=', $queryParams->getType());
-                })
-                ->when($queryParams->getStatus(), function ($q) use ($queryParams) {
-                    /** @var Builder $q */
-                    return $q->where('payment_status', '=', $queryParams->getStatus());
-                })
-                ->orderBy('date', 'DESC');
-            $data = $query->paginate($queryParams->getPerPage(), '*', 'page', $queryParams->getPage());
+            $data = $this->saleQuery($queryParams)
+                ->paginate($queryParams->getPerPage(), '*', 'page', $queryParams->getPage());
             return ServiceResponse::statusOK("successfully get sales", $data);
         } catch (\Throwable $e) {
             return ServiceResponse::internalServerError($e->getMessage());
@@ -187,5 +160,49 @@ class SaleService implements SaleServiceInterface
         } catch (\Throwable $e) {
             return ServiceResponse::internalServerError($e->getMessage());
         }
+    }
+
+    public function summary(SaleQuery $queryParams): ServiceResponse
+    {
+        try {
+            $total = $this->saleQuery($queryParams)
+                ->sum('total');
+            return ServiceResponse::statusOK("successfully get sale summary", $total);
+        } catch (\Throwable $e) {
+            return ServiceResponse::internalServerError($e->getMessage());
+        }
+    }
+
+    private function saleQuery(SaleQuery $queryParams): Builder
+    {
+        $queryParams->hydrateQuery();
+        return Sale::with([
+            'outlet',
+            'items.inventory',
+            'payments',
+            'credit',
+            'author'
+        ])
+            ->when($queryParams->getParam(), function ($q) use ($queryParams) {
+                /** @var Builder $q */
+                return $q->where('reference_number', 'LIKE', "%{$queryParams->getParam()}%");
+            })
+            ->when(($queryParams->getDateStart() && $queryParams->getDateEnd()), function ($q) use ($queryParams) {
+                /** @var Builder $q */
+                return $q->whereBetween('date', [$queryParams->getDateStart(), $queryParams->getDateEnd()]);
+            })
+            ->when($queryParams->getOutletId(), function ($q) use ($queryParams) {
+                /** @var Builder $q */
+                return $q->where('outlet_id', '=', $queryParams->getOutletId());
+            })
+            ->when($queryParams->getType(), function ($q) use ($queryParams) {
+                /** @var Builder $q */
+                return $q->where('payment_type', '=', $queryParams->getType());
+            })
+            ->when($queryParams->getStatus(), function ($q) use ($queryParams) {
+                /** @var Builder $q */
+                return $q->where('payment_status', '=', $queryParams->getStatus());
+            })
+            ->orderBy('date', 'DESC');
     }
 }

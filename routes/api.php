@@ -103,6 +103,7 @@ Route::group(['prefix' => 'v1'], function () {
 
         Route::group(['prefix' => 'summary'], function () {
             Route::get('/purchase', [SummaryController::class, 'purchase']);
+            Route::get('/sale', [SummaryController::class, 'sale']);
         });
     });
 });
