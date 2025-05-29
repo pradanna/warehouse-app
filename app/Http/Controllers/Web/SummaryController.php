@@ -4,9 +4,12 @@ namespace App\Http\Controllers\Web;
 
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\CustomController;
+use App\Http\Resources\Debt\DebtSummaryResource;
 use App\Http\Resources\Purchase\PurchaseSummaryResource;
+use App\Schemas\Debt\DebtQuery;
 use App\Schemas\Purchase\PurchaseQuery;
 use App\Schemas\Sale\SaleQuery;
+use App\Services\Debt\DebtService;
 use App\Services\Purchase\PurchaseService;
 use App\Services\Sale\SaleService;
 use Illuminate\Http\Request;
@@ -29,6 +32,16 @@ class SummaryController extends CustomController
         $query = (new SaleQuery())->hydrateSchemaQuery($this->queryParams());
         $response = $service->summary($query);
         return (new PurchaseSummaryResource($response->getData()))
+            ->withStatus($response->getStatus())
+            ->withMessage($response->getMessage());
+    }
+
+    public function debt()
+    {
+        $service = new DebtService();
+        $query = (new DebtQuery())->hydrateSchemaQuery($this->queryParams());
+        $response = $service->summary($query);
+        return (new DebtSummaryResource($response->getData()))
             ->withStatus($response->getStatus())
             ->withMessage($response->getMessage());
     }
