@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Web\AuthController;
 use App\Http\Controllers\Web\CategoryController;
+use App\Http\Controllers\Web\DebtController;
 use App\Http\Controllers\Web\InventoryAdjustmentController;
 use App\Http\Controllers\Web\InventoryController;
 use App\Http\Controllers\Web\ItemController;
@@ -104,6 +105,14 @@ Route::group(['prefix' => 'v1'], function () {
         Route::group(['prefix' => 'summary'], function () {
             Route::get('/purchase', [SummaryController::class, 'purchase']);
             Route::get('/sale', [SummaryController::class, 'sale']);
+            Route::get('/debt', [SummaryController::class, 'debt']);
         });
+
+        Route::group(['prefix' => 'debt'], function () {
+            Route::get('/', [DebtController::class, 'findAll']);
+            Route::get('/{id}', [DebtController::class, 'findByID']);
+        });
+
+
     });
 });
