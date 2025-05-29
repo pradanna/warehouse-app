@@ -4,11 +4,14 @@ namespace App\Http\Controllers\Web;
 
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\CustomController;
+use App\Http\Resources\Credit\CreditSummaryResource;
 use App\Http\Resources\Debt\DebtSummaryResource;
 use App\Http\Resources\Purchase\PurchaseSummaryResource;
+use App\Schemas\Credit\CreditQuery;
 use App\Schemas\Debt\DebtQuery;
 use App\Schemas\Purchase\PurchaseQuery;
 use App\Schemas\Sale\SaleQuery;
+use App\Services\Credit\CreditService;
 use App\Services\Debt\DebtService;
 use App\Services\Purchase\PurchaseService;
 use App\Services\Sale\SaleService;
@@ -42,6 +45,16 @@ class SummaryController extends CustomController
         $query = (new DebtQuery())->hydrateSchemaQuery($this->queryParams());
         $response = $service->summary($query);
         return (new DebtSummaryResource($response->getData()))
+            ->withStatus($response->getStatus())
+            ->withMessage($response->getMessage());
+    }
+
+    public function credit()
+    {
+        $service = new CreditService();
+        $query = (new CreditQuery())->hydrateSchemaQuery($this->queryParams());
+        $response = $service->summary($query);
+        return (new CreditSummaryResource($response->getData()))
             ->withStatus($response->getStatus())
             ->withMessage($response->getMessage());
     }
