@@ -11,4 +11,5 @@ interface PurchaseServiceInterface
     public function create(PurchaseSchema $schema): ServiceResponse;
     public function findAll(PurchaseQuery $queryParams): ServiceResponse;
     public function findByID($id): ServiceResponse;
+    public function summary(PurchaseQuery $queryParams): ServiceResponse;
 }
