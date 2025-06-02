@@ -6,7 +6,7 @@ use App\Traits\Uuid;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class SalePayment extends Model
+class Credit extends Model
 {
     use HasFactory, Uuid;
 
@@ -15,28 +15,20 @@ class SalePayment extends Model
 
     protected $fillable = [
         'sale_id',
-        'date',
-        'payment_type',
-        'amount',
-        'description',
-        'evidence',
-        'author_id'
+        'amount_due',
+        'amount_paid',
+        'amount_rest',
+        'due_date'
     ];
 
     protected $casts = [
-        'amount' => 'float'
+        'amount_due' => 'float',
+        'amount_paid' => 'float',
+        'amount_rest' => 'float'
     ];
 
     public function sale()
     {
         return $this->belongsTo(Sale::class, 'sale_id');
-    }
-
-    /*
-    *
-    */
-    public function author()
-    {
-        return $this->belongsTo(User::class, 'author_id');
     }
 }

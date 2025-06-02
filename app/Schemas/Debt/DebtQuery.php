@@ -1,29 +1,26 @@
 <?php
 
-namespace App\Schemas\PurchasePayment;
+namespace App\Schemas\Debt;
 
 use App\Commons\Schema\BaseSchema;
 
-class PurchasePaymentQuery extends BaseSchema
+class DebtQuery extends BaseSchema
 {
     private $page;
     private $perPage;
-    private $dateStart;
-    private $dateEnd;
     private $supplierId;
+    private $status;
 
     public function hydrateQuery()
     {
         $page = $this->query['page'] ?? 1;
         $perPage = $this->query['per_page'] ?? 10;
-        $dateStart = !empty(trim($this->query['date_start'] ?? '')) ? $this->query['date_start'] : null;
-        $dateEnd = !empty(trim($this->query['date_end'] ?? '')) ? $this->query['date_end'] : null;
         $supplierId = !empty(trim($this->query['supplier_id'] ?? '')) ? $this->query['supplier_id'] : null;
+        $status = !empty(trim($this->query['status'] ?? '')) ? $this->query['status'] : null;
         $this->setPage($page)
             ->setPerPage($perPage)
-            ->setDateStart($dateStart)
-            ->setDateEnd($dateEnd)
-            ->setSupplierId($supplierId);
+            ->setSupplierId($supplierId)
+            ->setStatus($status);
     }
 
     /**
@@ -67,46 +64,6 @@ class PurchasePaymentQuery extends BaseSchema
     }
 
     /**
-     * Get the value of dateStart
-     */
-    public function getDateStart()
-    {
-        return $this->dateStart;
-    }
-
-    /**
-     * Set the value of dateStart
-     *
-     * @return  self
-     */
-    public function setDateStart($dateStart)
-    {
-        $this->dateStart = $dateStart;
-
-        return $this;
-    }
-
-    /**
-     * Get the value of dateEnd
-     */
-    public function getDateEnd()
-    {
-        return $this->dateEnd;
-    }
-
-    /**
-     * Set the value of dateEnd
-     *
-     * @return  self
-     */
-    public function setDateEnd($dateEnd)
-    {
-        $this->dateEnd = $dateEnd;
-
-        return $this;
-    }
-
-    /**
      * Get the value of supplierId
      */
     public function getSupplierId()
@@ -122,6 +79,26 @@ class PurchasePaymentQuery extends BaseSchema
     public function setSupplierId($supplierId)
     {
         $this->supplierId = $supplierId;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of status
+     */
+    public function getStatus()
+    {
+        return $this->status;
+    }
+
+    /**
+     * Set the value of status
+     *
+     * @return  self
+     */
+    public function setStatus($status)
+    {
+        $this->status = $status;
 
         return $this;
     }

@@ -33,7 +33,7 @@ class PurchaseSchema extends BaseSchema
             'items.*.price' => 'required|numeric',
             'payment' => 'required_if:payment_type,cash|array',
             'payment.date' => 'required_if:payment_type,cash|date',
-            'payment.description' => 'string',
+            'payment.description' => 'required_if:payment_type,cash|string',
             'payment.payment_type' => 'required_if:payment_type,cash|in:cash,digital',
             'payment.amount' => 'required_if:payment_type,cash|numeric',
         ];
@@ -43,10 +43,10 @@ class PurchaseSchema extends BaseSchema
     {
         $supplierId = $this->body['supplier_id'];
         $date = $this->body['date'];
-        $referenceNumber = $this->body['reference_number'] ?? null;
+        $referenceNumber =  !empty(trim($this->body['reference_number'] ?? '')) ? $this->body['reference_number'] : null;
         $discount = $this->body['discount'];
         $tax = $this->body['tax'];
-        $description = $this->body['description'] ?? null;
+        $description = !empty(trim($this->body['description'] ?? '')) ? $this->body['description'] : null;
         $paymentType = $this->body['payment_type'];
         $items = $this->body['items'];
         $payment = null;

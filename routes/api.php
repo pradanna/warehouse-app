@@ -2,12 +2,17 @@
 
 use App\Http\Controllers\Web\AuthController;
 use App\Http\Controllers\Web\CategoryController;
+use App\Http\Controllers\Web\CreditController;
+use App\Http\Controllers\Web\DebtController;
+use App\Http\Controllers\Web\InventoryAdjustmentController;
 use App\Http\Controllers\Web\InventoryController;
 use App\Http\Controllers\Web\ItemController;
 use App\Http\Controllers\Web\OutletController;
 use App\Http\Controllers\Web\PurchaseController;
 use App\Http\Controllers\Web\PurchasePaymentController;
 use App\Http\Controllers\Web\SaleController;
+use App\Http\Controllers\Web\SalePaymentController;
+use App\Http\Controllers\Web\SummaryController;
 use App\Http\Controllers\Web\SupplierController;
 use App\Http\Controllers\Web\UnitController;
 use App\Http\Middleware\JWTVerify;
@@ -70,8 +75,6 @@ Route::group(['prefix' => 'v1'], function () {
             Route::get('/', [PurchaseController::class, 'findAll']);
             Route::get('/{id}', [PurchaseController::class, 'findByID']);
             Route::post('/{id}/payment', [PurchaseController::class, 'payment']);
-            // Route::put('/{id}', [SupplierController::class, 'patch']);
-            // Route::delete('/{id}', [SupplierController::class, 'delete']);
         });
 
         Route::group(['prefix' => 'purchase-payment'], function () {
@@ -86,5 +89,37 @@ Route::group(['prefix' => 'v1'], function () {
             Route::get('/', [SaleController::class, 'findAll']);
             Route::get('/{id}', [SaleController::class, 'findByID']);
         });
+
+        Route::group(['prefix' => 'sale-payment'], function () {
+            Route::post('/', [SalePaymentController::class, 'create']);
+            Route::get('/', [SalePaymentController::class, 'findAll']);
+            Route::get('/{id}', [SalePaymentController::class, 'findByID']);
+            Route::post('/{id}/evidence', [SalePaymentController::class, 'uploadEvidence']);
+        });
+
+        Route::group(['prefix' => 'inventory-adjustment'], function () {
+            Route::post('/', [InventoryAdjustmentController::class, 'create']);
+            Route::get('/', [InventoryAdjustmentController::class, 'findAll']);
+            Route::get('/{id}', [InventoryAdjustmentController::class, 'findByID']);
+        });
+
+        Route::group(['prefix' => 'summary'], function () {
+            Route::get('/purchase', [SummaryController::class, 'purchase']);
+            Route::get('/sale', [SummaryController::class, 'sale']);
+            Route::get('/debt', [SummaryController::class, 'debt']);
+            Route::get('/credit', [SummaryController::class, 'credit']);
+        });
+
+        Route::group(['prefix' => 'debt'], function () {
+            Route::get('/', [DebtController::class, 'findAll']);
+            Route::get('/{id}', [DebtController::class, 'findByID']);
+        });
+
+        Route::group(['prefix' => 'credit'], function () {
+            Route::get('/', [CreditController::class, 'findAll']);
+            Route::get('/{id}', [CreditController::class, 'findByID']);
+        });
+
+
     });
 });
