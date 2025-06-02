@@ -1,29 +1,32 @@
 <?php
 
-namespace App\Schemas\PurchasePayment;
+namespace App\Schemas\InventoryAdjustment;
 
 use App\Commons\Schema\BaseSchema;
 
-class PurchasePaymentQuery extends BaseSchema
+class InventoryAdjustmentQuery extends BaseSchema
 {
     private $page;
     private $perPage;
+    private $param;
+    private $type;
     private $dateStart;
     private $dateEnd;
-    private $supplierId;
 
     public function hydrateQuery()
     {
         $page = $this->query['page'] ?? 1;
         $perPage = $this->query['per_page'] ?? 10;
+        $param = $this->query['param'] ?? '';
         $dateStart = !empty(trim($this->query['date_start'] ?? '')) ? $this->query['date_start'] : null;
         $dateEnd = !empty(trim($this->query['date_end'] ?? '')) ? $this->query['date_end'] : null;
-        $supplierId = !empty(trim($this->query['supplier_id'] ?? '')) ? $this->query['supplier_id'] : null;
+        $type = !empty(trim($this->query['type'] ?? '')) ? $this->query['type'] : null;
         $this->setPage($page)
             ->setPerPage($perPage)
+            ->setParam($param)
             ->setDateStart($dateStart)
             ->setDateEnd($dateEnd)
-            ->setSupplierId($supplierId);
+            ->setType($type);
     }
 
     /**
@@ -62,6 +65,26 @@ class PurchasePaymentQuery extends BaseSchema
     public function setPage($page)
     {
         $this->page = $page;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of param
+     */
+    public function getParam()
+    {
+        return $this->param;
+    }
+
+    /**
+     * Set the value of param
+     *
+     * @return  self
+     */
+    public function setParam($param)
+    {
+        $this->param = $param;
 
         return $this;
     }
@@ -107,21 +130,21 @@ class PurchasePaymentQuery extends BaseSchema
     }
 
     /**
-     * Get the value of supplierId
+     * Get the value of type
      */
-    public function getSupplierId()
+    public function getType()
     {
-        return $this->supplierId;
+        return $this->type;
     }
 
     /**
-     * Set the value of supplierId
+     * Set the value of type
      *
      * @return  self
      */
-    public function setSupplierId($supplierId)
+    public function setType($type)
     {
-        $this->supplierId = $supplierId;
+        $this->type = $type;
 
         return $this;
     }

@@ -2,40 +2,46 @@
 
 namespace App\Models;
 
+use App\Traits\Uuid;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class InventoryAdjustment extends Model
 {
-    use HasFactory;
+    use HasFactory, Uuid;
 
-    // Menentukan tabel yang digunakan oleh model ini
-    protected $table = 'inventory_adjustments';
+    protected $keyType = 'string';
+    public $incrementing = false;
 
     // Menentukan kolom yang dapat diisi
     protected $fillable = [
-        'item_id',
-        'adjustment_qty',
-        'adjustment_type',
-        'reason',
-        'user_id',
+        'inventory_id',
+        'date',
+        'quantity',
+        'type',
+        'description',
+        'author_id',
+    ];
+
+    protected $casts = [
+        'quantity' => 'float'
     ];
 
     /**
      * Relasi dengan Item (many-to-one)
      * Setiap inventory adjustment berhubungan dengan satu item
      */
-    public function item()
+    public function inventory()
     {
-        return $this->belongsTo(Item::class);
+        return $this->belongsTo(Inventory::class, 'inventory_id');
     }
 
     /**
      * Relasi dengan User (many-to-one)
      * Setiap inventory adjustment berhubungan dengan satu user (yang melakukan penyesuaian)
      */
-    public function user()
+    public function author()
     {
-        return $this->belongsTo(User::class, 'user_id');
+        return $this->belongsTo(User::class, 'author_id');
     }
 }

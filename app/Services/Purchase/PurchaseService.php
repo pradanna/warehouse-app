@@ -5,20 +5,14 @@ namespace App\Services\Purchase;
 use App\Commons\Enum\InventoryMovementType;
 use App\Commons\Enum\PurchasePaymentStatus;
 use App\Commons\Enum\PurchasePaymentType;
-use App\Commons\Http\HttpStatus;
 use App\Schemas\Purchase\PurchaseSchema;
 use App\Commons\Http\ServiceResponse;
-use App\Commons\Pagination\Pagination;
-use App\Http\Resources\Purchase\PurchaseCollection;
-use App\Http\Resources\Purchase\PurchaseResource;
 use App\Models\Debt;
 use App\Models\Inventory;
 use App\Models\InventoryMovement;
 use App\Models\Purchase;
-use App\Schemas\Purchase\PurchasePaymentSchema;
 use App\Schemas\Purchase\PurchaseQuery;
-use App\Services\Inventory\InventoryService;
-use Illuminate\Contracts\Support\Responsable;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
@@ -134,15 +128,8 @@ class PurchaseService implements PurchaseServiceInterface
     public function findAll(PurchaseQuery $queryParams): ServiceResponse
     {
         try {
-            $queryParams->hydrateQuery();
-            $query = Purchase::with([
-                'supplier',
-                'items.inventory',
-                'payments',
-                'author'
-            ])
-                ->orderBy('date', 'DESC');
-            $data = $query->paginate($queryParams->getPerPage(), '*', 'page', $queryParams->getPage());
+            $data = $this->purchaseQuery($queryParams)
+                ->paginate($queryParams->getPerPage(), '*', 'page', $queryParams->getPage());
             return ServiceResponse::statusOK("successfully get purchases", $data);
         } catch (\Throwable $e) {
             return ServiceResponse::internalServerError($e->getMessage());
@@ -156,6 +143,7 @@ class PurchaseService implements PurchaseServiceInterface
                 'supplier',
                 'items.inventory',
                 'payments',
+                'debt',
                 'author'
             ])
                 ->where('id', '=', $id)
@@ -167,5 +155,49 @@ class PurchaseService implements PurchaseServiceInterface
         } catch (\Throwable $e) {
             return ServiceResponse::internalServerError($e->getMessage());
         }
+    }
+
+    public function summary(PurchaseQuery $queryParams): ServiceResponse
+    {
+        try {
+            $total = $this->purchaseQuery($queryParams)
+                ->sum('total');
+            return ServiceResponse::statusOK("successfully get purchase summary", $total);
+        } catch (\Throwable $e) {
+            return ServiceResponse::internalServerError($e->getMessage());
+        }
+    }
+
+    private function purchaseQuery(PurchaseQuery $queryParams): Builder
+    {
+        $queryParams->hydrateQuery();
+        return Purchase::with([
+            'supplier',
+            'items.inventory',
+            'payments',
+            'debt',
+            'author'
+        ])
+            ->when($queryParams->getParam(), function ($q) use ($queryParams) {
+                /** @var Builder $q */
+                return $q->where('reference_number', 'LIKE', "%{$queryParams->getParam()}%");
+            })
+            ->when(($queryParams->getDateStart() && $queryParams->getDateEnd()), function ($q) use ($queryParams) {
+                /** @var Builder $q */
+                return $q->whereBetween('date', [$queryParams->getDateStart(), $queryParams->getDateEnd()]);
+            })
+            ->when($queryParams->getSupplierId(), function ($q) use ($queryParams) {
+                /** @var Builder $q */
+                return $q->where('supplier_id', '=', $queryParams->getSupplierId());
+            })
+            ->when($queryParams->getType(), function ($q) use ($queryParams) {
+                /** @var Builder $q */
+                return $q->where('payment_type', '=', $queryParams->getType());
+            })
+            ->when($queryParams->getStatus(), function ($q) use ($queryParams) {
+                /** @var Builder $q */
+                return $q->where('payment_status', '=', $queryParams->getStatus());
+            })
+            ->orderBy('date', 'DESC');
     }
 }
