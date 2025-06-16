@@ -6,6 +6,7 @@ use App\Http\Controllers\Web\CreditController;
 use App\Http\Controllers\Web\DebtController;
 use App\Http\Controllers\Web\InventoryAdjustmentController;
 use App\Http\Controllers\Web\InventoryController;
+use App\Http\Controllers\Web\InventoryMovementController;
 use App\Http\Controllers\Web\ItemController;
 use App\Http\Controllers\Web\OutletController;
 use App\Http\Controllers\Web\PurchaseController;
@@ -101,6 +102,11 @@ Route::group(['prefix' => 'v1'], function () {
             Route::post('/', [InventoryAdjustmentController::class, 'create']);
             Route::get('/', [InventoryAdjustmentController::class, 'findAll']);
             Route::get('/{id}', [InventoryAdjustmentController::class, 'findByID']);
+        });
+
+        Route::group(['prefix' => 'inventory-movement'], function () {
+            Route::get('/', [InventoryMovementController::class, 'findAll']);
+            Route::get('/{id}', [InventoryMovementController::class, 'findByID']);
         });
 
         Route::group(['prefix' => 'summary'], function () {
