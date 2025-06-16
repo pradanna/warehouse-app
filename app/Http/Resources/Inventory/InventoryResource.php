@@ -16,11 +16,17 @@ class InventoryResource extends BaseApiResource
     {
         return [
             'id' => $this->id,
-            'name' => $this->whenLoaded('item', function () {
-                return $this->item->name;
+            'item' => $this->whenLoaded('item', function () {
+                return [
+                    'id' => $this->item->id,
+                    'name' => $this->item->name
+                ];
             }),
             'unit' => $this->whenLoaded('unit', function () {
-                return $this->unit->name;
+                return [
+                    'id' => $this->unit->id,
+                    'name' => $this->unit->name
+                ];
             }),
             'sku' => $this->sku,
             'description' => $this->description,
