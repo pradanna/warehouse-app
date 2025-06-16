@@ -31,7 +31,7 @@ class InventoryMovement extends Model
         'quantity_close' => 'float'
     ];
 
-    public function invetory()
+    public function inventory()
     {
         return $this->belongsTo(Inventory::class, 'inventory_id');
     }
