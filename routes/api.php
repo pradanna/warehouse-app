@@ -114,6 +114,7 @@ Route::group(['prefix' => 'v1'], function () {
             Route::get('/sale', [SummaryController::class, 'sale']);
             Route::get('/debt', [SummaryController::class, 'debt']);
             Route::get('/credit', [SummaryController::class, 'credit']);
+            Route::get('/inventory-movement', [SummaryController::class, 'inventoryMovement']);
         });
 
         Route::group(['prefix' => 'debt'], function () {
