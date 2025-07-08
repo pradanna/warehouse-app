@@ -1,0 +1,12 @@
+[
+    {
+        "id": "b572ea4e-a0b3-444a-96f0-e97077379175",
+        "name": "superadmin",
+        "guard_name": "web"
+    },
+    {
+        "id": "3a30c13f-4d48-4eae-a5e4-589777587fa6",
+        "name": "staff",
+        "guard_name": "web"
+    }
+]
