@@ -13,6 +13,7 @@ use App\Http\Controllers\Web\PurchaseController;
 use App\Http\Controllers\Web\PurchasePaymentController;
 use App\Http\Controllers\Web\SaleController;
 use App\Http\Controllers\Web\SalePaymentController;
+use App\Http\Controllers\Web\StaffController;
 use App\Http\Controllers\Web\SummaryController;
 use App\Http\Controllers\Web\SupplierController;
 use App\Http\Controllers\Web\UnitController;
@@ -23,6 +24,14 @@ Route::group(['prefix' => 'v1'], function () {
     Route::post('login', [AuthController::class, 'login']);
 
     Route::group(['middleware' => [JWTVerify::class]], function () {
+        Route::group(['prefix' => 'staff'], function () {
+            Route::post('/', [StaffController::class, 'create']);
+            Route::get('/', [StaffController::class, 'findAll']);
+            Route::get('/{id}', [StaffController::class, 'findByID']);
+            Route::put('/{id}', [StaffController::class, 'patch']);
+            Route::delete('/{id}', [StaffController::class, 'delete']);
+        });
+
         Route::group(['prefix' => 'category'], function () {
             Route::post('/', [CategoryController::class, 'create']);
             Route::get('/', [CategoryController::class, 'findAll']);
@@ -114,6 +123,7 @@ Route::group(['prefix' => 'v1'], function () {
             Route::get('/sale', [SummaryController::class, 'sale']);
             Route::get('/debt', [SummaryController::class, 'debt']);
             Route::get('/credit', [SummaryController::class, 'credit']);
+            Route::get('/inventory-movement', [SummaryController::class, 'inventoryMovement']);
         });
 
         Route::group(['prefix' => 'debt'], function () {
@@ -125,7 +135,5 @@ Route::group(['prefix' => 'v1'], function () {
             Route::get('/', [CreditController::class, 'findAll']);
             Route::get('/{id}', [CreditController::class, 'findByID']);
         });
-
-
     });
 });

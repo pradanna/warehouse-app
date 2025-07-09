@@ -9,4 +9,5 @@ interface InventoryMovementServiceInterface
 {
     public function findAll(InventoryMovementQuery $queryParams): ServiceResponse;
     public function findByID($id): ServiceResponse;
+    public function summary(InventoryMovementQuery $queryParams): ServiceResponse;
 }
