@@ -6,7 +6,7 @@ use App\Traits\Uuid;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class CashFlow extends Model
+class OutletExpense extends Model
 {
     use HasFactory, Uuid;
 
@@ -15,13 +15,10 @@ class CashFlow extends Model
 
     protected $fillable = [
         'outlet_id',
+        'expense_category_id',
         'date',
-        'type',
-        'name',
         'amount',
         'description',
-        'reference_type',
-        'reference_key',
         'author_id',
     ];
 
@@ -37,5 +34,10 @@ class CashFlow extends Model
     public function outlet()
     {
         return $this->belongsTo(Outlet::class, 'outlet_id');
+    }
+
+    public function expense_category()
+    {
+        return $this->belongsTo(ExpenseCategory::class, 'expense_category_id');
     }
 }
