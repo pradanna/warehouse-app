@@ -5,6 +5,7 @@ use App\Http\Controllers\Web\CashFlowController;
 use App\Http\Controllers\Web\CategoryController;
 use App\Http\Controllers\Web\CreditController;
 use App\Http\Controllers\Web\DebtController;
+use App\Http\Controllers\Web\ExpenseCategoryController;
 use App\Http\Controllers\Web\InventoryAdjustmentController;
 use App\Http\Controllers\Web\InventoryController;
 use App\Http\Controllers\Web\InventoryMovementController;
@@ -40,6 +41,14 @@ Route::group(['prefix' => 'v1'], function () {
             Route::get('/{id}', [CategoryController::class, 'findByID']);
             Route::put('/{id}', [CategoryController::class, 'patch']);
             Route::delete('/{id}', [CategoryController::class, 'delete']);
+        });
+
+        Route::group(['prefix' => 'expense-category'], function () {
+            Route::post('/', [ExpenseCategoryController::class, 'create']);
+            Route::get('/', [ExpenseCategoryController::class, 'findAll']);
+            Route::get('/{id}', [ExpenseCategoryController::class, 'findByID']);
+            Route::put('/{id}', [ExpenseCategoryController::class, 'patch']);
+            Route::delete('/{id}', [ExpenseCategoryController::class, 'delete']);
         });
 
         Route::group(['prefix' => 'unit'], function () {
