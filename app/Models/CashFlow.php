@@ -20,6 +20,7 @@ class CashFlow extends Model
         'name',
         'amount',
         'description',
+        'reference_type',
         'reference_key',
         'author_id',
     ];

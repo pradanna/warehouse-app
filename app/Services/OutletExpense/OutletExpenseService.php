@@ -32,9 +32,9 @@ class OutletExpenseService implements OutletExpenseServiceInterface
                     /** @var Builder $q */
                     return $q->where('expense_category_id', '=', $queryParams->getExpenseCategoryId());
                 })
-                ->orderBy('name', 'ASC');
+                ->orderBy('date', 'ASC');
             $data = $query->paginate($queryParams->getPerPage(), '*', 'page', $queryParams->getPage());
-            return ServiceResponse::statusOK("successfully get oulet expense", $data);
+            return ServiceResponse::statusOK("successfully get outlet expense", $data);
         } catch (\Throwable $e) {
             return ServiceResponse::internalServerError($e->getMessage());
         }
@@ -105,7 +105,110 @@ class OutletExpenseService implements OutletExpenseServiceInterface
         }
     }
 
-    public function patch($id, OutletExpenseSchema $schema): ServiceResponse {}
+    public function patch($id, OutletExpenseSchema $schema): ServiceResponse
+    {
+        try {
+            $userId = Auth::user()->id;
+            DB::beginTransaction();
+            $validator = $schema->validate();
+            if ($validator->fails()) {
+                return ServiceResponse::unprocessableEntity($validator->errors()->toArray(), "error validation");
+            }
+            $schema->hydrateBody();
 
-    public function delete($id): ServiceResponse {}
+            $expenseCategory = ExpenseCategory::with([])
+                ->where('id', '=', $schema->getExpenseCategoryId())
+                ->first();
+            if (!$expenseCategory) {
+                return ServiceResponse::notFound("expense category not found");
+            }
+
+            $outletExpense = OutletExpense::with([])
+                ->where('id', '=', $id)
+                ->first();
+            if (!$outletExpense) {
+                return ServiceResponse::notFound("outlet expense not found");
+            }
+
+            $currentOutletId = $outletExpense->outlet_id;
+            $currentDate = $outletExpense->date;
+            $currentId = $outletExpense->id;
+
+            #update outlet expense
+            $dataExpense = [
+                'outlet_id' => $schema->getOutletId(),
+                'expense_category_id' => $schema->getExpenseCategoryId(),
+                'date' => $schema->getDate(),
+                'amount' => $schema->getAmount(),
+                'description' => $schema->getDescription(),
+                'author_id' => $userId,
+            ];
+
+            $outletExpense->update($dataExpense);
+
+            #update cash flow
+            $cashFlow = CashFlow::with([])
+                ->where('outlet_id', '=', $currentOutletId)
+                ->where('date', '=', $currentDate)
+                ->where('reference_key', '=', $currentId)
+                ->first();
+
+            if (!$cashFlow) {
+                return ServiceResponse::notFound("cash flow not found");
+            }
+            $dataCashFlow = [
+                'outlet_id' => $schema->getOutletId(),
+                'date' => $schema->getDate(),
+                'type' => CashFlowType::Credit->value,
+                'name' => 'Pengeluaran ' . $expenseCategory->name,
+                'amount' => $schema->getAmount(),
+                'description' => null,
+                'reference_key' => $outletExpense->id,
+                'author_id' => $userId,
+            ];
+            $cashFlow->update($dataCashFlow);
+            DB::commit();
+            return ServiceResponse::statusOK("successfully update outlet expense");
+        } catch (\Throwable $e) {
+            DB::rollBack();
+            return ServiceResponse::internalServerError($e->getMessage());
+        }
+    }
+
+    public function delete($id): ServiceResponse
+    {
+        try {
+            DB::beginTransaction();
+            $outletExpense = OutletExpense::with([])
+                ->where('id', '=', $id)
+                ->first();
+            if (!$outletExpense) {
+                return ServiceResponse::notFound("outlet expense not found");
+            }
+
+            $currentOutletId = $outletExpense->outlet_id;
+            $currentDate = $outletExpense->date;
+            $currentId = $outletExpense->id;
+
+            #delete outlet expense
+            $outletExpense->delete();
+
+            #update cash flow
+            $cashFlow = CashFlow::with([])
+                ->where('outlet_id', '=', $currentOutletId)
+                ->where('date', '=', $currentDate)
+                ->where('reference_key', '=', $currentId)
+                ->first();
+
+            if (!$cashFlow) {
+                return ServiceResponse::notFound("cash flow not found");
+            }
+            $cashFlow->delete();
+            DB::commit();
+            return ServiceResponse::statusOK("successfully delete outlet expense");
+        } catch (\Throwable $e) {
+            DB::rollBack();
+            return ServiceResponse::internalServerError($e->getMessage());
+        }
+    }
 }

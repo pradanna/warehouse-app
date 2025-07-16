@@ -49,20 +49,20 @@ class OutletExpenseController extends CustomController
             ->withMessage($response->getMessage());
     }
 
-    // public function patch($id)
-    // {
-    //     $schema = (new CategorySchema())->hydrateSchemaBody($this->jsonBody());
-    //     $response = $this->service->patch($id, $schema);
-    //     return (new CategoryResource($response->getData()))
-    //         ->withStatus($response->getStatus())
-    //         ->withMessage($response->getMessage());
-    // }
+    public function patch($id)
+    {
+        $schema = (new OutletExpenseSchema())->hydrateSchemaBody($this->jsonBody());
+        $response = $this->service->patch($id, $schema);
+        return (new OutletExpenseResource($response->getData()))
+            ->withStatus($response->getStatus())
+            ->withMessage($response->getMessage());
+    }
 
-    // public function delete($id)
-    // {
-    //     $response = $this->service->delete($id);
-    //     return (new CategoryResource($response->getData()))
-    //         ->withStatus($response->getStatus())
-    //         ->withMessage($response->getMessage());
-    // }
+    public function delete($id)
+    {
+        $response = $this->service->delete($id);
+        return (new OutletExpenseResource($response->getData()))
+            ->withStatus($response->getStatus())
+            ->withMessage($response->getMessage());
+    }
 }

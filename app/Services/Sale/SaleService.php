@@ -2,6 +2,7 @@
 
 namespace App\Services\Sale;
 
+use App\Commons\Enum\CashFlowReferenceType;
 use App\Commons\Enum\CashFlowType;
 use App\Commons\Enum\InventoryMovementType;
 use App\Commons\Enum\SalePaymentStatus;
@@ -128,6 +129,8 @@ class SaleService implements SaleServiceInterface
                 'name' => 'Purchase ' . $formattedDate,
                 'amount' => $total,
                 'description' => null,
+                'reference_type' => CashFlowReferenceType::Purchase->value,
+                'reference_key' => $sale->id,
                 'author_id' => $userId,
             ];
             CashFlow::create($dataCashFlow);

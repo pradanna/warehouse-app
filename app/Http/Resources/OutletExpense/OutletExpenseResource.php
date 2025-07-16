@@ -16,6 +16,14 @@ class OutletExpenseResource extends BaseApiResource
             'amount' => $this->amount,
             'description' => $this->description,
         ];
+
+        if ($this->relationLoaded('expense_category')) {
+            $response['category'] = $this->expense_category ? [
+                'id' => $this->expense_category->id,
+                'name' => $this->expense_category->name
+            ] : null;
+        }
+
         if ($this->relationLoaded('outlet')) {
             $response['outlet'] = $this->outlet ? [
                 'id' => $this->outlet->id,
