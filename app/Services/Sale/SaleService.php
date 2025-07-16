@@ -129,7 +129,7 @@ class SaleService implements SaleServiceInterface
                 'name' => 'Purchase ' . $formattedDate,
                 'amount' => $total,
                 'description' => null,
-                'reference_type' => CashFlowReferenceType::Purchase->value,
+                'reference_type' => CashFlowReferenceType::OutletPurchase->value,
                 'reference_key' => $sale->id,
                 'author_id' => $userId,
             ];

@@ -4,5 +4,5 @@ namespace App\Commons\Enum;
 
 enum CashFlowReferenceType: string
 {
-    case Purchase = 'purchase';
+    case OutletPurchase = 'outlet-purchase';
 }

@@ -30,7 +30,7 @@ class OutletGeneralLedgerService implements OutletGeneralLedgerServiceInterface
 
             $purchases = CashFlow::with([])
                 ->where('outlet_id', '=', $queryParams->getOutletId())
-                ->where('reference_type', '=', CashFlowReferenceType::Purchase->value)
+                ->where('reference_type', '=', CashFlowReferenceType::OutletPurchase->value)
                 ->when(($queryParams->getMonth() && $queryParams->getYear()), function ($q) use ($queryParams) {
                     /** @var Builder $q */
                     return $q->whereMonth('date', $queryParams->getMonth())
