@@ -11,6 +11,7 @@ use App\Http\Controllers\Web\InventoryController;
 use App\Http\Controllers\Web\InventoryMovementController;
 use App\Http\Controllers\Web\ItemController;
 use App\Http\Controllers\Web\OutletController;
+use App\Http\Controllers\Web\OutletExpenseController;
 use App\Http\Controllers\Web\OutletIncomeController;
 use App\Http\Controllers\Web\PurchaseController;
 use App\Http\Controllers\Web\PurchasePaymentController;
@@ -154,6 +155,11 @@ Route::group(['prefix' => 'v1'], function () {
         Route::group(['prefix' => 'outlet-income'], function () {
             Route::get('/', [OutletIncomeController::class, 'findAll']);
             Route::post('/', [OutletIncomeController::class, 'create']);
+        });
+
+        Route::group(['prefix' => 'outlet-expense'], function () {
+            Route::get('/', [OutletExpenseController::class, 'findAll']);
+            Route::post('/', [OutletExpenseController::class, 'create']);
         });
     });
 });
