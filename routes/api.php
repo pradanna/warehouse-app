@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Web\AuthController;
+use App\Http\Controllers\Web\CashFlowController;
 use App\Http\Controllers\Web\CategoryController;
 use App\Http\Controllers\Web\CreditController;
 use App\Http\Controllers\Web\DebtController;
@@ -9,6 +10,7 @@ use App\Http\Controllers\Web\InventoryController;
 use App\Http\Controllers\Web\InventoryMovementController;
 use App\Http\Controllers\Web\ItemController;
 use App\Http\Controllers\Web\OutletController;
+use App\Http\Controllers\Web\OutletIncomeController;
 use App\Http\Controllers\Web\PurchaseController;
 use App\Http\Controllers\Web\PurchasePaymentController;
 use App\Http\Controllers\Web\SaleController;
@@ -134,6 +136,15 @@ Route::group(['prefix' => 'v1'], function () {
         Route::group(['prefix' => 'credit'], function () {
             Route::get('/', [CreditController::class, 'findAll']);
             Route::get('/{id}', [CreditController::class, 'findByID']);
+        });
+
+        Route::group(['prefix' => 'cash-flow'], function () {
+            Route::get('/', [CashFlowController::class, 'findAll']);
+        });
+
+        Route::group(['prefix' => 'outlet-income'], function () {
+            Route::get('/', [OutletIncomeController::class, 'findAll']);
+            Route::post('/', [OutletIncomeController::class, 'create']);
         });
     });
 });
