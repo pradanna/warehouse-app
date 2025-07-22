@@ -7,7 +7,11 @@ use App\Commons\JWT\JWTAuth;
 use App\Commons\JWT\JWTClaims;
 use App\Models\User;
 use App\Schemas\Auth\LoginSchema;
+
+use App\Schemas\Auth\RefreshTokenSchema;
+
 use Illuminate\Http\Request;
+
 use Illuminate\Support\Facades\Hash;
 
 class AuthService implements AuthServiceInterface
@@ -45,6 +49,35 @@ class AuthService implements AuthServiceInterface
         }
     }
 
+
+    public function refreshToken(RefreshTokenSchema $schema): ServiceResponse
+    {
+        try {
+            $validator = $schema->validate();
+            if ($validator->fails()) {
+                return ServiceResponse::unprocessableEntity($validator->errors()->toArray());
+            }
+            $schema->hydrateBody();
+
+            $decodeResponse = JWTAuth::decodeRefreshToken($schema->getRefreshToken());
+            if (!$decodeResponse['success']) {
+                return ServiceResponse::unauthorized($decodeResponse['message']);
+            }
+
+            $user = User::with(['roles'])
+                ->where('username', '=', $decodeResponse['data'])
+                ->first();
+            if (!$user) {
+                return ServiceResponse::notFound('user not found');
+            }
+            $roles = $user->roles->pluck('name')->toArray();
+            $jwtClaims = new JWTClaims($user->username, $roles);
+            $token = JWTAuth::encode($jwtClaims);
+            $payload = [
+                'access_token' => $token,
+            ];
+            return ServiceResponse::statusOK("successfully refresh token", $payload);
+
     public function refresh(Request $request): ServiceResponse
     {
         try {
@@ -79,6 +112,7 @@ class AuthService implements AuthServiceInterface
                 'access_token'  => $newAccessToken,
                 'refresh_token' => $newRefreshToken,
             ]);
+
         } catch (\Throwable $e) {
             return ServiceResponse::internalServerError($e->getMessage());
         }

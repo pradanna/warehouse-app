@@ -20,6 +20,7 @@ class OutletIncome extends Model
         'cash',
         'digital',
         'total',
+        'by_mutation',
         'description',
         'author_id',
     ];
@@ -28,6 +29,7 @@ class OutletIncome extends Model
         'cash' => 'float',
         'digital' => 'float',
         'total' => 'float',
+        'by_mutation' => 'float',
     ];
 
     public function author()

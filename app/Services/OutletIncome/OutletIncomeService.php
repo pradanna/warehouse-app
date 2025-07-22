@@ -30,6 +30,7 @@ class OutletIncomeService implements OutletIncomeServiceInterface
             $formattedDate = Carbon::parse($schema->getDate())->translatedFormat('d F Y');
             $income = $schema->getIncome();
             $total = $income['cash'] + $income['digital'];
+            $byMutation = $income['by_mutation'];
             $dataIncome = [
                 'outlet_id' => $schema->getOutletId(),
                 'date' => $schema->getDate(),
@@ -37,6 +38,7 @@ class OutletIncomeService implements OutletIncomeServiceInterface
                 'cash' => $income['cash'],
                 'digital' => $income['digital'],
                 'total' => $total,
+                'by_mutation' => $byMutation,
                 'description' => $schema->getDescription(),
                 'author_id' => $userId,
             ];

@@ -15,6 +15,7 @@ class Item extends Model
 
     protected $fillable = [
         'category_id',
+        'material_category_id',
         'name',
         'description',
     ];
@@ -23,6 +24,11 @@ class Item extends Model
     public function category()
     {
         return $this->belongsTo(Category::class, 'category_id');
+    }
+
+    public function material_category()
+    {
+        return $this->belongsTo(MaterialCategory::class, 'material_category_id');
     }
 
     public function transactionItems()
