@@ -17,6 +17,7 @@ class OutletIncomeResource extends BaseApiResource
             'cash' => $this->cash,
             'digital' => $this->digital,
             'total' => $this->total,
+            'by_mutation' => $this->by_mutation,
             'description' => $this->description,
         ];
         if ($this->relationLoaded('outlet')) {
