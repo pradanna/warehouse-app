@@ -24,11 +24,12 @@ class ItemService implements ItemServiceInterface
             $schema->hydrateBody();
             $data = [
                 'category_id' => $schema->getCategoryId(),
+                'material_category_id' => $schema->getMaterialCategoryId(),
                 'name' => $schema->getName(),
                 'description' => $schema->getDescription(),
             ];
             $item = Item::create($data);
-            $item->load('category');
+            $item->load(['category', 'material_category']);
             return ServiceResponse::statusCreated("successfully create item", $item);
         } catch (\Throwable $e) {
             return ServiceResponse::internalServerError($e->getMessage());
@@ -39,7 +40,7 @@ class ItemService implements ItemServiceInterface
     {
         try {
             $queryParams->hydrateQuery();
-            $query = Item::with(['category'])
+            $query = Item::with(['category', 'material_category'])
                 ->when($queryParams->getParam(), function ($q) use ($queryParams) {
                     /** @var Builder $q */
                     return $q->where('name', 'LIKE', "%{$queryParams->getParam()}%");
@@ -55,7 +56,7 @@ class ItemService implements ItemServiceInterface
     public function findByID($id): ServiceResponse
     {
         try {
-            $item = Item::with(['category'])
+            $item = Item::with(['category', 'material_category'])
                 ->where('id', '=', $id)
                 ->first();
             if (!$item) {
@@ -76,7 +77,7 @@ class ItemService implements ItemServiceInterface
             }
             $schema->hydrateBody();
 
-            $item = Item::with(['category:id,name'])
+            $item = Item::with(['category:id,name', 'material_category'])
                 ->where('id', '=', $id)
                 ->first();
             if (!$item) {
@@ -84,12 +85,13 @@ class ItemService implements ItemServiceInterface
             }
             $data = [
                 'category_id' => $schema->getCategoryId(),
+                'material_category_id' => $schema->getMaterialCategoryId(),
                 'name' => $schema->getName(),
                 'description' => $schema->getDescription(),
             ];
 
             $item->update($data);
-            $item->load('category');
+            $item->load(['category', 'material_category']);
             return ServiceResponse::statusOK("successfully update item", $item);
         } catch (\Throwable $e) {
             return ServiceResponse::internalServerError($e->getMessage());

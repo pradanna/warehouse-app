@@ -82,6 +82,7 @@ class JWTAuth
                 'data' => null
             ];
         } catch (\Exception $e) {
+            dd($e->getMessage());
             return [
                 'success' => false,
                 'message' => 'invalid token',

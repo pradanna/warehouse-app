@@ -9,7 +9,7 @@ class ItemResource extends BaseApiResource
 {
     public function toArray(Request $request): array
     {
-        return [
+        $response = [
             'id' => $this->id,
             'category' => $this->whenLoaded('category', function () {
                 return [
@@ -20,5 +20,14 @@ class ItemResource extends BaseApiResource
             'name' => $this->name,
             'description' => $this->description,
         ];
+
+        if ($this->relationLoaded('material_category')) {
+            $response['material_category'] = $this->material_category ? [
+                'id' => $this->material_category->id,
+                'name' => $this->material_category->name
+            ] : null;
+        }
+
+        return $response;
     }
 }

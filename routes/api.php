@@ -10,6 +10,7 @@ use App\Http\Controllers\Web\InventoryAdjustmentController;
 use App\Http\Controllers\Web\InventoryController;
 use App\Http\Controllers\Web\InventoryMovementController;
 use App\Http\Controllers\Web\ItemController;
+use App\Http\Controllers\Web\MaterialCategoryController;
 use App\Http\Controllers\Web\OutletController;
 use App\Http\Controllers\Web\OutletExpenseController;
 use App\Http\Controllers\Web\OutletIncomeController;
@@ -26,6 +27,7 @@ use Illuminate\Support\Facades\Route;
 
 Route::group(['prefix' => 'v1'], function () {
     Route::post('login', [AuthController::class, 'login']);
+    Route::post('refresh-token', [AuthController::class, 'refreshToken']);
 
     Route::group(['middleware' => [JWTVerify::class]], function () {
         Route::group(['prefix' => 'staff'], function () {
@@ -50,6 +52,14 @@ Route::group(['prefix' => 'v1'], function () {
             Route::get('/{id}', [ExpenseCategoryController::class, 'findByID']);
             Route::put('/{id}', [ExpenseCategoryController::class, 'patch']);
             Route::delete('/{id}', [ExpenseCategoryController::class, 'delete']);
+        });
+
+        Route::group(['prefix' => 'material-category'], function () {
+            Route::post('/', [MaterialCategoryController::class, 'create']);
+            Route::get('/', [MaterialCategoryController::class, 'findAll']);
+            Route::get('/{id}', [MaterialCategoryController::class, 'findByID']);
+            Route::put('/{id}', [MaterialCategoryController::class, 'patch']);
+            Route::delete('/{id}', [MaterialCategoryController::class, 'delete']);
         });
 
         Route::group(['prefix' => 'unit'], function () {
