@@ -27,6 +27,7 @@ use Illuminate\Support\Facades\Route;
 
 Route::group(['prefix' => 'v1'], function () {
     Route::post('login', [AuthController::class, 'login']);
+    Route::post('refresh-token', [AuthController::class, 'refreshToken']);
 
     Route::group(['middleware' => [JWTVerify::class]], function () {
         Route::group(['prefix' => 'staff'], function () {
