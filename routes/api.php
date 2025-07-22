@@ -30,9 +30,6 @@ Route::group(['prefix' => 'v1'], function () {
 
     Route::post('refresh-token', [AuthController::class, 'refreshToken']);
 
-    Route::post('/refresh', [AuthController::class, 'refresh']);
-
-
     Route::group(['middleware' => [JWTVerify::class]], function () {
         Route::group(['prefix' => 'staff'], function () {
             Route::post('/', [StaffController::class, 'create']);
