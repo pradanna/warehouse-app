@@ -2,6 +2,8 @@
 
 namespace App\Services\Sale;
 
+use App\Commons\Enum\CashFlowReferenceType;
+use App\Commons\Enum\CashFlowType;
 use App\Commons\Enum\InventoryMovementType;
 use App\Commons\Enum\SalePaymentStatus;
 use App\Commons\Enum\SalePaymentType;
@@ -9,12 +11,14 @@ use App\Commons\Http\HttpStatus;
 use App\Commons\Http\ServiceResponse;
 use App\Http\Resources\Sale\SaleCollection;
 use App\Http\Resources\Sale\SaleResource;
+use App\Models\CashFlow;
 use App\Models\Credit;
 use App\Models\Inventory;
 use App\Models\InventoryMovement;
 use App\Models\Sale;
 use App\Schemas\Sale\SaleQuery;
 use App\Schemas\Sale\SaleSchema;
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -114,6 +118,22 @@ class SaleService implements SaleServiceInterface
                 }
                 Credit::create($dataCredit);
             }
+
+            #create cash flows
+            Carbon::setLocale('id');
+            $formattedDate = Carbon::parse($schema->getDate())->translatedFormat('d F Y');
+            $dataCashFlow = [
+                'outlet_id' => $schema->getOutletId(),
+                'date' => $schema->getDate(),
+                'type' => CashFlowType::Credit->value,
+                'name' => 'Purchase ' . $formattedDate,
+                'amount' => $total,
+                'description' => null,
+                'reference_type' => CashFlowReferenceType::OutletPurchase->value,
+                'reference_key' => $sale->id,
+                'author_id' => $userId,
+            ];
+            CashFlow::create($dataCashFlow);
 
             $sale->load([
                 'outlet',

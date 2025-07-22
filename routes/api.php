@@ -1,14 +1,18 @@
 <?php
 
 use App\Http\Controllers\Web\AuthController;
+use App\Http\Controllers\Web\CashFlowController;
 use App\Http\Controllers\Web\CategoryController;
 use App\Http\Controllers\Web\CreditController;
 use App\Http\Controllers\Web\DebtController;
+use App\Http\Controllers\Web\ExpenseCategoryController;
 use App\Http\Controllers\Web\InventoryAdjustmentController;
 use App\Http\Controllers\Web\InventoryController;
 use App\Http\Controllers\Web\InventoryMovementController;
 use App\Http\Controllers\Web\ItemController;
 use App\Http\Controllers\Web\OutletController;
+use App\Http\Controllers\Web\OutletExpenseController;
+use App\Http\Controllers\Web\OutletIncomeController;
 use App\Http\Controllers\Web\PurchaseController;
 use App\Http\Controllers\Web\PurchasePaymentController;
 use App\Http\Controllers\Web\SaleController;
@@ -39,6 +43,14 @@ Route::group(['prefix' => 'v1'], function () {
             Route::get('/{id}', [CategoryController::class, 'findByID']);
             Route::put('/{id}', [CategoryController::class, 'patch']);
             Route::delete('/{id}', [CategoryController::class, 'delete']);
+        });
+
+        Route::group(['prefix' => 'expense-category'], function () {
+            Route::post('/', [ExpenseCategoryController::class, 'create']);
+            Route::get('/', [ExpenseCategoryController::class, 'findAll']);
+            Route::get('/{id}', [ExpenseCategoryController::class, 'findByID']);
+            Route::put('/{id}', [ExpenseCategoryController::class, 'patch']);
+            Route::delete('/{id}', [ExpenseCategoryController::class, 'delete']);
         });
 
         Route::group(['prefix' => 'unit'], function () {
@@ -125,6 +137,7 @@ Route::group(['prefix' => 'v1'], function () {
             Route::get('/debt', [SummaryController::class, 'debt']);
             Route::get('/credit', [SummaryController::class, 'credit']);
             Route::get('/inventory-movement', [SummaryController::class, 'inventoryMovement']);
+            Route::get('/outlet-general-ledger', [SummaryController::class, 'outletGeneralLedger']);
         });
 
         Route::group(['prefix' => 'debt'], function () {
@@ -135,6 +148,23 @@ Route::group(['prefix' => 'v1'], function () {
         Route::group(['prefix' => 'credit'], function () {
             Route::get('/', [CreditController::class, 'findAll']);
             Route::get('/{id}', [CreditController::class, 'findByID']);
+        });
+
+        Route::group(['prefix' => 'cash-flow'], function () {
+            Route::get('/', [CashFlowController::class, 'findAll']);
+        });
+
+        Route::group(['prefix' => 'outlet-income'], function () {
+            Route::get('/', [OutletIncomeController::class, 'findAll']);
+            Route::post('/', [OutletIncomeController::class, 'create']);
+        });
+
+        Route::group(['prefix' => 'outlet-expense'], function () {
+            Route::get('/', [OutletExpenseController::class, 'findAll']);
+            Route::post('/', [OutletExpenseController::class, 'create']);
+            Route::get('/{id}', [OutletExpenseController::class, 'findByID']);
+            Route::put('/{id}', [OutletExpenseController::class, 'patch']);
+            Route::delete('/{id}', [OutletExpenseController::class, 'delete']);
         });
     });
 });
