@@ -40,6 +40,21 @@ class UserSeeder extends Seeder
             if (!$user->hasRole($role)) {
                 $user->assignRole($role);
             }
+
+            // DEVELOPER
+            $developerRole = Role::firstOrCreate(['name' => 'Developer']); // bisa juga cari by id
+            $developer = User::firstOrCreate(
+                ['username' => 'developer'],
+                [
+                    'password' => bcrypt('developer'),
+                    'id' => Str::uuid()->toString(),
+                ]
+            );
+
+            if (!$developer->hasRole($developerRole)) {
+                $developer->assignRole($developerRole);
+            }
+
             DB::commit();
         } catch (\Throwable $th) {
             DB::rollBack();

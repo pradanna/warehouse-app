@@ -26,6 +26,8 @@ class PurchaseResource extends BaseApiResource
             $response['supplier'] = $this->supplier ? [
                 'id' => $this->supplier->id,
                 'name' => $this->supplier->name,
+                'address' => $this->supplier->address,
+                'phone' => $this->supplier->phone
             ] : null;
         }
 

@@ -7,7 +7,11 @@ use App\Commons\JWT\JWTAuth;
 use App\Commons\JWT\JWTClaims;
 use App\Models\User;
 use App\Schemas\Auth\LoginSchema;
+
 use App\Schemas\Auth\RefreshTokenSchema;
+
+use Illuminate\Http\Request;
+
 use Illuminate\Support\Facades\Hash;
 
 class AuthService implements AuthServiceInterface
@@ -45,6 +49,7 @@ class AuthService implements AuthServiceInterface
         }
     }
 
+
     public function refreshToken(RefreshTokenSchema $schema): ServiceResponse
     {
         try {
@@ -72,6 +77,42 @@ class AuthService implements AuthServiceInterface
                 'access_token' => $token,
             ];
             return ServiceResponse::statusOK("successfully refresh token", $payload);
+
+    public function refresh(Request $request): ServiceResponse
+    {
+        try {
+            $refreshToken = $request->input('refresh_token');
+            if (!$refreshToken) {
+                return ServiceResponse::unauthorized('refresh token is required');
+            }
+
+            // ➜ 1. verifikasi refresh token
+            $decoded = JWTAuth::decodeRefreshToken($refreshToken);
+            if (!$decoded) {
+                return ServiceResponse::unauthorized('refresh token invalid');
+            }
+
+            // ➜ 2. ambil username dari payload
+            $payloadObj = (object) ($decoded['data'] ?? []);
+            $username   = $payloadObj->sub ?? null;
+            $user     = User::with('roles')->where('username', $username)->first();
+
+            if (!$user) {
+                return ServiceResponse::notFound('user not found');
+            }
+
+            // ➜ 3. buat access token (dan refresh token baru jika mau)
+            $roles  = $user->roles->pluck('name')->toArray();
+            $claims = new JWTClaims($username, $roles);
+
+            $newAccessToken  = JWTAuth::encode($claims);           // exp: 10‑15 menit
+            $newRefreshToken = JWTAuth::encodeRefreshToken($username); // exp: 7‑30 hari
+
+            return ServiceResponse::statusOK('token refreshed', [
+                'access_token'  => $newAccessToken,
+                'refresh_token' => $newRefreshToken,
+            ]);
+
         } catch (\Throwable $e) {
             return ServiceResponse::internalServerError($e->getMessage());
         }

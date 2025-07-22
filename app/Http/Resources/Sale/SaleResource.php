@@ -31,6 +31,8 @@ class SaleResource extends BaseApiResource
             $response['outlet'] = $this->outlet ? [
                 'id' => $this->outlet->id,
                 'name' => $this->outlet->name,
+                'address' => $this->outlet->address,
+                'phone' => $this->outlet->phone
             ] : null;
         }
 

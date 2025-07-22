@@ -21,7 +21,8 @@ class InventoryAdjustmentResource extends BaseApiResource
             'unit' => null,
             'date' => $this->date,
             'quantity' => $this->quantity,
-            'type' => $this->type
+            'type' => $this->type,
+            'description' => $this->description
         ];
 
         if ($this->relationLoaded('inventory') && $this->inventory && $this->inventory->relationLoaded('item')) {
