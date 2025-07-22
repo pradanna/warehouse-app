@@ -9,6 +9,7 @@ class OutletIncomeSchema extends BaseSchema
     private $outletId;
     private $date;
     private $income;
+    private $byMutation;
     private $description;
 
     protected function rules()
@@ -19,6 +20,7 @@ class OutletIncomeSchema extends BaseSchema
             'income' => 'required|array',
             'income.cash' => 'required|numeric',
             'income.digital' => 'required|numeric',
+            'income.by_mutation' => 'required|numeric',
             'description' => 'string'
         ];
     }
@@ -110,6 +112,26 @@ class OutletIncomeSchema extends BaseSchema
     public function setDescription($description)
     {
         $this->description = $description;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of byMutation
+     */
+    public function getByMutation()
+    {
+        return $this->byMutation;
+    }
+
+    /**
+     * Set the value of byMutation
+     *
+     * @return  self
+     */
+    public function setByMutation($byMutation)
+    {
+        $this->byMutation = $byMutation;
 
         return $this;
     }

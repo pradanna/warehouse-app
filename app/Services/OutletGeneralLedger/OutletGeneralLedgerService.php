@@ -46,16 +46,23 @@ class OutletGeneralLedgerService implements OutletGeneralLedgerServiceInterface
                 $periodDate = $date->toDateString();
                 $cash = $incomes->where('date', '=', $periodDate)->sum('cash');
                 $digital = $incomes->where('date', '=', $periodDate)->sum('digital');
+                $byMutation = $incomes->where('date', '=', $periodDate)->sum('by_mutation');
                 $total = ($cash + $digital);
                 $purchase = $purchases->where('date', '=', $periodDate)->sum('amount');
+                $percentage = 0;
+                if ($total > 0) {
+                    $percentage = round(($purchase / $total) * 100, 2, PHP_ROUND_HALF_UP);
+                }
                 array_push($data, [
                     'date' => $periodDate,
                     'income' => [
                         'cash' => $cash,
                         'digital' => $digital,
-                        'total' => $total
+                        'total' => $total,
+                        'by_mutation' => $byMutation
                     ],
-                    'purchase' => $purchase
+                    'purchase' => $purchase,
+                    'percentage' => $percentage,
                 ]);
             }
             return ServiceResponse::statusOK("successfully get outlet general ledgers", $data);
