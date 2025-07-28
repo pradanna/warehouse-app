@@ -9,12 +9,14 @@ use App\Http\Resources\Credit\CreditSummaryResource;
 use App\Http\Resources\Debt\DebtSummaryResource;
 use App\Http\Resources\InventoryMovement\InventoryMovementSummaryCollection;
 use App\Http\Resources\Purchase\PurchaseSummaryResource;
+use App\Schemas\CashFlow\CashFlowSummaryQuery;
 use App\Schemas\Credit\CreditQuery;
 use App\Schemas\Debt\DebtQuery;
 use App\Schemas\InventoryMovement\InventoryMovementQuery;
 use App\Schemas\OutletGeneralLedger\OutletGeneralLedgerQuery;
 use App\Schemas\Purchase\PurchaseQuery;
 use App\Schemas\Sale\SaleQuery;
+use App\Services\CashFlow\CashFlowService;
 use App\Services\Credit\CreditService;
 use App\Services\Debt\DebtService;
 use App\Services\InventoryMovement\InventoryMovementService;
@@ -80,6 +82,14 @@ class SummaryController extends CustomController
         $service = new OutletGeneralLedgerService();
         $query = (new OutletGeneralLedgerQuery())->hydrateSchemaQuery($this->queryParams());
         $response = $service->findAll($query);
+        return APIResponse::toJSONResponse(200, 'success', $response->getData());
+    }
+
+    public function cashFlow()
+    {
+        $service = new CashFlowService();
+        $query = (new CashFlowSummaryQuery())->hydrateSchemaQuery($this->queryParams());
+        $response = $service->summary($query);
         return APIResponse::toJSONResponse(200, 'success', $response->getData());
     }
 }
