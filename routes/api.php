@@ -148,6 +148,7 @@ Route::group(['prefix' => 'v1'], function () {
             Route::get('/credit', [SummaryController::class, 'credit']);
             Route::get('/inventory-movement', [SummaryController::class, 'inventoryMovement']);
             Route::get('/outlet-general-ledger', [SummaryController::class, 'outletGeneralLedger']);
+            Route::get('/cash-flow', [SummaryController::class, 'cashFlow']);
         });
 
         Route::group(['prefix' => 'debt'], function () {
