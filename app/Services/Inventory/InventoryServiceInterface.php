@@ -13,4 +13,5 @@ interface InventoryServiceInterface
     public function findByID($id): ServiceResponse;
     public function patch($id, InventorySchema $schema): ServiceResponse;
     public function delete($id): ServiceResponse;
+    public function findBySku($sku): ServiceResponse;
 }
