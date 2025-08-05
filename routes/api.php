@@ -86,6 +86,7 @@ Route::group(['prefix' => 'v1'], function () {
             Route::post('/', [InventoryController::class, 'create']);
             Route::get('/', [InventoryController::class, 'findAll']);
             Route::get('/{id}', [InventoryController::class, 'findByID']);
+            Route::get('/{sku}/sku', [InventoryController::class, 'findBySku']);
             Route::put('/{id}', [InventoryController::class, 'patch']);
             Route::delete('/{id}', [InventoryController::class, 'delete']);
         });
@@ -151,6 +152,7 @@ Route::group(['prefix' => 'v1'], function () {
             Route::get('/credit', [SummaryController::class, 'credit']);
             Route::get('/inventory-movement', [SummaryController::class, 'inventoryMovement']);
             Route::get('/outlet-general-ledger', [SummaryController::class, 'outletGeneralLedger']);
+            Route::get('/cash-flow', [SummaryController::class, 'cashFlow']);
         });
 
         Route::group(['prefix' => 'debt'], function () {

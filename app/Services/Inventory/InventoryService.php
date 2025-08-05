@@ -131,4 +131,19 @@ class InventoryService implements InventoryServiceInterface
             return ServiceResponse::internalServerError($e->getMessage());
         }
     }
+
+    public function findBySku($sku): ServiceResponse
+    {
+        try {
+            $inventory = Inventory::with(['item', 'unit', 'prices.outlet', 'modifiedBy'])
+                ->where('sku', '=', $sku)
+                ->first();
+            if (!$inventory) {
+                return ServiceResponse::notFound("inventory not found");
+            }
+            return ServiceResponse::statusOK("successfully get inventory", $inventory);
+        } catch (\Throwable $e) {
+            return ServiceResponse::internalServerError($e->getMessage());
+        }
+    }
 }
