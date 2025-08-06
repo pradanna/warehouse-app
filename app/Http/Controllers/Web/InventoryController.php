@@ -46,6 +46,14 @@ class InventoryController extends CustomController
             ->withMessage($response->getMessage());
     }
 
+    public function findBySku($sku)
+    {
+        $response = $this->service->findBySku($sku);
+        return (new InventoryResource($response->getData()))
+            ->withStatus($response->getStatus())
+            ->withMessage($response->getMessage());
+    }
+
     public function patch($id)
     {
         $schema = (new InventorySchema())->hydrateSchemaBody($this->jsonBody());

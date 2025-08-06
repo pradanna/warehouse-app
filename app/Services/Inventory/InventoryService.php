@@ -53,6 +53,7 @@ class InventoryService implements InventoryServiceInterface
         try {
             $queryParams->hydrateQuery();
             $query = Inventory::with(['item', 'unit', 'prices.outlet', 'modifiedBy'])
+                ->whereHas('item')
                 ->when($queryParams->getParam(), function ($q) use ($queryParams) {
                     /** @var Builder $q */
                     return $q->whereRelation('item', 'name', 'LIKE', "%{$queryParams->getParam()}%");
@@ -72,6 +73,7 @@ class InventoryService implements InventoryServiceInterface
     {
         try {
             $inventory = Inventory::with(['item', 'unit', 'prices.outlet', 'modifiedBy'])
+                ->whereHas('item')
                 ->where('id', '=', $id)
                 ->first();
             if (!$inventory) {
@@ -125,8 +127,37 @@ class InventoryService implements InventoryServiceInterface
     public function delete($id): ServiceResponse
     {
         try {
-            Inventory::destroy($id);
+            DB::beginTransaction();
+            $inventory = Inventory::with([])
+                ->where('id', '=', $id)
+                ->first();
+            if (!$inventory) {
+                return ServiceResponse::notFound("inventory not found");
+            }
+
+            $inventory->update([
+                'sku' => null,
+            ]);
+            $inventory->delete();
+            DB::commit();
             return ServiceResponse::statusOK("successfully delete inventory");
+        } catch (\Throwable $e) {
+            DB::rollBack();
+            return ServiceResponse::internalServerError($e->getMessage());
+        }
+    }
+
+    public function findBySku($sku): ServiceResponse
+    {
+        try {
+            $inventory = Inventory::with(['item', 'unit', 'prices.outlet', 'modifiedBy'])
+                ->whereHas('item')
+                ->where('sku', '=', $sku)
+                ->first();
+            if (!$inventory) {
+                return ServiceResponse::notFound("inventory not found");
+            }
+            return ServiceResponse::statusOK("successfully get inventory", $inventory);
         } catch (\Throwable $e) {
             return ServiceResponse::internalServerError($e->getMessage());
         }

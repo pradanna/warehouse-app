@@ -83,6 +83,7 @@ Route::group(['prefix' => 'v1'], function () {
             Route::post('/', [InventoryController::class, 'create']);
             Route::get('/', [InventoryController::class, 'findAll']);
             Route::get('/{id}', [InventoryController::class, 'findByID']);
+            Route::get('/{sku}/sku', [InventoryController::class, 'findBySku']);
             Route::put('/{id}', [InventoryController::class, 'patch']);
             Route::delete('/{id}', [InventoryController::class, 'delete']);
         });
