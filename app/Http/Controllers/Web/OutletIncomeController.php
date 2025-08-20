@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Controllers\CustomController;
 use App\Http\Resources\OutletIncome\OutletIncomeCollection;
 use App\Http\Resources\OutletIncome\OutletIncomeResource;
+use App\Schemas\OutletIncome\OutletIncomeMutationSchema;
 use App\Schemas\OutletIncome\OutletIncomeQuery;
 use App\Schemas\OutletIncome\OutletIncomeSchema;
 use App\Services\OutletIncome\OutletIncomeService;
@@ -37,6 +38,32 @@ class OutletIncomeController extends CustomController
         $query = (new OutletIncomeQuery())->hydrateSchemaQuery($this->queryParams());
         $response = $this->service->findAll($query);
         return (new OutletIncomeCollection($response->getData()))
+            ->withStatus($response->getStatus())
+            ->withMessage($response->getMessage());
+    }
+
+    public function findByID($id)
+    {
+        $response = $this->service->findByID($id);
+        return (new OutletIncomeResource($response->getData()))
+            ->withStatus($response->getStatus())
+            ->withMessage($response->getMessage());
+    }
+
+    public function update($id)
+    {
+        $schema = (new OutletIncomeSchema())->hydrateSchemaBody($this->jsonBody());
+        $response = $this->service->update($id, $schema);
+        return (new OutletIncomeResource($response->getData()))
+            ->withStatus($response->getStatus())
+            ->withMessage($response->getMessage());
+    }
+
+    public function updateMutation($id)
+    {
+        $schema = (new OutletIncomeMutationSchema())->hydrateSchemaBody($this->jsonBody());
+        $response = $this->service->updateMutation($id, $schema);
+        return (new OutletIncomeResource($response->getData()))
             ->withStatus($response->getStatus())
             ->withMessage($response->getMessage());
     }

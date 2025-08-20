@@ -146,7 +146,7 @@ class SaleService implements SaleServiceInterface
             return ServiceResponse::statusCreated("successfully create sale", $sale);
         } catch (\Throwable $e) {
             DB::rollBack();
-            return ServiceResponse::internalServerError($e->getMessage());
+            return ServiceResponse::internalServerError($e->getMessage() . "line " . $e->getLine());
         }
     }
 
