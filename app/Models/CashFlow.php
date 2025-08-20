@@ -38,4 +38,9 @@ class CashFlow extends Model
     {
         return $this->belongsTo(Outlet::class, 'outlet_id');
     }
+
+    public function income()
+    {
+        return $this->hasOne(OutletIncome::class, 'cash_flow_id');
+    }
 }

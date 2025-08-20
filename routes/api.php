@@ -172,6 +172,9 @@ Route::group(['prefix' => 'v1'], function () {
         Route::group(['prefix' => 'outlet-income'], function () {
             Route::get('/', [OutletIncomeController::class, 'findAll']);
             Route::post('/', [OutletIncomeController::class, 'create']);
+            Route::get('/{id}', [OutletIncomeController::class, 'findByID']);
+            Route::put('/{id}', [OutletIncomeController::class, 'update']);
+            Route::put('/{id}/mutation', [OutletIncomeController::class, 'updateMutation']);
         });
 
         Route::group(['prefix' => 'outlet-expense'], function () {
