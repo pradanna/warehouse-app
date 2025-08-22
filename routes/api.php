@@ -14,6 +14,7 @@ use App\Http\Controllers\Web\MaterialCategoryController;
 use App\Http\Controllers\Web\OutletController;
 use App\Http\Controllers\Web\OutletExpenseController;
 use App\Http\Controllers\Web\OutletIncomeController;
+use App\Http\Controllers\Web\OutletPurchaseController;
 use App\Http\Controllers\Web\PurchaseController;
 use App\Http\Controllers\Web\PurchasePaymentController;
 use App\Http\Controllers\Web\SaleController;
@@ -183,6 +184,14 @@ Route::group(['prefix' => 'v1'], function () {
             Route::get('/{id}', [OutletExpenseController::class, 'findByID']);
             Route::put('/{id}', [OutletExpenseController::class, 'patch']);
             Route::delete('/{id}', [OutletExpenseController::class, 'delete']);
+        });
+
+        Route::group(['prefix' => 'outlet-purchase'], function () {
+            Route::get('/', [OutletPurchaseController::class, 'findAll']);
+            Route::post('/', [OutletPurchaseController::class, 'create']);
+            Route::get('/{id}', [OutletPurchaseController::class, 'findByID']);
+            Route::put('/{id}', [OutletPurchaseController::class, 'update']);
+            Route::delete('/{id}', [OutletPurchaseController::class, 'delete']);
         });
     });
 });
