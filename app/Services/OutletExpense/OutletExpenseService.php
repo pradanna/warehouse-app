@@ -144,9 +144,9 @@ class OutletExpenseService implements OutletExpenseServiceInterface
             $arrAmmount = $schema->getAmount();
             $total = $arrAmmount['cash'] + $arrAmmount['digital'];
 
-            $currentOutletId = $outletExpense->outlet_id;
-            $currentDate = $outletExpense->date;
-            $currentId = $outletExpense->id;
+            // $currentOutletId = $outletExpense->outlet_id;
+            // $currentDate = $outletExpense->date;
+            // $currentId = $outletExpense->id;
 
             #update outlet expense
             $dataExpense = [

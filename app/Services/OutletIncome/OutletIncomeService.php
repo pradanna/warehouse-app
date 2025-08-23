@@ -156,6 +156,8 @@ class OutletIncomeService implements OutletIncomeServiceInterface
             #create cash flows
             $dataCashFlow = [
                 'outlet_id' => $schema->getOutletId(),
+                'cash' => $income['cash'],
+                'digital' => $income['digital'],
                 'amount' => $total,
                 'author_id' => $userId,
             ];
