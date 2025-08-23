@@ -14,6 +14,7 @@ use App\Http\Controllers\Web\MaterialCategoryController;
 use App\Http\Controllers\Web\OutletController;
 use App\Http\Controllers\Web\OutletExpenseController;
 use App\Http\Controllers\Web\OutletIncomeController;
+use App\Http\Controllers\Web\OutletPastryController;
 use App\Http\Controllers\Web\OutletPurchaseController;
 use App\Http\Controllers\Web\PurchaseController;
 use App\Http\Controllers\Web\PurchasePaymentController;
@@ -192,6 +193,14 @@ Route::group(['prefix' => 'v1'], function () {
             Route::get('/{id}', [OutletPurchaseController::class, 'findByID']);
             Route::put('/{id}', [OutletPurchaseController::class, 'update']);
             Route::delete('/{id}', [OutletPurchaseController::class, 'delete']);
+        });
+
+        Route::group(['prefix' => 'outlet-pastry'], function () {
+            Route::get('/', [OutletPastryController::class, 'findAll']);
+            Route::post('/', [OutletPastryController::class, 'create']);
+            Route::get('/{id}', [OutletPastryController::class, 'findByID']);
+            Route::put('/{id}', [OutletPastryController::class, 'update']);
+            Route::delete('/{id}', [OutletPastryController::class, 'delete']);
         });
     });
 });
