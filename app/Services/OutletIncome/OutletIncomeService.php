@@ -34,12 +34,21 @@ class OutletIncomeService implements OutletIncomeServiceInterface
             $total = $income['cash'] + $income['digital'];
             $byMutation = 0;
 
+            $incomeExist = OutletIncome::with([])
+                ->where('outlet_id', '=', $schema->getOutletId())
+                ->where('date', '=', $schema->getDate())
+                ->first();
+            if ($incomeExist) {
+                return ServiceResponse::badRequest("income already exist");
+            }
             #create cash flows
             $dataCashFlow = [
                 'outlet_id' => $schema->getOutletId(),
                 'date' => $schema->getDate(),
                 'type' => CashFlowType::Debit->value,
                 'name' => "Omset {$formattedDate}",
+                'cash' => $income['cash'],
+                'digital' => $income['digital'],
                 'amount' => $total,
                 'description' => null,
                 'reference_type' => CashFlowReferenceType::OutletIncome->value,

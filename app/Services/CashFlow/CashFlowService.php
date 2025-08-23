@@ -2,6 +2,7 @@
 
 namespace App\Services\CashFlow;
 
+use App\Commons\Enum\CashFlowType;
 use App\Schemas\CashFlow\CashFlowQuery;
 use App\Commons\Http\ServiceResponse;
 use App\Models\CashFlow;
@@ -11,6 +12,8 @@ use App\Models\OutletExpense;
 use App\Models\OutletIncome;
 use App\Models\Sale;
 use App\Schemas\CashFlow\CashFlowSummaryQuery;
+use Carbon\Carbon;
+use Carbon\CarbonPeriod;
 
 class CashFlowService implements CashFlowServiceInterface
 {
@@ -18,7 +21,7 @@ class CashFlowService implements CashFlowServiceInterface
     {
         try {
             $queryParams->hydrateQuery();
-            $data = CashFlow::with(['outlet', 'author'])
+            $cashFlows = CashFlow::with(['outlet', 'author'])
                 ->where('outlet_id', '=', $queryParams->getOutletId())
                 ->when(($queryParams->getMonth() && $queryParams->getYear()), function ($q) use ($queryParams) {
                     /** @var Builder $q */
@@ -32,6 +35,57 @@ class CashFlowService implements CashFlowServiceInterface
                 ->orderBy('date', 'ASC')
                 ->orderByRaw("FIELD(type, 'debit', 'credit')")
                 ->get();
+            $startDate = Carbon::createFromDate($queryParams->getYear(), $queryParams->getMonth(), 1)->startOfMonth();
+            $endDate = Carbon::createFromDate($queryParams->getYear(), $queryParams->getMonth(), 1)->endOfMonth();
+            $period = CarbonPeriod::create($startDate, $endDate);
+            $data = [];
+            $balance = 0;
+            foreach ($period as $date) {
+                $periodDate = $date->toDateString();
+                $items = [];
+                $debitCashFlows = $cashFlows->where('date', '=', $periodDate)
+                    ->where('type', '=', CashFlowType::Debit->value)
+                    ->sortBy('created_at')
+                    ->values()->all();
+                $creditCashFlows = $cashFlows->where('date', '=', $periodDate)
+                    ->where('type', '=', CashFlowType::Credit->value)
+                    ->sortBy('created_at')
+                    ->values()->all();
+
+                # map debit cash flows
+                foreach ($debitCashFlows as $debitCashFlow) {
+                    $amount = $debitCashFlow['amount'];
+                    $balance += $amount;
+                    array_push($items, [
+                        'id' => $debitCashFlow['id'],
+                        'item' => $debitCashFlow['name'],
+                        'debit' => $debitCashFlow['amount'],
+                        'credit' => 0,
+                        'description' => $debitCashFlow['description'],
+                        'balance' => $balance
+                    ]);
+                }
+
+                # map credit cash flows
+                foreach ($creditCashFlows as $creditCashFlow) {
+                    $amount = $creditCashFlow['amount'];
+                    $balance -= $amount;
+                    array_push($items, [
+                        'id' => $creditCashFlow['id'],
+                        'item' => $creditCashFlow['name'],
+                        'debit' => 0,
+                        'credit' => $creditCashFlow['amount'],
+                        'description' => $creditCashFlow['description'],
+                        'balance' => $balance
+                    ]);
+                }
+
+                array_push($data, [
+                    'date' => $periodDate,
+                    'data' => $items
+                ]);
+            }
+
             return ServiceResponse::statusOK("successfully get cash flows", $data);
         } catch (\Throwable $e) {
             return ServiceResponse::internalServerError($e->getMessage());

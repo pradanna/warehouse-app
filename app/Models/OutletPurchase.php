@@ -18,10 +18,14 @@ class OutletPurchase extends Model
         'cash_flow_id',
         'outlet_id',
         'date',
+        'cash',
+        'digital',
         'amount',
     ];
 
     protected $casts = [
+        'cash' => 'float',
+        'digital' => 'float',
         'amount' => 'float',
     ];
 

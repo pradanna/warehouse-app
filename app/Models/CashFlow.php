@@ -18,6 +18,8 @@ class CashFlow extends Model
         'date',
         'type',
         'name',
+        'cash',
+        'digital',
         'amount',
         'description',
         'reference_type',
@@ -26,6 +28,8 @@ class CashFlow extends Model
     ];
 
     protected $casts = [
+        'cash' => 'float',
+        'digital' => 'float',
         'amount' => 'float',
     ];
 

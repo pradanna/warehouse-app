@@ -71,13 +71,17 @@ class OutletPurchaseService implements OutletPurchaseServiceInterface
                 return ServiceResponse::notFound("sale info not found");
             }
 
+            $arrAmmount = $schema->getAmount();
+            $total = $arrAmmount['cash'] + $arrAmmount['digital'];
             $outletId = $sale->outlet_id;
             $cashFlowData = [
                 'outlet_id' => $outletId,
                 'date' => $cashFlowBody['date'],
                 'type' => CashFlowType::Credit->value,
                 'name' => $cashFlowBody['name'],
-                'amount' => $schema->getAmount(),
+                'cash' => $arrAmmount['cash'],
+                'digital' => $arrAmmount['digital'],
+                'amount' => $total,
                 'reference_type' => CashFlowReferenceType::OutletPurchase->value,
                 'author_id' => $userId,
             ];
@@ -89,7 +93,9 @@ class OutletPurchaseService implements OutletPurchaseServiceInterface
                 'cash_flow_id' => $cashFlow->id,
                 'outlet_id' => $outletId,
                 'date' => $schema->getDate(),
-                'amount' => $schema->getAmount(),
+                'cash' => $arrAmmount['cash'],
+                'digital' => $arrAmmount['digital'],
+                'amount' => $total,
             ];
 
             OutletPurchase::create($data);

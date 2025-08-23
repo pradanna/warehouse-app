@@ -15,14 +15,19 @@ class OutletExpense extends Model
 
     protected $fillable = [
         'outlet_id',
+        'cash_flow_id',
         'expense_category_id',
         'date',
+        'cash',
+        'digital',
         'amount',
         'description',
         'author_id',
     ];
 
     protected $casts = [
+        'cash' => 'float',
+        'digital' => 'float',
         'amount' => 'float',
     ];
 
@@ -39,5 +44,10 @@ class OutletExpense extends Model
     public function expense_category()
     {
         return $this->belongsTo(ExpenseCategory::class, 'expense_category_id');
+    }
+
+    public function cash_flow()
+    {
+        return $this->belongsTo(CashFlow::class, 'cash_flow_id');
     }
 }

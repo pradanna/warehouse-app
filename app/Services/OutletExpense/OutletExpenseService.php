@@ -2,6 +2,7 @@
 
 namespace App\Services\OutletExpense;
 
+use App\Commons\Enum\CashFlowReferenceType;
 use App\Commons\Enum\CashFlowType;
 use App\Schemas\OutletExpense\OutletExpenseQuery;
 use App\Commons\Http\ServiceResponse;
@@ -73,17 +74,8 @@ class OutletExpenseService implements OutletExpenseServiceInterface
                 return ServiceResponse::notFound("expense category not found");
             }
 
-            #create outlet expense
-            $dataExpense = [
-                'outlet_id' => $schema->getOutletId(),
-                'expense_category_id' => $schema->getExpenseCategoryId(),
-                'date' => $schema->getDate(),
-                'amount' => $schema->getAmount(),
-                'description' => $schema->getDescription(),
-                'author_id' => $userId,
-            ];
-
-            $outletExpense = OutletExpense::create($dataExpense);
+            $arrAmmount = $schema->getAmount();
+            $total = $arrAmmount['cash'] + $arrAmmount['digital'];
 
             #create cash flow
             $dataCashFlow = [
@@ -91,12 +83,31 @@ class OutletExpenseService implements OutletExpenseServiceInterface
                 'date' => $schema->getDate(),
                 'type' => CashFlowType::Credit->value,
                 'name' => 'Pengeluaran ' . $expenseCategory->name,
-                'amount' => $schema->getAmount(),
+                'cash' => $arrAmmount['cash'],
+                'digital' => $arrAmmount['digital'],
+                'amount' => $total,
                 'description' => null,
-                'reference_key' => $outletExpense->id,
+                'reference_type' => CashFlowReferenceType::OutletExpense,
                 'author_id' => $userId,
             ];
-            CashFlow::create($dataCashFlow);
+            $cashFlow = CashFlow::create($dataCashFlow);
+
+            #create outlet expense
+            $dataExpense = [
+                'outlet_id' => $schema->getOutletId(),
+                'cash_flow_id' => $cashFlow->id,
+                'expense_category_id' => $schema->getExpenseCategoryId(),
+                'date' => $schema->getDate(),
+                'cash' => $arrAmmount['cash'],
+                'digital' => $arrAmmount['digital'],
+                'amount' => $total,
+                'description' => $schema->getDescription(),
+                'author_id' => $userId,
+            ];
+
+            OutletExpense::create($dataExpense);
+
+
             DB::commit();
             return ServiceResponse::statusCreated("successfully create outlet expense");
         } catch (\Throwable $e) {
@@ -123,12 +134,15 @@ class OutletExpenseService implements OutletExpenseServiceInterface
                 return ServiceResponse::notFound("expense category not found");
             }
 
-            $outletExpense = OutletExpense::with([])
+            $outletExpense = OutletExpense::with(['cash_flow'])
                 ->where('id', '=', $id)
                 ->first();
             if (!$outletExpense) {
                 return ServiceResponse::notFound("outlet expense not found");
             }
+
+            $arrAmmount = $schema->getAmount();
+            $total = $arrAmmount['cash'] + $arrAmmount['digital'];
 
             $currentOutletId = $outletExpense->outlet_id;
             $currentDate = $outletExpense->date;
@@ -139,7 +153,9 @@ class OutletExpenseService implements OutletExpenseServiceInterface
                 'outlet_id' => $schema->getOutletId(),
                 'expense_category_id' => $schema->getExpenseCategoryId(),
                 'date' => $schema->getDate(),
-                'amount' => $schema->getAmount(),
+                'cash' => $arrAmmount['cash'],
+                'digital' => $arrAmmount['digital'],
+                'amount' => $total,
                 'description' => $schema->getDescription(),
                 'author_id' => $userId,
             ];
@@ -147,12 +163,7 @@ class OutletExpenseService implements OutletExpenseServiceInterface
             $outletExpense->update($dataExpense);
 
             #update cash flow
-            $cashFlow = CashFlow::with([])
-                ->where('outlet_id', '=', $currentOutletId)
-                ->where('date', '=', $currentDate)
-                ->where('reference_key', '=', $currentId)
-                ->first();
-
+            $cashFlow = $outletExpense->cash_flow;
             if (!$cashFlow) {
                 return ServiceResponse::notFound("cash flow not found");
             }
@@ -161,7 +172,9 @@ class OutletExpenseService implements OutletExpenseServiceInterface
                 'date' => $schema->getDate(),
                 'type' => CashFlowType::Credit->value,
                 'name' => 'Pengeluaran ' . $expenseCategory->name,
-                'amount' => $schema->getAmount(),
+                'cash' => $arrAmmount['cash'],
+                'digital' => $arrAmmount['digital'],
+                'amount' => $total,
                 'description' => null,
                 'reference_key' => $outletExpense->id,
                 'author_id' => $userId,

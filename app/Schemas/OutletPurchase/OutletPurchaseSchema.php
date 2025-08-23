@@ -16,7 +16,9 @@ class OutletPurchaseSchema extends BaseSchema
         return [
             'sale_id' => 'required|uuid',
             'date' => 'required|date',
-            'amount' => 'required|numeric',
+            'amount' => 'required|array',
+            'amount.cash' => 'required|numeric',
+            'amount.digital' => 'required|numeric',
             'cash_flow' => 'required|array',
             'cash_flow.date' => 'required|date',
             'cash_flow.name' => 'required|string',

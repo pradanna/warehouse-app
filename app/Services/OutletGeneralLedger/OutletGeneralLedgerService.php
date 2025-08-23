@@ -7,6 +7,7 @@ use App\Schemas\OutletGeneralLedger\OutletGeneralLedgerQuery;
 use App\Commons\Http\ServiceResponse;
 use App\Models\CashFlow;
 use App\Models\OutletIncome;
+use App\Models\OutletPurchase;
 use App\Models\Purchase;
 use App\Models\Sale;
 use Carbon\Carbon;
@@ -28,9 +29,8 @@ class OutletGeneralLedgerService implements OutletGeneralLedgerServiceInterface
                 ->orderBy('date', 'ASC')
                 ->get();
 
-            $purchases = CashFlow::with([])
+            $purchases = OutletPurchase::with([])
                 ->where('outlet_id', '=', $queryParams->getOutletId())
-                ->where('reference_type', '=', CashFlowReferenceType::OutletPurchase->value)
                 ->when(($queryParams->getMonth() && $queryParams->getYear()), function ($q) use ($queryParams) {
                     /** @var Builder $q */
                     return $q->whereMonth('date', $queryParams->getMonth())
@@ -49,6 +49,12 @@ class OutletGeneralLedgerService implements OutletGeneralLedgerServiceInterface
                 $byMutation = $incomes->where('date', '=', $periodDate)->sum('by_mutation');
                 $total = ($cash + $digital);
                 $purchase = $purchases->where('date', '=', $periodDate)->sum('amount');
+
+                $mutationDate = null;
+                $incomesByDate = $incomes->where('date', '=', $periodDate)->first();
+                if ($incomesByDate) {
+                    $mutationDate = $incomesByDate->mutation_date;
+                }
                 $percentage = 0;
                 if ($total > 0) {
                     $percentage = round(($purchase / $total) * 100, 2, PHP_ROUND_HALF_UP);
@@ -59,7 +65,8 @@ class OutletGeneralLedgerService implements OutletGeneralLedgerServiceInterface
                         'cash' => $cash,
                         'digital' => $digital,
                         'total' => $total,
-                        'by_mutation' => $byMutation
+                        'by_mutation' => $byMutation,
+                        'mutation_date' => $mutationDate
                     ],
                     'purchase' => $purchase,
                     'percentage' => $percentage,
