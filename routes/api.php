@@ -14,6 +14,8 @@ use App\Http\Controllers\Web\MaterialCategoryController;
 use App\Http\Controllers\Web\OutletController;
 use App\Http\Controllers\Web\OutletExpenseController;
 use App\Http\Controllers\Web\OutletIncomeController;
+use App\Http\Controllers\Web\OutletPastryController;
+use App\Http\Controllers\Web\OutletPurchaseController;
 use App\Http\Controllers\Web\PurchaseController;
 use App\Http\Controllers\Web\PurchasePaymentController;
 use App\Http\Controllers\Web\SaleController;
@@ -169,6 +171,9 @@ Route::group(['prefix' => 'v1'], function () {
         Route::group(['prefix' => 'outlet-income'], function () {
             Route::get('/', [OutletIncomeController::class, 'findAll']);
             Route::post('/', [OutletIncomeController::class, 'create']);
+            Route::get('/{id}', [OutletIncomeController::class, 'findByID']);
+            Route::put('/{id}', [OutletIncomeController::class, 'update']);
+            Route::put('/{id}/mutation', [OutletIncomeController::class, 'updateMutation']);
         });
 
         Route::group(['prefix' => 'outlet-expense'], function () {
@@ -177,6 +182,22 @@ Route::group(['prefix' => 'v1'], function () {
             Route::get('/{id}', [OutletExpenseController::class, 'findByID']);
             Route::put('/{id}', [OutletExpenseController::class, 'patch']);
             Route::delete('/{id}', [OutletExpenseController::class, 'delete']);
+        });
+
+        Route::group(['prefix' => 'outlet-purchase'], function () {
+            Route::get('/', [OutletPurchaseController::class, 'findAll']);
+            Route::post('/', [OutletPurchaseController::class, 'create']);
+            Route::get('/{id}', [OutletPurchaseController::class, 'findByID']);
+            Route::put('/{id}', [OutletPurchaseController::class, 'update']);
+            Route::delete('/{id}', [OutletPurchaseController::class, 'delete']);
+        });
+
+        Route::group(['prefix' => 'outlet-pastry'], function () {
+            Route::get('/', [OutletPastryController::class, 'findAll']);
+            Route::post('/', [OutletPastryController::class, 'create']);
+            Route::get('/{id}', [OutletPastryController::class, 'findByID']);
+            Route::put('/{id}', [OutletPastryController::class, 'update']);
+            Route::delete('/{id}', [OutletPastryController::class, 'delete']);
         });
     });
 });

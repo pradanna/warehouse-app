@@ -15,12 +15,14 @@ class OutletIncome extends Model
 
     protected $fillable = [
         'outlet_id',
+        'cash_flow_id',
         'date',
         'name',
         'cash',
         'digital',
         'total',
         'by_mutation',
+        'mutation_date',
         'description',
         'author_id',
     ];
@@ -40,5 +42,10 @@ class OutletIncome extends Model
     public function outlet()
     {
         return $this->belongsTo(Outlet::class, 'outlet_id');
+    }
+
+    public function cash_flow()
+    {
+        return $this->belongsTo(CashFlow::class, 'cash_flow_id');
     }
 }

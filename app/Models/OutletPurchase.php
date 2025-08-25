@@ -6,7 +6,7 @@ use App\Traits\Uuid;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class CashFlow extends Model
+class OutletPurchase extends Model
 {
     use HasFactory, Uuid;
 
@@ -14,17 +14,13 @@ class CashFlow extends Model
     public $incrementing = false;
 
     protected $fillable = [
+        'sale_id',
+        'cash_flow_id',
         'outlet_id',
         'date',
-        'type',
-        'name',
         'cash',
         'digital',
         'amount',
-        'description',
-        'reference_type',
-        'reference_key',
-        'author_id',
     ];
 
     protected $casts = [
@@ -33,18 +29,18 @@ class CashFlow extends Model
         'amount' => 'float',
     ];
 
-    public function author()
+    public function sale()
     {
-        return $this->belongsTo(User::class, 'author_id');
+        return $this->belongsTo(Sale::class, 'sale_id');
+    }
+
+    public function cash_flow()
+    {
+        return $this->belongsTo(CashFlow::class, 'cash_flow_id');
     }
 
     public function outlet()
     {
         return $this->belongsTo(Outlet::class, 'outlet_id');
-    }
-
-    public function income()
-    {
-        return $this->hasOne(OutletIncome::class, 'cash_flow_id');
     }
 }

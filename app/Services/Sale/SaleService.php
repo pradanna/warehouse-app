@@ -120,20 +120,20 @@ class SaleService implements SaleServiceInterface
             }
 
             #create cash flows
-            Carbon::setLocale('id');
-            $formattedDate = Carbon::parse($schema->getDate())->translatedFormat('d F Y');
-            $dataCashFlow = [
-                'outlet_id' => $schema->getOutletId(),
-                'date' => $schema->getDate(),
-                'type' => CashFlowType::Credit->value,
-                'name' => 'Purchase ' . $formattedDate,
-                'amount' => $total,
-                'description' => null,
-                'reference_type' => CashFlowReferenceType::OutletPurchase->value,
-                'reference_key' => $sale->id,
-                'author_id' => $userId,
-            ];
-            CashFlow::create($dataCashFlow);
+            // Carbon::setLocale('id');
+            // $formattedDate = Carbon::parse($schema->getDate())->translatedFormat('d F Y');
+            // $dataCashFlow = [
+            //     'outlet_id' => $schema->getOutletId(),
+            //     'date' => $schema->getDate(),
+            //     'type' => CashFlowType::Credit->value,
+            //     'name' => 'Purchase ' . $formattedDate,
+            //     'amount' => $total,
+            //     'description' => null,
+            //     'reference_type' => CashFlowReferenceType::OutletPurchase->value,
+            //     'reference_key' => $sale->id,
+            //     'author_id' => $userId,
+            // ];
+            // CashFlow::create($dataCashFlow);
 
             $sale->load([
                 'outlet',
@@ -146,7 +146,7 @@ class SaleService implements SaleServiceInterface
             return ServiceResponse::statusCreated("successfully create sale", $sale);
         } catch (\Throwable $e) {
             DB::rollBack();
-            return ServiceResponse::internalServerError($e->getMessage());
+            return ServiceResponse::internalServerError($e->getMessage() . "line " . $e->getLine());
         }
     }
 
