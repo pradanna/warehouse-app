@@ -5,6 +5,7 @@ use App\Http\Controllers\Web\CashFlowController;
 use App\Http\Controllers\Web\CategoryController;
 use App\Http\Controllers\Web\CreditController;
 use App\Http\Controllers\Web\DebtController;
+use App\Http\Controllers\Web\EmployeeController;
 use App\Http\Controllers\Web\ExpenseCategoryController;
 use App\Http\Controllers\Web\InventoryAdjustmentController;
 use App\Http\Controllers\Web\InventoryController;
@@ -201,6 +202,14 @@ Route::group(['prefix' => 'v1'], function () {
             Route::get('/{id}', [OutletPastryController::class, 'findByID']);
             Route::put('/{id}', [OutletPastryController::class, 'update']);
             Route::delete('/{id}', [OutletPastryController::class, 'delete']);
+        });
+
+        Route::group(['prefix' => 'employee'], function () {
+            Route::get('/', [EmployeeController::class, 'findAll']);
+            Route::post('/', [EmployeeController::class, 'create']);
+            Route::get('/{id}', [EmployeeController::class, 'findByID']);
+            Route::put('/{id}', [EmployeeController::class, 'patch']);
+            Route::delete('/{id}', [EmployeeController::class, 'delete']);
         });
     });
 });
