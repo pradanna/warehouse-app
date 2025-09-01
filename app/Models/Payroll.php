@@ -15,6 +15,7 @@ class Payroll extends Model
 
     protected $fillable = [
         'outlet_id',
+        'outlet_expense_id',
         'date',
         'amount',
     ];
@@ -26,5 +27,15 @@ class Payroll extends Model
     public function outlet()
     {
         return $this->belongsTo(Outlet::class, 'outlet_id');
+    }
+
+    public function outlet_expense()
+    {
+        return $this->belongsTo(OutletExpense::class, 'outlet_expense_id');
+    }
+
+    public function items()
+    {
+        return $this->hasMany(PayrollItem::class, 'payroll_id');
     }
 }

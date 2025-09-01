@@ -217,7 +217,7 @@ Route::group(['prefix' => 'v1'], function () {
             Route::get('/', [PayrollController::class, 'findAll']);
             Route::post('/', [PayrollController::class, 'create']);
             Route::get('/{id}', [PayrollController::class, 'findByID']);
-            Route::put('/{id}', [PayrollController::class, 'patch']);
+            Route::put('/{id}', [PayrollController::class, 'update']);
             Route::delete('/{id}', [PayrollController::class, 'delete']);
         });
     });

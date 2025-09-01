@@ -8,21 +8,21 @@ class PayrollQuery extends BaseSchema
 {
     private $page;
     private $perPage;
-    private $dateStart;
-    private $dateEnd;
+    private $month;
+    private $year;
     private $outletId;
 
     public function hydrateQuery()
     {
         $page = $this->query['page'] ?? 1;
         $perPage = $this->query['per_page'] ?? 10;
-        $dateStart = !empty(trim($this->query['date_start'] ?? '')) ? $this->query['date_start'] : null;
-        $dateEnd = !empty(trim($this->query['date_end'] ?? '')) ? $this->query['date_end'] : null;
-        $outletId = $this->query['page'] ?? '';
+        $month = $this->query['month'];
+        $year = $this->query['year'];
+        $outletId = $this->query['outlet_id'] ?? '';
         $this->setPage($page)
             ->setPerPage($perPage)
-            ->setDateStart($dateStart)
-            ->setDateEnd($dateEnd)
+            ->setMonth($month)
+            ->setYear($year)
             ->setOutletId($outletId);
     }
 
@@ -67,46 +67,6 @@ class PayrollQuery extends BaseSchema
     }
 
     /**
-     * Get the value of dateStart
-     */
-    public function getDateStart()
-    {
-        return $this->dateStart;
-    }
-
-    /**
-     * Set the value of dateStart
-     *
-     * @return  self
-     */
-    public function setDateStart($dateStart)
-    {
-        $this->dateStart = $dateStart;
-
-        return $this;
-    }
-
-    /**
-     * Get the value of dateEnd
-     */
-    public function getDateEnd()
-    {
-        return $this->dateEnd;
-    }
-
-    /**
-     * Set the value of dateEnd
-     *
-     * @return  self
-     */
-    public function setDateEnd($dateEnd)
-    {
-        $this->dateEnd = $dateEnd;
-
-        return $this;
-    }
-
-    /**
      * Get the value of outletId
      */
     public function getOutletId()
@@ -122,6 +82,46 @@ class PayrollQuery extends BaseSchema
     public function setOutletId($outletId)
     {
         $this->outletId = $outletId;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of month
+     */
+    public function getMonth()
+    {
+        return $this->month;
+    }
+
+    /**
+     * Set the value of month
+     *
+     * @return  self
+     */
+    public function setMonth($month)
+    {
+        $this->month = $month;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of year
+     */
+    public function getYear()
+    {
+        return $this->year;
+    }
+
+    /**
+     * Set the value of year
+     *
+     * @return  self
+     */
+    public function setYear($year)
+    {
+        $this->year = $year;
 
         return $this;
     }
