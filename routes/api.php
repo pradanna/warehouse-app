@@ -17,6 +17,7 @@ use App\Http\Controllers\Web\OutletExpenseController;
 use App\Http\Controllers\Web\OutletIncomeController;
 use App\Http\Controllers\Web\OutletPastryController;
 use App\Http\Controllers\Web\OutletPurchaseController;
+use App\Http\Controllers\Web\PayrollController;
 use App\Http\Controllers\Web\PurchaseController;
 use App\Http\Controllers\Web\PurchasePaymentController;
 use App\Http\Controllers\Web\SaleController;
@@ -210,6 +211,14 @@ Route::group(['prefix' => 'v1'], function () {
             Route::get('/{id}', [EmployeeController::class, 'findByID']);
             Route::put('/{id}', [EmployeeController::class, 'patch']);
             Route::delete('/{id}', [EmployeeController::class, 'delete']);
+        });
+
+        Route::group(['prefix' => 'payroll'], function () {
+            Route::get('/', [PayrollController::class, 'findAll']);
+            Route::post('/', [PayrollController::class, 'create']);
+            Route::get('/{id}', [PayrollController::class, 'findByID']);
+            Route::put('/{id}', [PayrollController::class, 'patch']);
+            Route::delete('/{id}', [PayrollController::class, 'delete']);
         });
     });
 });
