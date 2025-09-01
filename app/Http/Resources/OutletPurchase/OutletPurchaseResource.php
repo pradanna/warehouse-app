@@ -18,6 +18,8 @@ class OutletPurchaseResource extends BaseApiResource
         $response = [
             'id' => $this->id,
             'date' => $this->date,
+            'cash' => $this->cash,
+            'digital' => $this->digital,
             'amount' => $this->amount,
         ];
 

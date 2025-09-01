@@ -28,7 +28,19 @@ class PayrollResource extends BaseApiResource
             ] : null;
         }
 
-
+        if ($this->relationLoaded('items')) {
+            $response['items'] = $this->items->map(function ($item) {
+                $employee = $item->getRelation('employee');
+                return [
+                    'id' => $item->id,
+                    'amount' => $item->amount,
+                    'employee' => $employee ? [
+                        'id' => $employee->id,
+                        'name' => $employee->name
+                    ] : null
+                ];
+            });
+        }
         return $response;
     }
 }

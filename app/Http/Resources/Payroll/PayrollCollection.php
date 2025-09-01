@@ -2,10 +2,11 @@
 
 namespace App\Http\Resources\Payroll;
 
+use App\Commons\Http\BaseApiCollection;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\ResourceCollection;
 
-class PayrollCollection extends ResourceCollection
+class PayrollCollection extends BaseApiCollection
 {
     /**
      * Transform the resource collection into an array.
@@ -14,6 +15,8 @@ class PayrollCollection extends ResourceCollection
      */
     public function toArray(Request $request): array
     {
-        return parent::toArray($request);
+        return $this->collection->transform(function ($payroll) {
+            return new PayrollResource($payroll);
+        })->all();
     }
 }
