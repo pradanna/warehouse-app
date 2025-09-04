@@ -125,6 +125,7 @@ Route::group(['prefix' => 'v1'], function () {
             Route::post('/', [SaleController::class, 'create']);
             Route::get('/', [SaleController::class, 'findAll']);
             Route::get('/{id}', [SaleController::class, 'findByID']);
+            Route::put('/{id}/append', [SaleController::class, 'append']);
         });
 
         Route::group(['prefix' => 'sale-payment'], function () {
