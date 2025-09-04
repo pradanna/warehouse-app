@@ -10,6 +10,7 @@ class CashFlowQuery extends BaseSchema
     private $month;
     private $year;
     private $type;
+    private $amountType;
 
     public function hydrateQuery()
     {
@@ -17,10 +18,12 @@ class CashFlowQuery extends BaseSchema
         $month = $this->query['month'];
         $year = $this->query['year'];
         $type = !empty(trim($this->query['type'] ?? '')) ? $this->query['type'] : null;
+        $amountType = !empty(trim($this->query['amount_type'] ?? '')) ? $this->query['amount_type'] : null;
         $this->setOutletId($outletId)
             ->setMonth($month)
             ->setYear($year)
-            ->setType($type);
+            ->setType($type)
+            ->setAmountType($amountType);
     }
 
     /**
@@ -99,6 +102,26 @@ class CashFlowQuery extends BaseSchema
     public function setType($type)
     {
         $this->type = $type;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of amountType
+     */
+    public function getAmountType()
+    {
+        return $this->amountType;
+    }
+
+    /**
+     * Set the value of amountType
+     *
+     * @return  self
+     */
+    public function setAmountType($amountType)
+    {
+        $this->amountType = $amountType;
 
         return $this;
     }
