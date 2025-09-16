@@ -27,6 +27,7 @@ use App\Http\Controllers\Web\StaffController;
 use App\Http\Controllers\Web\SummaryController;
 use App\Http\Controllers\Web\SupplierController;
 use App\Http\Controllers\Web\UnitController;
+use App\Http\Controllers\Web\WarehouseExpenseControler;
 use App\Http\Middleware\JWTVerify;
 use Illuminate\Support\Facades\Route;
 
@@ -225,6 +226,14 @@ Route::group(['prefix' => 'v1'], function () {
             Route::get('/{id}', [FundTransferController::class, 'findByID']);
             Route::put('/{id}', [FundTransferController::class, 'patch']);
             Route::delete('/{id}', [FundTransferController::class, 'delete']);
+        });
+
+        Route::group(['prefix' => 'warehouse-expense'], function () {
+            Route::get('/', [WarehouseExpenseControler::class, 'findAll']);
+            Route::post('/', [WarehouseExpenseControler::class, 'create']);
+            Route::get('/{id}', [WarehouseExpenseControler::class, 'findByID']);
+            Route::put('/{id}', [WarehouseExpenseControler::class, 'patch']);
+            Route::delete('/{id}', [WarehouseExpenseControler::class, 'delete']);
         });
     });
 });
