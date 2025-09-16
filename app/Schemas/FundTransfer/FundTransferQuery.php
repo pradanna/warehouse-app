@@ -1,0 +1,152 @@
+<?php
+
+namespace App\Schemas\FundTransfer;
+
+use App\Commons\Schema\BaseSchema;
+
+class FundTransferQuery extends BaseSchema
+{
+    private $page;
+    private $perPage;
+    private $dateStart;
+    private $dateEnd;
+    private $outletId;
+    private $transferTo;
+
+    public function hydrateQuery()
+    {
+        $outletId = $this->query['outlet_id'];
+        $page = $this->query['page'] ?? 1;
+        $perPage = $this->query['per_page'] ?? 10;
+        $dateStart = !empty(trim($this->query['date_start'] ?? '')) ? $this->query['date_start'] : null;
+        $dateEnd = !empty(trim($this->query['date_end'] ?? '')) ? $this->query['date_end'] : null;
+        $transferTo = !empty(trim($this->query['transfer_to'] ?? '')) ? $this->query['transfer_to'] : null;
+
+        $this->setOutletId($outletId)
+            ->setPage($page)
+            ->setPerPage($perPage)
+            ->setDateStart($dateStart)
+            ->setDateEnd($dateEnd)
+            ->setTransferTo($transferTo);
+    }
+
+    /**
+     * Get the value of page
+     */
+    public function getPage()
+    {
+        return $this->page;
+    }
+
+    /**
+     * Set the value of page
+     *
+     * @return  self
+     */
+    public function setPage($page)
+    {
+        $this->page = $page;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of perPage
+     */
+    public function getPerPage()
+    {
+        return $this->perPage;
+    }
+
+    /**
+     * Set the value of perPage
+     *
+     * @return  self
+     */
+    public function setPerPage($perPage)
+    {
+        $this->perPage = $perPage;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of dateStart
+     */
+    public function getDateStart()
+    {
+        return $this->dateStart;
+    }
+
+    /**
+     * Set the value of dateStart
+     *
+     * @return  self
+     */
+    public function setDateStart($dateStart)
+    {
+        $this->dateStart = $dateStart;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of dateEnd
+     */
+    public function getDateEnd()
+    {
+        return $this->dateEnd;
+    }
+
+    /**
+     * Set the value of dateEnd
+     *
+     * @return  self
+     */
+    public function setDateEnd($dateEnd)
+    {
+        $this->dateEnd = $dateEnd;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of outletId
+     */
+    public function getOutletId()
+    {
+        return $this->outletId;
+    }
+
+    /**
+     * Set the value of outletId
+     *
+     * @return  self
+     */
+    public function setOutletId($outletId)
+    {
+        $this->outletId = $outletId;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of transferTo
+     */
+    public function getTransferTo()
+    {
+        return $this->transferTo;
+    }
+
+    /**
+     * Set the value of transferTo
+     *
+     * @return  self
+     */
+    public function setTransferTo($transferTo)
+    {
+        $this->transferTo = $transferTo;
+
+        return $this;
+    }
+}
