@@ -10,6 +10,7 @@ class InventoryMovementQuery extends BaseSchema
     private $perPage;
     private $dateStart;
     private $dateEnd;
+    private $param;
 
     public function hydrateQuery()
     {
@@ -17,10 +18,12 @@ class InventoryMovementQuery extends BaseSchema
         $perPage = $this->query['per_page'] ?? 10;
         $dateStart = !empty(trim($this->query['date_start'] ?? '')) ? $this->query['date_start'] : null;
         $dateEnd = !empty(trim($this->query['date_end'] ?? '')) ? $this->query['date_end'] : null;
+        $param = !empty(trim($this->query['param'] ?? '')) ? $this->query['param'] : null;
         $this->setPage($page)
             ->setPerPage($perPage)
             ->setDateStart($dateStart)
-            ->setDateEnd($dateEnd);
+            ->setDateEnd($dateEnd)
+            ->setParam($param);
     }
 
 
@@ -100,6 +103,26 @@ class InventoryMovementQuery extends BaseSchema
     public function setDateEnd($dateEnd)
     {
         $this->dateEnd = $dateEnd;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of param
+     */
+    public function getParam()
+    {
+        return $this->param;
+    }
+
+    /**
+     * Set the value of param
+     *
+     * @return  self
+     */
+    public function setParam($param)
+    {
+        $this->param = $param;
 
         return $this;
     }
