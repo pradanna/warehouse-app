@@ -32,7 +32,7 @@ class OutletController extends CustomController
 
     public function findAll()
     {
-        $query = (new OutletQuery())->hydrateSchemaBody($this->queryParams());
+        $query = (new OutletQuery())->hydrateSchemaQuery($this->queryParams());
         $response = $this->service->findAll($query);
         return (new OutletCollection($response->getData()))
             ->withStatus($response->getStatus())
