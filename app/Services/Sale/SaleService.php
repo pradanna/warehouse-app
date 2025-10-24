@@ -193,12 +193,22 @@ class SaleService implements SaleServiceInterface
                     'payment_status' => SalePaymentStatus::Unpaid->value
                 ]);
             } else {
+                # if sale type installment
                 # if sale has payment set to partial
                 if (count($sale->payments) > 0) {
                     $sale->update([
                         'payment_status' => SalePaymentStatus::Partial->value
                     ]);
                 }
+
+                # update credit
+                $credit = $sale->credit;
+                $creditAmountPaid = $sale->amount_paid;
+                $newCreditAmountRest = $newTotal - $creditAmountPaid;
+                $credit->update([
+                    'amount_due' => $newTotal,
+                    'amount_rest' => $newCreditAmountRest,
+                ]);
             }
 
             $sale->items()->createMany($newItems);
