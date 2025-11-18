@@ -41,12 +41,14 @@ class OutletIncomeService implements OutletIncomeServiceInterface
             if ($incomeExist) {
                 return ServiceResponse::badRequest("income already exist");
             }
+
+            $incomeName = !empty($schema->getName()) ? $schema->getName() : "Omset {$formattedDate}";
             #create cash flows
             $dataCashFlow = [
                 'outlet_id' => $schema->getOutletId(),
                 'date' => $schema->getDate(),
                 'type' => CashFlowType::Debit->value,
-                'name' => "Omset {$formattedDate}",
+                'name' => $incomeName,
                 'cash' => $income['cash'],
                 'digital' => $income['digital'],
                 'amount' => $total,
@@ -62,7 +64,7 @@ class OutletIncomeService implements OutletIncomeServiceInterface
                 'outlet_id' => $schema->getOutletId(),
                 'cash_flow_id' => $cashFlow->id,
                 'date' => $schema->getDate(),
-                'name' => "Omset {$formattedDate}",
+                'name' => $incomeName,
                 'cash' => $income['cash'],
                 'digital' => $income['digital'],
                 'total' => $total,
@@ -138,11 +140,13 @@ class OutletIncomeService implements OutletIncomeServiceInterface
             $total = $income['cash'] + $income['digital'];
             $byMutation = 0;
 
+            $incomeName = !empty($schema->getName()) ? $schema->getName() : "Omset {$formattedDate}";
+
             # update data income
             $dataIncome = [
                 'outlet_id' => $schema->getOutletId(),
                 'date' => $schema->getDate(),
-                'name' => "Omset {$formattedDate}",
+                'name' => $incomeName,
                 'cash' => $income['cash'],
                 'digital' => $income['digital'],
                 'total' => $total,
@@ -160,6 +164,7 @@ class OutletIncomeService implements OutletIncomeServiceInterface
                 'digital' => $income['digital'],
                 'amount' => $total,
                 'author_id' => $userId,
+                'name' => $incomeName,
             ];
             $cashFlow->update($dataCashFlow);
 

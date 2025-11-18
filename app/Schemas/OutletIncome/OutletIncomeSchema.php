@@ -8,6 +8,7 @@ class OutletIncomeSchema extends BaseSchema
 {
     private $outletId;
     private $date;
+    private $name;
     private $income;
     private $byMutation;
     private $description;
@@ -17,6 +18,7 @@ class OutletIncomeSchema extends BaseSchema
         return [
             'outlet_id' => 'required|uuid',
             'date' => 'required|date',
+            'name' => 'nullable|string',
             'income' => 'required|array',
             'income.cash' => 'required|numeric',
             'income.digital' => 'required|numeric',
@@ -31,10 +33,12 @@ class OutletIncomeSchema extends BaseSchema
         $date = $this->body['date'];
         $income = $this->body['income'];
         $description = !empty(trim($this->body['description'] ?? '')) ? $this->body['description'] : null;
+        $name = !empty(trim($this->body['name'] ?? '')) ? $this->body['name'] : null;
         $this->setOutletId($outletId)
             ->setDate($date)
             ->setIncome($income)
-            ->setDescription($description);
+            ->setDescription($description)
+            ->setName($name);
     }
     /**
      * Get the value of outletId
@@ -132,6 +136,26 @@ class OutletIncomeSchema extends BaseSchema
     public function setByMutation($byMutation)
     {
         $this->byMutation = $byMutation;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of name
+     */
+    public function getName()
+    {
+        return $this->name;
+    }
+
+    /**
+     * Set the value of name
+     *
+     * @return  self
+     */
+    public function setName($name)
+    {
+        $this->name = $name;
 
         return $this;
     }
