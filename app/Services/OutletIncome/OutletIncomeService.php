@@ -37,6 +37,7 @@ class OutletIncomeService implements OutletIncomeServiceInterface
             $incomeExist = OutletIncome::with([])
                 ->where('outlet_id', '=', $schema->getOutletId())
                 ->where('date', '=', $schema->getDate())
+                ->where('name', '=', $schema->getName())
                 ->first();
             if ($incomeExist) {
                 return ServiceResponse::badRequest("income already exist");
