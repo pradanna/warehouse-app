@@ -16,6 +16,7 @@ use App\Models\Credit;
 use App\Models\Inventory;
 use App\Models\InventoryMovement;
 use App\Models\Sale;
+use App\Schemas\Sale\SaleAppendSchema;
 use App\Schemas\Sale\SaleQuery;
 use App\Schemas\Sale\SaleSchema;
 use Carbon\Carbon;
@@ -144,6 +145,101 @@ class SaleService implements SaleServiceInterface
             ]);
             DB::commit();
             return ServiceResponse::statusCreated("successfully create sale", $sale);
+        } catch (\Throwable $e) {
+            DB::rollBack();
+            return ServiceResponse::internalServerError($e->getMessage() . "line " . $e->getLine());
+        }
+    }
+
+    public function append($id, SaleAppendSchema $schema): ServiceResponse
+    {
+        try {
+            $userId = Auth::user()->id;
+            $validator = $schema->validate();
+            if ($validator->fails()) {
+                return ServiceResponse::unprocessableEntity($validator->errors()->toArray(), "error validation");
+            }
+            $schema->hydrateBody();
+            DB::beginTransaction();
+            $sale = Sale::with([
+                'outlet',
+                'items.inventory',
+                'payments',
+                'credit',
+                'author'
+            ])
+                ->where('id', '=', $id)
+                ->first();
+            if (!$sale) {
+                return ServiceResponse::notFound("sale not found");
+            }
+
+            $curentItems = $sale->items;
+            $newItems = $schema->getItems();
+            $newItemCollections = collect($newItems);
+
+            $discount = $sale->discount;
+            $tax = $sale->tax;
+            $newTotal = $curentItems->sum('total') + $newItemCollections->sum('total') + $tax - $discount;
+
+            $sale->update([
+                'sub_total' => $curentItems->sum('total') + $newItemCollections->sum('total'),
+                'total' => $newTotal
+            ]);
+
+            # if sale type cash then set to unpaid
+            if ($sale->payment_type === SalePaymentType::Cash->value) {
+                $sale->update([
+                    'payment_status' => SalePaymentStatus::Unpaid->value
+                ]);
+            } else {
+                # if sale type installment
+                # if sale has payment set to partial
+                if (count($sale->payments) > 0) {
+                    $sale->update([
+                        'payment_status' => SalePaymentStatus::Partial->value
+                    ]);
+                }
+
+                # update credit
+                $credit = $sale->credit;
+                $creditAmountPaid = $sale->amount_paid;
+                $newCreditAmountRest = $newTotal - $creditAmountPaid;
+                $credit->update([
+                    'amount_due' => $newTotal,
+                    'amount_rest' => $newCreditAmountRest,
+                ]);
+            }
+
+            $sale->items()->createMany($newItems);
+
+            foreach ($newItems as $item) {
+                $inventory = Inventory::with([])
+                    ->where('id', '=', $item['inventory_id'])
+                    ->first();
+                if (!$inventory) {
+                    DB::rollBack();
+                    return ServiceResponse::notFound("inventory not found");
+                }
+                $currentStock = $inventory->current_stock;
+                $newStock = $currentStock - $item['quantity'];
+                $inventory->update(['current_stock' => $newStock]);
+
+                $movementData = [
+                    'inventory_id' => $item['inventory_id'],
+                    'type' => 'out',
+                    'quantity_open' => $currentStock,
+                    'quantity' => $item['quantity'],
+                    'quantity_close' => $newStock,
+                    'description' => 'Purchasing',
+                    'movement_type' => InventoryMovementType::Sale->value,
+                    'movement_reference' => $sale->id,
+                    'author_id' => $userId
+                ];
+                InventoryMovement::create($movementData);
+            }
+            DB::commit();
+            return ServiceResponse::statusCreated("successfully append sale items");
         } catch (\Throwable $e) {
             DB::rollBack();
             return ServiceResponse::internalServerError($e->getMessage() . "line " . $e->getLine());

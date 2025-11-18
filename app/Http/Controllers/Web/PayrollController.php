@@ -2,39 +2,40 @@
 
 namespace App\Http\Controllers\Web;
 
+use App\Http\Controllers\Controller;
 use App\Http\Controllers\CustomController;
-use App\Http\Resources\Outlet\OutletCollection;
-use App\Http\Resources\Outlet\OutletResource;
-use App\Schemas\Outlet\OutletQuery;
-use App\Schemas\Outlet\OutletSchema;
-use App\Services\Outlet\OutletService;
+use App\Http\Resources\Payroll\PayrollCollection;
+use App\Http\Resources\Payroll\PayrollResource;
+use App\Schemas\Payroll\PayrollQuery;
+use App\Schemas\Payroll\PayrollSchema;
+use App\Services\Payroll\PayrollService;
 use Illuminate\Http\Request;
 
-class OutletController extends CustomController
+class PayrollController extends CustomController
 {
-    /** @var OutletService $service */
+    /** @var PayrollService $service */
     private $service;
 
     public function __construct()
     {
         parent::__construct();
-        $this->service = new OutletService();
+        $this->service = new PayrollService();
     }
 
     public function create()
     {
-        $schema = (new OutletSchema())->hydrateSchemaBody($this->jsonBody());
+        $schema = (new PayrollSchema())->hydrateSchemaBody($this->jsonBody());
         $response = $this->service->create($schema);
-        return (new OutletResource($response->getData()))
+        return (new PayrollResource($response->getData()))
             ->withStatus($response->getStatus())
             ->withMessage($response->getMessage());
     }
 
     public function findAll()
     {
-        $query = (new OutletQuery())->hydrateSchemaQuery($this->queryParams());
+        $query = (new PayrollQuery())->hydrateSchemaQuery($this->queryParams());
         $response = $this->service->findAll($query);
-        return (new OutletCollection($response->getData()))
+        return (new PayrollCollection($response->getData()))
             ->withStatus($response->getStatus())
             ->withMessage($response->getMessage());
     }
@@ -42,16 +43,16 @@ class OutletController extends CustomController
     public function findByID($id)
     {
         $response = $this->service->findByID($id);
-        return (new OutletResource($response->getData()))
+        return (new PayrollResource($response->getData()))
             ->withStatus($response->getStatus())
             ->withMessage($response->getMessage());
     }
 
-    public function patch($id)
+    public function update($id)
     {
-        $schema = (new OutletSchema())->hydrateSchemaBody($this->jsonBody());
-        $response = $this->service->patch($id, $schema);
-        return (new OutletResource($response->getData()))
+        $schema = (new PayrollSchema())->hydrateSchemaBody($this->jsonBody());
+        $response = $this->service->update($id, $schema);
+        return (new PayrollResource($response->getData()))
             ->withStatus($response->getStatus())
             ->withMessage($response->getMessage());
     }
@@ -59,7 +60,7 @@ class OutletController extends CustomController
     public function delete($id)
     {
         $response = $this->service->delete($id);
-        return (new OutletResource($response->getData()))
+        return (new PayrollResource($response->getData()))
             ->withStatus($response->getStatus())
             ->withMessage($response->getMessage());
     }

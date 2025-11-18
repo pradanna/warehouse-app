@@ -1,31 +1,34 @@
 <?php
 
-namespace App\Schemas\InventoryMovement;
+namespace App\Schemas\FundTransfer;
 
 use App\Commons\Schema\BaseSchema;
 
-class InventoryMovementQuery extends BaseSchema
+class FundTransferQuery extends BaseSchema
 {
     private $page;
     private $perPage;
     private $dateStart;
     private $dateEnd;
-    private $param;
+    private $outletId;
+    private $transferTo;
 
     public function hydrateQuery()
     {
+        $outletId = $this->query['outlet_id'];
         $page = $this->query['page'] ?? 1;
         $perPage = $this->query['per_page'] ?? 10;
         $dateStart = !empty(trim($this->query['date_start'] ?? '')) ? $this->query['date_start'] : null;
         $dateEnd = !empty(trim($this->query['date_end'] ?? '')) ? $this->query['date_end'] : null;
-        $param = !empty(trim($this->query['param'] ?? '')) ? $this->query['param'] : null;
-        $this->setPage($page)
+        $transferTo = !empty(trim($this->query['transfer_to'] ?? '')) ? $this->query['transfer_to'] : null;
+
+        $this->setOutletId($outletId)
+            ->setPage($page)
             ->setPerPage($perPage)
             ->setDateStart($dateStart)
             ->setDateEnd($dateEnd)
-            ->setParam($param);
+            ->setTransferTo($transferTo);
     }
-
 
     /**
      * Get the value of page
@@ -108,21 +111,41 @@ class InventoryMovementQuery extends BaseSchema
     }
 
     /**
-     * Get the value of param
+     * Get the value of outletId
      */
-    public function getParam()
+    public function getOutletId()
     {
-        return $this->param;
+        return $this->outletId;
     }
 
     /**
-     * Set the value of param
+     * Set the value of outletId
      *
      * @return  self
      */
-    public function setParam($param)
+    public function setOutletId($outletId)
     {
-        $this->param = $param;
+        $this->outletId = $outletId;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of transferTo
+     */
+    public function getTransferTo()
+    {
+        return $this->transferTo;
+    }
+
+    /**
+     * Set the value of transferTo
+     *
+     * @return  self
+     */
+    public function setTransferTo($transferTo)
+    {
+        $this->transferTo = $transferTo;
 
         return $this;
     }

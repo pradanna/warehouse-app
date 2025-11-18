@@ -2,39 +2,41 @@
 
 namespace App\Http\Controllers\Web;
 
+use App\Http\Controllers\Controller;
 use App\Http\Controllers\CustomController;
-use App\Http\Resources\Outlet\OutletCollection;
-use App\Http\Resources\Outlet\OutletResource;
-use App\Schemas\Outlet\OutletQuery;
-use App\Schemas\Outlet\OutletSchema;
-use App\Services\Outlet\OutletService;
+use App\Http\Resources\WarehouseExpense\WarehouseExpenseCollection;
+use App\Http\Resources\WarehouseExpense\WarehouseExpenseResource;
+use App\Schemas\WarehouseExpense\WarehouseExpenseQuery;
+use App\Schemas\WarehouseExpense\WarehouseExpenseSchema;
+use App\Services\WarehouseExpense\WarehouseExpenseService;
 use Illuminate\Http\Request;
 
-class OutletController extends CustomController
+class WarehouseExpenseControler extends CustomController
 {
-    /** @var OutletService $service */
+    /** @var WarehouseExpenseService $service */
     private $service;
+
 
     public function __construct()
     {
         parent::__construct();
-        $this->service = new OutletService();
+        $this->service = new WarehouseExpenseService();
     }
 
     public function create()
     {
-        $schema = (new OutletSchema())->hydrateSchemaBody($this->jsonBody());
+        $schema = (new WarehouseExpenseSchema())->hydrateSchemaBody($this->jsonBody());
         $response = $this->service->create($schema);
-        return (new OutletResource($response->getData()))
+        return (new WarehouseExpenseResource($response->getData()))
             ->withStatus($response->getStatus())
             ->withMessage($response->getMessage());
     }
 
     public function findAll()
     {
-        $query = (new OutletQuery())->hydrateSchemaQuery($this->queryParams());
+        $query = (new WarehouseExpenseQuery())->hydrateSchemaQuery($this->queryParams());
         $response = $this->service->findAll($query);
-        return (new OutletCollection($response->getData()))
+        return (new WarehouseExpenseCollection($response->getData()))
             ->withStatus($response->getStatus())
             ->withMessage($response->getMessage());
     }
@@ -42,16 +44,16 @@ class OutletController extends CustomController
     public function findByID($id)
     {
         $response = $this->service->findByID($id);
-        return (new OutletResource($response->getData()))
+        return (new WarehouseExpenseResource($response->getData()))
             ->withStatus($response->getStatus())
             ->withMessage($response->getMessage());
     }
 
     public function patch($id)
     {
-        $schema = (new OutletSchema())->hydrateSchemaBody($this->jsonBody());
+        $schema = (new WarehouseExpenseSchema())->hydrateSchemaBody($this->jsonBody());
         $response = $this->service->patch($id, $schema);
-        return (new OutletResource($response->getData()))
+        return (new WarehouseExpenseResource($response->getData()))
             ->withStatus($response->getStatus())
             ->withMessage($response->getMessage());
     }
@@ -59,7 +61,7 @@ class OutletController extends CustomController
     public function delete($id)
     {
         $response = $this->service->delete($id);
-        return (new OutletResource($response->getData()))
+        return (new WarehouseExpenseResource($response->getData()))
             ->withStatus($response->getStatus())
             ->withMessage($response->getMessage());
     }

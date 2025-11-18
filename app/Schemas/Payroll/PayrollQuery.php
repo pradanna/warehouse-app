@@ -1,31 +1,30 @@
 <?php
 
-namespace App\Schemas\InventoryMovement;
+namespace App\Schemas\Payroll;
 
 use App\Commons\Schema\BaseSchema;
 
-class InventoryMovementQuery extends BaseSchema
+class PayrollQuery extends BaseSchema
 {
     private $page;
     private $perPage;
-    private $dateStart;
-    private $dateEnd;
-    private $param;
+    private $month;
+    private $year;
+    private $outletId;
 
     public function hydrateQuery()
     {
         $page = $this->query['page'] ?? 1;
         $perPage = $this->query['per_page'] ?? 10;
-        $dateStart = !empty(trim($this->query['date_start'] ?? '')) ? $this->query['date_start'] : null;
-        $dateEnd = !empty(trim($this->query['date_end'] ?? '')) ? $this->query['date_end'] : null;
-        $param = !empty(trim($this->query['param'] ?? '')) ? $this->query['param'] : null;
+        $month = $this->query['month'];
+        $year = $this->query['year'];
+        $outletId = $this->query['outlet_id'] ?? '';
         $this->setPage($page)
             ->setPerPage($perPage)
-            ->setDateStart($dateStart)
-            ->setDateEnd($dateEnd)
-            ->setParam($param);
+            ->setMonth($month)
+            ->setYear($year)
+            ->setOutletId($outletId);
     }
-
 
     /**
      * Get the value of page
@@ -68,61 +67,61 @@ class InventoryMovementQuery extends BaseSchema
     }
 
     /**
-     * Get the value of dateStart
+     * Get the value of outletId
      */
-    public function getDateStart()
+    public function getOutletId()
     {
-        return $this->dateStart;
+        return $this->outletId;
     }
 
     /**
-     * Set the value of dateStart
+     * Set the value of outletId
      *
      * @return  self
      */
-    public function setDateStart($dateStart)
+    public function setOutletId($outletId)
     {
-        $this->dateStart = $dateStart;
+        $this->outletId = $outletId;
 
         return $this;
     }
 
     /**
-     * Get the value of dateEnd
+     * Get the value of month
      */
-    public function getDateEnd()
+    public function getMonth()
     {
-        return $this->dateEnd;
+        return $this->month;
     }
 
     /**
-     * Set the value of dateEnd
+     * Set the value of month
      *
      * @return  self
      */
-    public function setDateEnd($dateEnd)
+    public function setMonth($month)
     {
-        $this->dateEnd = $dateEnd;
+        $this->month = $month;
 
         return $this;
     }
 
     /**
-     * Get the value of param
+     * Get the value of year
      */
-    public function getParam()
+    public function getYear()
     {
-        return $this->param;
+        return $this->year;
     }
 
     /**
-     * Set the value of param
+     * Set the value of year
      *
      * @return  self
      */
-    public function setParam($param)
+    public function setYear($year)
     {
-        $this->param = $param;
+        $this->year = $year;
 
         return $this;
     }

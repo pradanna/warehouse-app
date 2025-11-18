@@ -32,6 +32,13 @@ class CashFlowService implements CashFlowServiceInterface
                     /** @var Builder $q */
                     return $q->where('type', '=', $queryParams->getType());
                 })
+                ->when($queryParams->getAmountType(), function ($q) use ($queryParams) {
+                    /** @var Builder $q */
+                    if ($queryParams->getAmountType() === 'digital') {
+                        return $q->where('digital', '>', 0);
+                    }
+                    return $q->where('cash', '>', 0);
+                })
                 ->orderBy('date', 'ASC')
                 ->orderByRaw("FIELD(type, 'debit', 'credit')")
                 ->get();
@@ -54,12 +61,12 @@ class CashFlowService implements CashFlowServiceInterface
 
                 # map debit cash flows
                 foreach ($debitCashFlows as $debitCashFlow) {
-                    $amount = $debitCashFlow['amount'];
+                    $amount = empty($queryParams->getAmountType()) ? $debitCashFlow['amount'] : ($queryParams->getAmountType() === 'digital' ? $debitCashFlow['digital'] : $debitCashFlow['cash']);
                     $balance += $amount;
                     array_push($items, [
                         'id' => $debitCashFlow['id'],
                         'item' => $debitCashFlow['name'],
-                        'debit' => $debitCashFlow['amount'],
+                        'debit' => $amount,
                         'credit' => 0,
                         'description' => $debitCashFlow['description'],
                         'balance' => $balance
@@ -68,13 +75,14 @@ class CashFlowService implements CashFlowServiceInterface
 
                 # map credit cash flows
                 foreach ($creditCashFlows as $creditCashFlow) {
-                    $amount = $creditCashFlow['amount'];
+                    // $amount = $creditCashFlow['amount'];
+                    $amount = empty($queryParams->getAmountType()) ? $creditCashFlow['amount'] : ($queryParams->getAmountType() === 'digital' ? $creditCashFlow['digital'] : $creditCashFlow['cash']);
                     $balance -= $amount;
                     array_push($items, [
                         'id' => $creditCashFlow['id'],
                         'item' => $creditCashFlow['name'],
                         'debit' => 0,
-                        'credit' => $creditCashFlow['amount'],
+                        'credit' => $amount,
                         'description' => $creditCashFlow['description'],
                         'balance' => $balance
                     ]);

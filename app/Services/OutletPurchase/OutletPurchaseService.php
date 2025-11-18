@@ -20,15 +20,15 @@ class OutletPurchaseService implements OutletPurchaseServiceInterface
     {
         try {
             $queryParams->hydrateQuery();
-            $data = OutletPurchase::with(['sale', 'cash_flow', 'outlet'])
+            $query = OutletPurchase::with(['sale', 'cash_flow', 'outlet'])
                 ->where('outlet_id', '=', $queryParams->getOutletId())
                 ->when(($queryParams->getMonth() && $queryParams->getYear()), function ($q) use ($queryParams) {
                     /** @var Builder $q */
                     return $q->whereMonth('date', $queryParams->getMonth())
                         ->whereYear('date', $queryParams->getYear());
                 })
-                ->orderBy('date', 'ASC')
-                ->get();
+                ->orderBy('date', 'ASC');
+            $data = $query->paginate($queryParams->getPerPage(), '*', 'page', $queryParams->getPage());
             return ServiceResponse::statusOK("successfully get outlet purchases", $data);
         } catch (\Throwable $e) {
             return ServiceResponse::internalServerError($e->getMessage());

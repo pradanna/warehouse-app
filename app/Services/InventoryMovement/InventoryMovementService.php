@@ -18,7 +18,11 @@ class InventoryMovementService implements InventoryMovementServiceInterface
                 'inventory.item',
                 'inventory.unit',
                 'author'
-            ])->orderBy('created_at', 'ASC');
+            ])
+                ->when($queryParams->getParam(), function ($query) use ($queryParams) {
+                    $query->whereRelation('inventory.item', 'name', 'like', "%{$queryParams->getParam()}%");
+                })
+                ->orderBy('created_at', 'ASC');
             $data = $query->paginate($queryParams->getPerPage(), '*', 'page', $queryParams->getPage());
             return ServiceResponse::statusOK("successfully get inventory movements", $data);
         } catch (\Throwable $e) {

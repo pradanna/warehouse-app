@@ -2,39 +2,41 @@
 
 namespace App\Http\Controllers\Web;
 
+use App\Http\Controllers\Controller;
 use App\Http\Controllers\CustomController;
-use App\Http\Resources\Outlet\OutletCollection;
-use App\Http\Resources\Outlet\OutletResource;
-use App\Schemas\Outlet\OutletQuery;
-use App\Schemas\Outlet\OutletSchema;
-use App\Services\Outlet\OutletService;
+use App\Http\Resources\FundTransfer\FundTransferCollection;
+use App\Http\Resources\FundTransfer\FundTransferResource;
+use App\Schemas\FundTransfer\FundTransferQuery;
+use App\Schemas\FundTransfer\FundTransferSchema;
+use App\Services\FundTransfer\FundTransferService;
 use Illuminate\Http\Request;
 
-class OutletController extends CustomController
+class FundTransferController extends CustomController
 {
-    /** @var OutletService $service */
+    /** @var FundTransferService $service */
     private $service;
+
 
     public function __construct()
     {
         parent::__construct();
-        $this->service = new OutletService();
+        $this->service = new FundTransferService();
     }
 
     public function create()
     {
-        $schema = (new OutletSchema())->hydrateSchemaBody($this->jsonBody());
+        $schema = (new FundTransferSchema())->hydrateSchemaBody($this->jsonBody());
         $response = $this->service->create($schema);
-        return (new OutletResource($response->getData()))
+        return (new FundTransferResource($response->getData()))
             ->withStatus($response->getStatus())
             ->withMessage($response->getMessage());
     }
 
     public function findAll()
     {
-        $query = (new OutletQuery())->hydrateSchemaQuery($this->queryParams());
+        $query = (new FundTransferQuery())->hydrateSchemaQuery($this->queryParams());
         $response = $this->service->findAll($query);
-        return (new OutletCollection($response->getData()))
+        return (new FundTransferCollection($response->getData()))
             ->withStatus($response->getStatus())
             ->withMessage($response->getMessage());
     }
@@ -42,16 +44,16 @@ class OutletController extends CustomController
     public function findByID($id)
     {
         $response = $this->service->findByID($id);
-        return (new OutletResource($response->getData()))
+        return (new FundTransferResource($response->getData()))
             ->withStatus($response->getStatus())
             ->withMessage($response->getMessage());
     }
 
     public function patch($id)
     {
-        $schema = (new OutletSchema())->hydrateSchemaBody($this->jsonBody());
+        $schema = (new FundTransferSchema())->hydrateSchemaBody($this->jsonBody());
         $response = $this->service->patch($id, $schema);
-        return (new OutletResource($response->getData()))
+        return (new FundTransferResource($response->getData()))
             ->withStatus($response->getStatus())
             ->withMessage($response->getMessage());
     }
@@ -59,7 +61,7 @@ class OutletController extends CustomController
     public function delete($id)
     {
         $response = $this->service->delete($id);
-        return (new OutletResource($response->getData()))
+        return (new FundTransferResource($response->getData()))
             ->withStatus($response->getStatus())
             ->withMessage($response->getMessage());
     }

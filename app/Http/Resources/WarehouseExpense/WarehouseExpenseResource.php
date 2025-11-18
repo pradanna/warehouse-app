@@ -1,30 +1,31 @@
 <?php
 
-namespace App\Http\Resources\OutletIncome;
+namespace App\Http\Resources\WarehouseExpense;
 
 use App\Commons\Http\BaseApiResource;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
-class OutletIncomeResource extends BaseApiResource
+class WarehouseExpenseResource extends BaseApiResource
 {
+    /**
+     * Transform the resource into an array.
+     *
+     * @return array<string, mixed>
+     */
     public function toArray(Request $request): array
     {
         $response = [
             'id' => $this->id,
             'date' => $this->date,
-            'name' => $this->name,
-            'cash' => $this->cash,
-            'digital' => $this->digital,
-            'total' => $this->total,
-            'by_mutation' => $this->by_mutation,
-            'mutation_date' => $this->mutation_date,
+            'amount' => $this->amount,
             'description' => $this->description,
         ];
-        if ($this->relationLoaded('outlet')) {
-            $response['outlet'] = $this->outlet ? [
-                'id' => $this->outlet->id,
-                'name' => $this->outlet->name
+
+        if ($this->relationLoaded('expense_category')) {
+            $response['category'] = $this->expense_category ? [
+                'id' => $this->expense_category->id,
+                'name' => $this->expense_category->name
             ] : null;
         }
 

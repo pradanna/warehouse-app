@@ -9,15 +9,21 @@ class OutletPurchaseQuery extends BaseSchema
     private $outletId;
     private $month;
     private $year;
+    private $page;
+    private $perPage;
 
     public function hydrateQuery()
     {
+        $page = $this->query['page'] ?? 1;
+        $perPage = $this->query['per_page'] ?? 10;
         $outletId = $this->query['outlet_id'];
         $month = $this->query['month'];
         $year = $this->query['year'];
         $this->setOutletId($outletId)
             ->setMonth($month)
-            ->setYear($year);
+            ->setYear($year)
+            ->setPage($page)
+            ->setPerPage($perPage);
     }
 
     /**
@@ -76,6 +82,46 @@ class OutletPurchaseQuery extends BaseSchema
     public function setYear($year)
     {
         $this->year = $year;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of page
+     */
+    public function getPage()
+    {
+        return $this->page;
+    }
+
+    /**
+     * Set the value of page
+     *
+     * @return  self
+     */
+    public function setPage($page)
+    {
+        $this->page = $page;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of perPage
+     */
+    public function getPerPage()
+    {
+        return $this->perPage;
+    }
+
+    /**
+     * Set the value of perPage
+     *
+     * @return  self
+     */
+    public function setPerPage($perPage)
+    {
+        $this->perPage = $perPage;
 
         return $this;
     }

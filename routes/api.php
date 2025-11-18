@@ -5,7 +5,9 @@ use App\Http\Controllers\Web\CashFlowController;
 use App\Http\Controllers\Web\CategoryController;
 use App\Http\Controllers\Web\CreditController;
 use App\Http\Controllers\Web\DebtController;
+use App\Http\Controllers\Web\EmployeeController;
 use App\Http\Controllers\Web\ExpenseCategoryController;
+use App\Http\Controllers\Web\FundTransferController;
 use App\Http\Controllers\Web\InventoryAdjustmentController;
 use App\Http\Controllers\Web\InventoryController;
 use App\Http\Controllers\Web\InventoryMovementController;
@@ -16,6 +18,7 @@ use App\Http\Controllers\Web\OutletExpenseController;
 use App\Http\Controllers\Web\OutletIncomeController;
 use App\Http\Controllers\Web\OutletPastryController;
 use App\Http\Controllers\Web\OutletPurchaseController;
+use App\Http\Controllers\Web\PayrollController;
 use App\Http\Controllers\Web\PurchaseController;
 use App\Http\Controllers\Web\PurchasePaymentController;
 use App\Http\Controllers\Web\SaleController;
@@ -24,6 +27,7 @@ use App\Http\Controllers\Web\StaffController;
 use App\Http\Controllers\Web\SummaryController;
 use App\Http\Controllers\Web\SupplierController;
 use App\Http\Controllers\Web\UnitController;
+use App\Http\Controllers\Web\WarehouseExpenseControler;
 use App\Http\Middleware\JWTVerify;
 use Illuminate\Support\Facades\Route;
 
@@ -124,6 +128,7 @@ Route::group(['prefix' => 'v1'], function () {
             Route::post('/', [SaleController::class, 'create']);
             Route::get('/', [SaleController::class, 'findAll']);
             Route::get('/{id}', [SaleController::class, 'findByID']);
+            Route::put('/{id}/append', [SaleController::class, 'append']);
         });
 
         Route::group(['prefix' => 'sale-payment'], function () {
@@ -198,6 +203,38 @@ Route::group(['prefix' => 'v1'], function () {
             Route::get('/{id}', [OutletPastryController::class, 'findByID']);
             Route::put('/{id}', [OutletPastryController::class, 'update']);
             Route::delete('/{id}', [OutletPastryController::class, 'delete']);
+        });
+
+        Route::group(['prefix' => 'employee'], function () {
+            Route::get('/', [EmployeeController::class, 'findAll']);
+            Route::post('/', [EmployeeController::class, 'create']);
+            Route::get('/{id}', [EmployeeController::class, 'findByID']);
+            Route::put('/{id}', [EmployeeController::class, 'patch']);
+            Route::delete('/{id}', [EmployeeController::class, 'delete']);
+        });
+
+        Route::group(['prefix' => 'payroll'], function () {
+            Route::get('/', [PayrollController::class, 'findAll']);
+            Route::post('/', [PayrollController::class, 'create']);
+            Route::get('/{id}', [PayrollController::class, 'findByID']);
+            Route::put('/{id}', [PayrollController::class, 'update']);
+            Route::delete('/{id}', [PayrollController::class, 'delete']);
+        });
+
+        Route::group(['prefix' => 'fund-transfer'], function () {
+            Route::get('/', [FundTransferController::class, 'findAll']);
+            Route::post('/', [FundTransferController::class, 'create']);
+            Route::get('/{id}', [FundTransferController::class, 'findByID']);
+            Route::put('/{id}', [FundTransferController::class, 'patch']);
+            Route::delete('/{id}', [FundTransferController::class, 'delete']);
+        });
+
+        Route::group(['prefix' => 'warehouse-expense'], function () {
+            Route::get('/', [WarehouseExpenseControler::class, 'findAll']);
+            Route::post('/', [WarehouseExpenseControler::class, 'create']);
+            Route::get('/{id}', [WarehouseExpenseControler::class, 'findByID']);
+            Route::put('/{id}', [WarehouseExpenseControler::class, 'patch']);
+            Route::delete('/{id}', [WarehouseExpenseControler::class, 'delete']);
         });
     });
 });
