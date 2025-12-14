@@ -23,7 +23,7 @@ class OutletIncomeSchema extends BaseSchema
             'income.cash' => 'required|numeric',
             'income.digital' => 'required|numeric',
             // 'income.by_mutation' => 'required|numeric',
-            'description' => 'string'
+            'description' => 'nullable|string'
         ];
     }
 
